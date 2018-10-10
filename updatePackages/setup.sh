@@ -203,4 +203,4 @@ git config --global user.email tp@tbits.net
 # only commit if there is actually something new
 git diff-index --quiet HEAD || git commit -a -m "latest build for TBits" || exit -1
 
-#git push || exit -1
+git push || exit -1
