@@ -62,7 +62,7 @@ then
   git pull || exit -1
 else
   cd ~/tmp
-  git clone --depth 15 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
+  git clone --depth 25 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
 fi
 # wir wollen im Moment auf einer Version von Oktober 2018 bleiben
 #cd ~/tmp/lbs-kolab
