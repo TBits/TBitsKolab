@@ -65,12 +65,8 @@ else
   git clone --depth 25 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
 fi
 # wir wollen im Moment auf einer Version von Oktober 2018 bleiben
-#cd ~/tmp/lbs-kolab
-#git checkout 2b424088cd8cf6b3b00f5e1219cde8cc4f8b8a05 || exit -1
-#cd -
-# wir wollen im Moment auf der Version von März 2018 bleiben
 cd ~/tmp/lbs-kolab
-git checkout a4531e980e276e7721f71c1620333d8fd7956e77 || exit -1
+git checkout 2b424088cd8cf6b3b00f5e1219cde8cc4f8b8a05 || exit -1
 cd -
 
 unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar php-kolab-net-ldap3 mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event kolab-freebusy php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema kolab-autoconf )
