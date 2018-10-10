@@ -1,0 +1,64 @@
+Index: kolab-webadmin.spec
+===================================================================
+--- a/kolab-webadmin.spec	(revision 1)
++++ b/kolab-webadmin.spec	(working copy)
+@@ -42,6 +42,26 @@
+ Url:            http://www.kolab.org
+ 
+ Source0:        kolab-webadmin-3.2.11.tar.gz
++Source1:        99tbits.ldif
++Source2:        initTBitsUserTypes.php
++
++# from initMultiDomain.sh
++Patch10:         validateAliasDomainPostfixVirtualFileBug2658.patch
++# from initTBitsISP.sh
++Patch11:         patchMultiDomainAdminsBug2018.patch
++Patch12:         domainquotaBug2046.patch
++Patch13:         domainAdminDefaultQuota.patch
++Patch14:        domainAdminMaxAccounts.patch
++Patch15:        lastLoginTBitsAttribute-wap.patch
++Patch16:        quotaused_wap.patch
++Patch17:        tbitsWAPFooter.patch
++Patch18:        canonification_via_uid_wap.patch
++Patch19:        listUsersLastLoginQuotaUsage.patch
++Patch20:        intranetToken-wap.patch
++
++Patch21:        wap_disallow_users.patch
++Patch22:        dont_generate_attribs_when_editing.patch
++Patch23:        wap_api_listuserswithhash.patch
+ 
+ BuildArch:      noarch
+ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+@@ -73,12 +95,31 @@
+ Requires:       php-ldap
+ Requires:       php-mbstring
+ Requires:       php-mysqlnd
++Requires:       php-imap
+ 
+ %description
+ Web based admin - and user interface for the Kolab Groupware Server
+ 
+ %prep
+ %setup -q
++
++%patch10 -p1
++%patch11 -p1
++%patch12 -p1
++%patch13 -p1
++%patch14 -p1
++%patch15 -p1
++%patch16 -p1
++%patch17 -p1
++%patch18 -p1
++%patch19 -p1
++%patch20 -p1
++%patch21 -p1
++%patch22 -p1
++%patch23 -p1
++
++cp -af %{SOURCE1} bin/99tbits.ldif
++cp -af %{SOURCE2} bin/initTBitsUserTypes.php
+ 
+ for file in `find . -type f -name "*.enterprise"`; do
+     if [ 0%{?kolab_enterprise} -gt 0 ]; then
+

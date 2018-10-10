@@ -1,0 +1,32 @@
+--- a/roundcubemail.spec	2017-04-25 10:11:02.922625277 +0200
++++ b/roundcubemail.spec	2017-04-25 10:11:55.422300741 +0200
+@@ -74,6 +74,8 @@
+ Patch0006:      0006-Fix-re-positioning-of-the-fixed-header-of-messages-l.patch
+ 
+ Patch201:       default-configuration.patch
++Patch400:       optional_disable_addressbook_export.patch
++Patch401:       backport_managesieve_forwards.patch
+ 
+ BuildArch:      noarch
+ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
+@@ -1090,6 +1091,11 @@
+ %patch0006 -p1
+ 
+ %patch201 -p1
++%patch400 -p1
++%patch401 -p1
++
++# do not use timezones like Etc/GMT-1 in the jstz library (see also https://bitbucket.org/pellepim/jstimezonedetect/issues/168/ignore-timezones-like-etc-gmt-1)
++sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' public_html/program/js/jstz.min.js
+ 
+ # Remove the results of patching when there's an incidental offset
+ find . -type f -name "*.orig" -delete
+@@ -1844,7 +1849,7 @@
+ 
+ %check
+ pushd %{name}-%{version}/tests
+-phpunit --debug || :
++#phpunit --debug || :
+ popd
+ 
+ %clean

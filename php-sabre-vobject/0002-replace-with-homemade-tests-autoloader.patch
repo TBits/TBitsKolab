@@ -1,0 +1,23 @@
+--- a/tests/bootstrap.php
++++ b/tests/bootstrap.php
+@@ -2,19 +2,7 @@
+ 
+ date_default_timezone_set('UTC');
+ 
+-$try = array(
+-    __DIR__ . '/../lib/autoload.php',
+-    '/usr/share/php/sabre21/Sabre/VObject/autoload.php',
+-);
+-
+-foreach($try as $path) {
+-    if (file_exists($path)) {
+-        $autoLoader = include $path;
+-        break;
+-    }
+-}
+-
+-$autoLoader->addPsr4('Sabre\\VObject\\',__DIR__ . '/VObject');
++require_once __DIR__ . '/autoload.php';
+ 
+ if (!defined('SABRE_TEMPDIR')) {
+   define('SABRE_TEMPDIR', __DIR__ . '/temp/');

@@ -1,0 +1,13 @@
+# Options to cyrus-master
+CYRUSOPTIONS=""
+
+# Export/import (0) the databases to assist with database conversions,
+# or use Cyrus IMAP 2.4's autoconversion upgrade capabilities (1)
+QUICK=1
+
+# In RPM install / update / upgrade %post, make sure all files in
+# Cyrus (meta-)partitions and configuration directories are set +S
+CHATTRSYNC=0
+
+# Mailbox list dumps are rotated n times via cron.daily
+#ROTATE=6

@@ -1,0 +1,43 @@
+diff -ur sabre-vobject-3.5.3.orig/lib/ITip/Broker.php sabre-vobject-3.5.3/lib/ITip/Broker.php
+--- sabre-vobject-3.5.3.orig/lib/ITip/Broker.php	2016-10-07 05:20:40.000000000 +0200
++++ sabre-vobject-3.5.3/lib/ITip/Broker.php	2017-11-15 10:12:07.157525075 +0100
+@@ -849,6 +849,7 @@
+                     throw new ITipException('If a calendar contained more than one event, they must have the same UID.');
+                 }
+             }
++            $rrule = [];
+ 
+             if (!isset($vevent->DTSTART)) {
+                 throw new ITipException('An event MUST have a DTSTART property.');
+@@ -881,6 +882,18 @@
+                 }
+                 sort($exdate);
+             }
++            if (isset($vevent->RRULE)) {
++                foreach ($vevent->select('RRULE') as $rr) {
++                    foreach ($rr->getParts() as $key => $val) {
++                        // ignore default values (https://github.com/sabre-io/vobject/issues/126)
++                        if ($key === 'INTERVAL' && $val == 1) {
++                            continue;
++                        }
++                        $rrule[] = "$key=$val";
++                    }
++                }
++                sort($rrule);
++            }
+             if (isset($vevent->STATUS)) {
+                 $status = strtoupper($vevent->STATUS->getValue());
+             }
+@@ -948,6 +961,9 @@
+ 
+                         $significantChangeHash.= implode(',', $exdate).';';
+ 
++                    } elseif ($prop === 'RRULE') {
++                        $significantChangeHash .= implode(',', $rrule) . ';';
++
+                     } else {
+ 
+                         foreach($propertyValues as $val) {
+Only in sabre-vobject-3.5.3/lib/ITip: Broker.php.orig
+Only in sabre-vobject-3.5.3/lib/ITip: Broker.php.rej
+Only in sabre-vobject-3.5.3/tests/VObject/ITip: BrokerSignificantChangesTest.php

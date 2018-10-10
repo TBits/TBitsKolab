@@ -1,0 +1,179 @@
+<?php
+    include_once("/usr/share/psa-roundcube/config/config.inc.php");
+
+/*  Incompatible with the stock installation
+
+    $components = explode('.', $_SERVER["HTTP_HOST"]);
+
+    if (count($components) > 2) {
+        array_shift($components);
+    }
+
+    $domain = implode('.', $components);
+    $config['session_domain'] = $domain;
+*/
+    $config['support_url'] = "https://www.plesk.com/support/";
+
+    $config['product_name'] = "Plesk Premium Mail, powered by Kolab";
+
+    $config['default_host'] = "localhost";
+    $config['default_port'] = 143;
+
+    $config['smtp_server'] = "localhost";
+    $config['smtp_port'] = 25;
+    $config['smtp_user'] = '%u';
+    $config['smtp_pass'] = '%p';
+    $config['smtp_helo_host'] = $_SERVER["HTTP_HOST"];
+
+    $config['use_secure_urls'] = true;
+
+    $config['assets_path'] = "/assets/";
+
+    $config['assets_dir'] = "/usr/share/roundcubemail/public_html/assets/";
+
+    $config['imap_cache'] = "db";
+    $config['imap_cache_ttl'] = "10d";
+
+    $config['message_cache'] = null;
+
+    $config['session_storage'] = "db";
+
+    $config['skin'] = "plesk";
+
+    $config['auto_create_user'] = true;
+
+    $config['enable_installer'] = false;
+
+    $config['plugins'] = Array(
+            'acl',
+            'archive',
+            'calendar',
+            'jqueryui',
+            'kolab_activesync',
+            'kolab_addressbook',
+            'kolab_config',
+            //'kolab_delegation',
+            'kolab_files',
+            'kolab_folders',
+            'kolab_notes',
+            'kolab_tags',
+            'libkolab',
+            'libcalendaring',
+            'managesieve',
+            'markasjunk',
+            'newmail_notifier',
+            'odfviewer',
+            'password',
+            'pdfviewer',
+            'tasklist',
+            'contextmenu',
+        );
+
+    $config['activesync_plugins'] = Array(
+            'libcalendaring',
+            'libkolab'
+        );
+
+    $config['kolabdav_plugins'] = Array(
+            'libcalendaring',
+            'libkolab'
+        );
+
+    $config['skip_deleted'] = true;
+
+    $config['read_when_deleted'] = true;
+    $config['flag_for_deletion'] = true;
+    $config['delete_always'] = true;
+
+    $config['session_lifetime'] = 180;
+    $config['password_charset'] = 'UTF-8';
+    $config['useragent'] = 'Kolab 16/Roundcube ' . RCUBE_VERSION;
+    $config['refresh_interval'] = 300;
+    $config['check_all_folders'] = false;
+    $config['dont_override'] = Array(
+            'check_all_folders',
+            'refresh_interval',
+            'skin'
+        );
+
+    $config['message_sort_col'] = 'date';
+    $config['default_list_mode'] = 'threads';
+    $config['autoexpand_threads'] = 2;
+
+    $config['message_sort_col'] = 'date';
+    $config['default_list_mode'] = 'threads';
+    $config['autoexpand_threads'] = 2;
+
+    $config['spellcheck_engine'] = 'pspell';
+    $config['spellcheck_dictionary'] = true;
+    $config['spellcheck_ignore_caps'] = true;
+    $config['spellcheck_ignore_nums'] = true;
+    $config['spellcheck_ignore_syms'] = true;
+    $config['spellcheck_languages'] = array(
+            'da' => 'Dansk',
+            'de' => 'Deutsch',
+            'en' => 'English',
+            'es' => 'Español',
+            'fr' => 'Français',
+            'it' => 'Italiano',
+            'nl' => 'Nederlands',
+            'pl' => 'Polski',
+            'pt' => 'Português',
+            'ru' => 'Русский',
+            'fi' => 'Suomi',
+            'sv' => 'Svenska'
+        );
+
+    $config['undo_timeout'] = 10;
+    $config['upload_progress'] = 2;
+    $config['address_template'] = '{street}<br/>{locality} {zipcode}<br/>{country} {region}';
+    $config['preview_pane'] = true;
+    $config['preview_pane_mark_read'] = 0;
+
+    // Bottom posting for reply mode
+    $config['reply_mode'] = 0;
+    $config['sig_above'] = false;
+    $config['mdn_requests'] = 0;
+    $config['mdn_default'] = false;
+    $config['dsn_default'] = false;
+    $config['reply_same_folder'] = false;
+
+    $config['performance_stats'] = true;
+
+    $config['drafts_mbox'] = 'Drafts';
+    $config['junk_mbox'] = 'Spam';
+    $config['sent_mbox'] = 'Sent';
+    $config['trash_mbox'] = 'Trash';
+
+    $config['skin_include_php'] = false;
+    $config['mime_magic'] = null;
+    $config['im_identify_path'] = '/usr/bin/identify';
+    $config['im_convert_path'] = '/usr/bin/convert';
+    $config['log_dir'] = 'logs/';
+    $config['temp_dir'] = '/tmp';
+
+    $config['archive_mbox'] = 'Archive';
+    $config['junk_mbox'] = 'Spam';
+    $config['default_folders'] = array('INBOX', 'Archive', 'Drafts', 'Sent', 'Spam', 'Trash');
+
+    $config['log_driver'] = 'file';
+    $config['log_date_format'] = 'Y-M-d H:i:s O';
+    $config['syslog_id'] = 'roundcube';
+    $config['syslog_facility'] = LOG_USER;
+    $config['smtp_log'] = true;
+    $config['log_logins'] = true;
+    $config['log_session'] = true;
+    $config['debug_level'] = 1;
+    $config['devel_mode'] = false;
+    $config['sql_debug'] = false;
+    $config['memcache_debug'] = false;
+    $config['imap_debug'] = false;
+    $config['ldap_debug'] = false;
+    $config['smtp_debug'] = false;
+
+    $config['fileapi_backend'] = "kolab";
+    $config['fileapi_plugins'] = Array('kolab_folders');
+    $config['fileapi_manticore'] = false;
+    $config['fileapi_wopi_office'] = false;
+
+    @include('/etc/roundcubemail/licensing.inc.php');

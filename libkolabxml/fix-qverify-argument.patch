@@ -1,0 +1,21 @@
+diff -ur libkolabxml-1.2.orig/tests/kolabconversationtest.cpp libkolabxml-1.2/tests/kolabconversationtest.cpp
+--- libkolabxml-1.2.orig/tests/kolabconversationtest.cpp	2016-09-09 12:42:25.000000000 +0200
++++ libkolabxml-1.2/tests/kolabconversationtest.cpp	2017-05-07 22:11:51.688771350 +0200
+@@ -27,7 +27,7 @@
+ void KolabConversationTest::configurationDeserialationTest()
+ {
+     boost::shared_ptr <Kolab::Configuration> ptr = Kolab::KolabObjects::deserializeObject<Kolab::Configuration>(TEST_DATA_PATH "/testfiles/testConfiguration.xml", true);
+-    QVERIFY(ptr);
++    QVERIFY(ptr != 0);
+     QVERIFY(ptr->isValid());
+     QCOMPARE(ptr->type(), Kolab::Configuration::TypeRelation);
+ 
+@@ -36,7 +36,7 @@
+ void KolabConversationTest::noteDeserialationTest()
+ {
+     boost::shared_ptr <Kolab::Note> ptr = Kolab::KolabObjects::deserializeObject<Kolab::Note>(TEST_DATA_PATH "/testfiles/testNote.xml", true);
+-    QVERIFY(ptr);
++    QVERIFY(ptr != 0);
+     QVERIFY(ptr->isValid());
+     QCOMPARE(ptr->summary(), std::string("summarytext"));
+ }

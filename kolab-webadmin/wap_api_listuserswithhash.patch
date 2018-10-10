@@ -1,0 +1,44 @@
+--- a/lib/api/kolab_api_service_users.php	2017-01-20 10:02:32.796156908 +0100
++++ b/lib/api/kolab_api_service_users.php	2017-01-20 10:02:50.381156889 +0100
+@@ -36,6 +36,7 @@ class kolab_api_service_users extends kolab_api_service
+             'givenname',
+             'mail',
+             'alias',
++            'userpassword',
+             'objectclass',
+             'uidnumber',
+             'gidnumber',
+--- a/lib/kolab_api_controller.php	2016-06-27 11:57:13.000000000 +0200
++++ b/lib/kolab_api_controller.php	2017-08-31 09:26:53.802753277 +0200
+@@ -204,6 +204,7 @@
+         $get     = array('proxy' => 1); // Prevent from infinite redirect
+ 
+         $request->setMethod($method == 'GET' ? HTTP_Request2::METHOD_GET : HTTP_Request2::METHOD_POST);
++        $request->setHeader('X-Forwarded-For', $_SERVER['REMOTE_ADDR']);
+         $request->setHeader('X-Session-Token', kolab_utils::get_request_header('X-Session-Token'));
+ 
+         kolab_client_api::configure($request);
+--- a/lib/api/kolab_api_service_users.php	2017-08-30 16:01:26.879336915 +0200
++++ b/lib/api/kolab_api_service_users.php	2017-08-30 16:57:55.838333280 +0200
+@@ -81,6 +82,21 @@ class kolab_api_service_users extends kolab_api_service
+         $params = $this->parse_list_params($post);
+         $search = $this->parse_list_search($post);
+ 
++        // info: define in /etc/kolab/kolab.conf, in section [kolab]: 
++        //    eg. wap_api_userslist_allowip = ["127.0.0.1", "10.0.3.22" ]
++        //    always include the IP of localhost, and perhaps the proxy that you limit yourself to to reach this server for api calls
++        // we only limit access to users.list and attribute userpassword, because that will publish the password hash
++        // We need access to the API though for everyone else, because editing a user directly accesses the API as well
++        if (in_array('userpassword', $attributes)) {
++            $config = Conf::get_instance();
++            $allowip = $config->get('kolab', 'wap_api_userpassword_allowip', Conf::AUTO);
++            $remote = $_SERVER['HTTP_X_FORWARDED_FOR'];
++            if (!empty($allowip) && !in_array($remote,$allowip)) {
++                Log::error("No access for IP $remote");
++                die ("No access for IP $remote");
++            }
++        }
++
+         if (in_array('tbitskolaboverallquota', $attributes)) {
+             // only get the domain admins
+             $users = $auth->list_admins(null, $attributes);

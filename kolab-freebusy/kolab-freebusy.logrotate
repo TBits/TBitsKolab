@@ -1,0 +1,9 @@
+/var/log/kolab-freebusy/freebusy.log {
+  create 0660 apache apache
+  compress
+  missingok
+  notifempty
+  rotate 52
+  weekly
+  su apache apache
+}

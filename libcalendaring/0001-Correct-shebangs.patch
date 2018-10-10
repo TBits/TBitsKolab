@@ -1,0 +1,88 @@
+From 69cb07e0198a4ff7f5ac31fa1d0a98e2b5724685 Mon Sep 17 00:00:00 2001
+From: "Jeroen van Meeuwen (Kolab Systems)" <vanmeeuwen@kolabsys.com>
+Date: Tue, 5 Sep 2017 11:21:34 +0200
+Subject: [PATCH] Correct shebangs
+
+---
+ kabc/scripts/createisomap.pl          | 2 +-
+ kabc/scripts/makeaddressee            | 2 +-
+ kabc/vcardparser/checkvcard.pl        | 2 +-
+ kcalcore/tests/createtestcases.pl     | 2 +-
+ kcalcore/tests/runsingletestcase.pl   | 2 +-
+ kdecore/kconfig_compiler/checkkcfg.pl | 2 +-
+ kmime/tests/gen_decode_map.pl         | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/kabc/scripts/createisomap.pl b/kabc/scripts/createisomap.pl
+index 2726e20..2186df4 100755
+--- a/kabc/scripts/createisomap.pl
++++ b/kabc/scripts/createisomap.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ #
+ # Create a translation table countryname->iso-code from the entry.desktop
+ # files in kdebase/l10n/*/
+diff --git a/kabc/scripts/makeaddressee b/kabc/scripts/makeaddressee
+index d8c8f5b..be64703 100755
+--- a/kabc/scripts/makeaddressee
++++ b/kabc/scripts/makeaddressee
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ use Cwd;
+ use File::Basename;
+ 
+diff --git a/kabc/vcardparser/checkvcard.pl b/kabc/vcardparser/checkvcard.pl
+index 5965c89..47cc00a 100755
+--- a/kabc/vcardparser/checkvcard.pl
++++ b/kabc/vcardparser/checkvcard.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ 
+ if ( @ARGV != 1 ) {
+   print STDERR "Missing arg: filename\n";
+diff --git a/kcalcore/tests/createtestcases.pl b/kcalcore/tests/createtestcases.pl
+index 487f415..b7a9b48 100755
+--- a/kcalcore/tests/createtestcases.pl
++++ b/kcalcore/tests/createtestcases.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ 
+ # Written 2005 Reinhold Kainhofer <reinhold@kainhofer.com>
+ # This file is put into the public domain, I claim no copyright on that code
+diff --git a/kcalcore/tests/runsingletestcase.pl b/kcalcore/tests/runsingletestcase.pl
+index 139d764..35e4e59 100755
+--- a/kcalcore/tests/runsingletestcase.pl
++++ b/kcalcore/tests/runsingletestcase.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ 
+ # This file is part of the kcalcore library.
+ #
+diff --git a/kdecore/kconfig_compiler/checkkcfg.pl b/kdecore/kconfig_compiler/checkkcfg.pl
+index 2eddbee..5c46a66 100755
+--- a/kdecore/kconfig_compiler/checkkcfg.pl
++++ b/kdecore/kconfig_compiler/checkkcfg.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/bin/perl
+ 
+ if ( @ARGV != 1 ) {
+   print STDERR "Missing arg: filename\n";
+diff --git a/kmime/tests/gen_decode_map.pl b/kmime/tests/gen_decode_map.pl
+index 131aef1..3fef330 100755
+--- a/kmime/tests/gen_decode_map.pl
++++ b/kmime/tests/gen_decode_map.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!/bin/perl -w
+ 
+ use strict;
+ 
+-- 
+2.13.2
+

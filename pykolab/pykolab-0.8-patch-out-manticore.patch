@@ -1,0 +1,11 @@
+diff --git a/share/templates/roundcubemail/config.inc.php.tpl b/share/templates/roundcubemail/config.inc.php.tpl
+index 928992b..96a21f6 100644
+--- a/share/templates/roundcubemail/config.inc.php.tpl
++++ b/share/templates/roundcubemail/config.inc.php.tpl
+@@ -231,6 +231,4 @@
+             'ssl_verify_peer' => false,
+         );
+ 
+-    \$config['fileapi_manticore'] = 'http://' . \$_SERVER['HTTP_HOST'] . ':8080';
+-
+ ?>

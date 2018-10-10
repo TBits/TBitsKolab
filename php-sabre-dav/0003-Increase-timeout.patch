@@ -1,0 +1,28 @@
+From: =?utf-8?q?David_Pr=C3=A9vot?= <taffit@debian.org>
+Date: Tue, 20 May 2014 16:12:50 -0400
+Subject: Increase timeout
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Tests are failing in strict mode with the PHPUnit version currently in
+Debian. Hopefully, this patch can be dropped once version 4 will be in
+the archive.
+
+Forwarded: not-needed
+---
+ tests/phpunit.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tests/phpunit.xml b/tests/phpunit.xml
+index e16ec38..8d2ac92 100644
+--- a/tests/phpunit.xml
++++ b/tests/phpunit.xml
+@@ -5,6 +5,7 @@
+   convertNoticesToExceptions="true"
+   convertWarningsToExceptions="true"
+   strict="true"
++  timeoutForSmallTests="10"
+   >
+   <testsuite name="sabre-vobject">
+       <directory>../vendor/sabre/vobject/tests/VObject</directory>

@@ -1,0 +1,15 @@
+The sources for this package come directly from GIT:
+
+    https://github.com/JohnDoh/Roundcube-Plugin-Context-Menu
+
+Find the "Download ZIP" button.
+
+Latest source pulled:
+
+    Roundcube-Plugin-Context-Menu-bfd156319e35f3d2c6f4d09841b582bf3e03212a.zip
+
+Then repacked:
+
+    unzip Roundcube-Plugin-Context-Menu-bfd156319e35f3d2c6f4d09841b582bf3e03212a.zip
+    mv Roundcube-Plugin-Context-Menu-bfd156319e35f3d2c6f4d09841b582bf3e03212a/ roundcubemail-plugin-contextmenu-1.10
+    tar czvf roundcubemail-plugin-contextmenu-1.10.tar.gz roundcubemail-plugin-contextmenu-1.10

@@ -1,0 +1,22 @@
+From: =?utf-8?q?David_Pr=C3=A9vot?= <taffit@debian.org>
+Date: Mon, 1 Jun 2015 17:26:29 -0400
+Subject: Rename naturalselection as naturalselection21
+
+Forwarded: not-needed
+---
+ bin/naturalselection | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bin/naturalselection b/bin/naturalselection
+index eaa55a4..7926900 100755
+--- a/bin/naturalselection
++++ b/bin/naturalselection
+@@ -72,7 +72,7 @@ def run(cacheDir, threshold, sleep=5, simulate=False, min_erase = 0):
+ 
+ def main():
+     parser = OptionParser(
+-        version="naturalselection v0.3",
++        version="naturalselection21 v0.3",
+         description="Cache directory manager. Deletes cache entries based on accesstime and free space thresholds.\n" +
+             "This utility is distributed alongside SabreDAV.",
+         usage="usage: %prog [options] cacheDirectory",

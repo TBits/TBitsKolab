@@ -1,0 +1,9 @@
+/var/log/kolab/pykolab.log {
+  create 0660 kolab kolab-n
+  su kolab kolab-n
+  compress
+  missingok
+  notifempty
+  rotate 52
+  weekly
+}

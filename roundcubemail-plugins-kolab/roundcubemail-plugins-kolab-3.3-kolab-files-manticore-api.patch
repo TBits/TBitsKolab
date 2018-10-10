@@ -1,0 +1,15 @@
+diff --git a/plugins/kolab_files/kolab_files.js b/plugins/kolab_files/kolab_files.js
+index 8081f43..c16007e 100644
+--- a/plugins/kolab_files/kolab_files.js
++++ b/plugins/kolab_files/kolab_files.js
+@@ -224,8 +224,10 @@ function kolab_files_init()
+ 
+   if (window.document_editor_api)
+     document_editor = new document_editor_api(editor_config);
++/* Patch away whatever a undefined manticore_api thing means
+   else
+     document_editor = new manticore_api(editor_config);
++*/
+ };
+ 
+ // returns API authorization token

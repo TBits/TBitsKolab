@@ -1,0 +1,102 @@
+#!/bin/sh
+# get_config [config default]
+# extracts config option from config file
+
+if [ -f /etc/sysconfig/cyrus-imapd ]; then
+    . /etc/sysconfig/cyrus-imapd
+elif [ -f /etc/default/cyrus-imapd ]; then
+    . /etc/default/cyrus-imapd
+fi
+
+if [ ! -z "${QUICK}" ]; then
+    if [ ${QUICK} -ne 0 ]; then
+        exit 0
+    fi
+fi
+
+if [ ! -b /dev/null ]; then
+    exit 1
+fi
+
+if [ ! -r /dev/null -o ! -w /dev/null ]; then
+    exit 1
+fi
+
+get_config() {
+    if conf=$(grep "^$1" /etc/imapd.conf); then
+        echo $conf | cut -d: -f2
+    else
+        echo $2
+    fi
+}
+
+CONFIGDIRECTORY=$(get_config configdirectory /var/lib/imap)
+if [ ! -d ${CONFIGDIRECTORY} ]; then
+    mkdir -p ${CONFIGDIRECTORY}
+    chmod 700 ${CONFIGDIRECTORY}
+    chown cyrus:mail ${CONFIGDIRECTORY}
+fi
+
+RETVAL=0
+
+# Sometimes, there is no path
+runuser=$(which runuser 2>/dev/null)
+
+if [ -z "${runuser}" ]; then
+    runuser=/usr/sbin/runuser
+fi
+
+reload() {
+    if [ ! -f /var/run/cyrus-master.pid ]; then
+        exit 255
+    fi
+
+    if [ -z "$(pidof cyrus-master)" ]; then
+        exit 1
+    fi
+
+    if [ "$(cat /var/run/cyrus-master.pid)" != "$(pidof cyrus-master)" ]; then
+        exit 1
+    fi
+
+    kill -HUP $(cat /var/run/cyrus-master.pid)
+}
+
+start() {
+    cd $CONFIGDIRECTORY
+    $runuser - cyrus -s /bin/bash -c '/usr/lib/cyrus-imapd/mkimap' >/dev/null 2>&1 < /dev/null
+
+    mkdir -p ${CONFIGDIRECTORY}/rpm
+    chown cyrus:mail ${CONFIGDIRECTORY}/rpm
+
+    $runuser - cyrus -s /bin/sh -c "umask 166 ; /usr/lib/cyrus-imapd/cvt_cyrusdb_all import > ${CONFIGDIRECTORY}/rpm/db_import.log 2>&1" < /dev/null
+    RETVAL=$?
+}
+
+stop() {
+    cd $CONFIGDIRECTORY
+    mkdir -p ${CONFIGDIRECTORY}/rpm
+    chown cyrus:mail ${CONFIGDIRECTORY}/rpm
+
+    $runuser - cyrus -s /bin/sh -c "umask 166 ; /usr/lib/cyrus-imapd/cvt_cyrusdb_all export > ${CONFIGDIRECTORY}/rpm/db_export.log 2>&1" < /dev/null
+    RETVAL=$?
+}
+
+case "$1" in
+    reload)
+            reload
+        ;;
+
+    start)
+            start
+        ;;
+
+    stop)
+            stop
+        ;;
+
+    *)
+        ;;
+esac
+
+exit $RETVAL

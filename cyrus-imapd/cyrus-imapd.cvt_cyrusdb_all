@@ -1,0 +1,264 @@
+#!/bin/bash
+# Simplified version of Simon Matter's cvt_cyrusdb_all.
+
+function usage() {
+    echo "Usage: $0 [-C <altconfig>] [--verbose] [--devel] <export|import>"
+    exit 1
+}
+
+if [ -f /etc/sysconfig/cyrus-imapd ]; then
+    . /etc/sysconfig/cyrus-imapd
+elif [ -f /etc/default/cyrus-imapd ]; then
+    . /etc/default/cyrus-imapd
+fi
+
+if [ ! -z "${QUICK}" ]; then
+    if [ ${QUICK} -ne 0 ]; then
+        exit 0
+    fi
+fi
+
+if [ ! -b /dev/null ]; then
+    exit 1
+fi
+
+if [ ! -r /dev/null -o ! -w /dev/null ]; then
+    exit 1
+fi
+
+# Ensure this script is run as the cyrus user.
+if [ -x "$(which runuser 2>/dev/null)" ]; then
+    SWITCHUSER=runuser
+else
+    SWITCHUSER=su
+fi
+
+#if [ ! $(whoami) = "cyrus" ]; then
+#    exec $SWITCHUSER -s /bin/bash - cyrus -c "cd \$HOME < /dev/null ; INSTANCE=$0 $*"
+#    exit 0
+#fi
+
+alt_config="/etc/imapd.conf"
+devel_mode=0
+verbose_mode=0
+mode=""
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        -C)
+            alt_config=$2
+            shift; shift
+        ;;
+
+        --devel)
+            devel_mode=1
+            shift
+        ;;
+
+        --verbose)
+            verbose_mode=1
+            shift
+        ;;
+
+        export|import)
+            mode=$1
+            shift
+        ;;
+
+        *)
+            usage
+        ;;
+
+    esac
+done
+
+if [ -z "${mode}" ]; then
+    usage
+fi
+
+if [ ${devel_mode} -eq 1 ]; then
+    verbose_mode=1
+fi
+
+declare -a dbs
+declare -a db_paths
+
+dbs[${#dbs[@]}]="annotation_db";    db_paths[${#db_paths[@]}]="annotations.db"
+dbs[${#dbs[@]}]="duplicate_db";     db_paths[${#db_paths[@]}]="deliver.db"
+# dbs[${#dbs[@]}]="mboxkey_db";       db_paths[${#db_paths[@]}]=""
+dbs[${#dbs[@]}]="mboxlist_db";      db_paths[${#db_paths[@]}]="mailboxes.db"
+dbs[${#dbs[@]}]="ptscache_db";      db_paths[${#db_paths[@]}]="ptclient/ptscache.db"
+dbs[${#dbs[@]}]="quota_db";         db_paths[${#db_paths[@]}]="quotas.db"
+# dbs[${#dbs[@]}]="seenstate_db";     db_paths[${#db_paths[@]}]=""
+dbs[${#dbs[@]}]="statuscache_db";   db_paths[${#db_paths[@]}]="statuscache.db"
+# dbs[${#dbs[@]}]="subscription_db";  db_paths[${#db_paths[@]}]=""
+dbs[${#dbs[@]}]="tls_sessions_db";  db_paths[${#db_paths[@]}]="tls_sessions.db"
+dbs[${#dbs[@]}]="userdeny_db";      db_paths[${#db_paths[@]}]="user_deny.db"
+
+# /usr/lib/cyrus-imapd/cyr_dbtool /var/lib/imap/annotations.db skiplist consistent; echo $?
+# Yes, consistent
+# 0
+
+cvt_cyrusdb="/usr/lib/cyrus-imapd/cvt_cyrusdb"
+cyr_dbtool="/usr/lib/cyrus-imapd/cyr_dbtool"
+cyr_info="/usr/lib/cyrus-imapd/cyr_info"
+
+system_magic=$(file --version 2>&1 | awk '/magic file/ {print $4}')
+
+if [ ${devel_mode} -gt 0 ]; then
+    if [ -f "$(pwd)/imap/cvt_cyrusdb" ]; then
+        cvt_cyrusdb="$(pwd)/imap/cvt_cyrusdb"
+    fi
+
+    if [ -f "$(pwd)/imap/.libs/cyr_dbtool" ]; then
+        cyr_dbtool="$(pwd)/imap/cyr_dbtool"
+    fi
+
+    if [ -f "$(pwd)/imap/.libs/cyr_info" ]; then
+        cyr_info="$(pwd)/imap/cyr_info"
+    fi
+fi
+
+function check_consistency() {
+    db_path=$1
+    db_tech=$2
+
+    if [ ! -f "${db_path}" ]; then
+        return 1
+    fi
+
+    retval=$(${cyr_dbtool} -C ${alt_config} ${db_path} ${db_tech} consistent >/dev/null 2>&1; echo $?)
+
+    return ${retval}
+}
+
+function convert_database() {
+    retval=$(${cvt_cyrusdb} -C ${alt_config} "$1" "$2" "$3" "$4" >/dev/null 2>&1; echo $?)
+    chown cyrus:mail "$3"
+}
+
+function expand_db_path() {
+    if [ "${1:0:1}" != "/" ]; then
+        config_directory=$(get_config "configdirectory")
+        value="${config_directory}/${1}"
+    fi
+
+    echo "${value}"
+}
+
+function get_config() {
+    echo $(${cyr_info} -C ${alt_config} conf | grep -E "^$1:\s+" | sed -r -e 's/[a-z0-9_-]+\:\s*(.*)/\1/g')
+}
+
+function get_config_default() {
+    echo $(${cyr_info} -C ${alt_config} conf-default | grep -E "^$1:\s+" | sed -r -e 's/[a-z0-9_-]+\:\s*(.*)/\1/g')
+}
+
+function get_current() {
+    default_path="$2"
+    value=$(${cyr_info} -C ${alt_config} conf-all | grep -E "^$1_path:\s+" | sed -r -e 's/[a-z0-9_-]+\:\s*(.*)/\1/g')
+
+    if [ -z "${value}" ]; then
+        if [ ! -z "${default_path}" ]; then
+            value=$(expand_db_path "${default_path}")
+        fi
+    fi
+
+    if [ -z "${value}" ]; then
+        return 1
+    fi
+
+    if [ ! -f "${value}" ]; then
+        return 1
+    fi
+
+    current=$(file -b -m /var/lib/imap/rpm/magic:${system_magic} "${value}")
+
+    if echo "${current}" | grep -qi skiplist > /dev/null 2>&1; then
+        current="skiplist"
+    elif echo "${current}" | grep -qi twoskip > /dev/null 2>&1; then
+        current="twoskip"
+    elif echo "${current}" | grep -qi text > /dev/null 2>&1; then
+        current="flat"
+    else
+        current="berkeley"
+    fi
+
+    echo "${current}"
+}
+
+config_directory=$(get_config "configdirectory")
+
+if [ ${devel_mode} -eq 1 ]; then
+    echo "Using configuration directory: '${config_directory}'"
+fi
+
+x=0
+while [ ${x} -lt ${#dbs[@]} ]; do
+    config=$(get_config "${dbs[${x}]}")
+    default=$(get_config_default "${dbs[${x}]}")
+    current=$(get_current "${dbs[${x}]}" "${db_paths[${x}]}")
+
+    if [ ${verbose_mode} -eq 1 ]; then
+        echo -n "${dbs[${x}]}: "
+    fi
+
+    if [ $? -ne 0 ]; then
+        if [ ${verbose_mode} -eq 1 ]; then
+            echo "SKIPPED"
+        fi
+        let x++
+        continue
+    fi
+
+    # If configuration doesn't hold anything, we have defaults
+    if [ -z "${config}" ]; then
+        config="${default}"
+    fi
+
+    if [ "${config}" == "${default}" -a "${config}" == "${current}" ]; then
+        if [ ${verbose_mode} -eq 1 ]; then
+            echo "SKIPPED (unchanged)"
+        fi
+        let x++
+        continue
+    fi
+
+    db_path=$(expand_db_path "${db_paths[${x}]}")
+
+    if [ ! -f "${db_path}" ]; then
+        if [ ${verbose_mode} -eq 1 ]; then
+            echo "SKIPPED (No such file or directory '${db_path}')"
+        fi
+        let x++
+        continue
+    fi
+
+    if [ "${current}" != "${default}" ]; then
+        if [ ${devel_mode} -eq 1 ]; then
+            echo -n "to default(1), "
+        fi
+        convert_database "${db_path}" "${current}" "${db_path}.${default}" "${default}"
+    fi
+
+    if [ "${current}" != "${config}" ]; then
+        mv "${db_path}" "${db_path}.${current}"
+        if [ "${current}" != "${default}" ]; then
+            if [ ${devel_mode} -eq 1 ]; then
+                echo -n "to default(2), "
+            fi
+            convert_database "${db_path}.${current}" "${current}" "${db_path}.${default}" "${default}"
+        fi
+
+        if [ ${devel_mode} -eq 1 ]; then
+            echo -n "to config(1), "
+        fi
+        convert_database "${db_path}.${current}" "${current}" "${db_path}" "${config}"
+    fi
+
+    if [ ${verbose_mode} -eq 1 ]; then
+        echo "OK"
+    fi
+
+    let x++
+done

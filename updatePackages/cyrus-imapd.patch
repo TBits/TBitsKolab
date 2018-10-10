@@ -1,0 +1,23 @@
+--- a/cyrus-imapd.spec	2017-04-10 12:09:23.830985325 +0200
++++ b/cyrus-imapd.spec	2017-04-10 12:11:26.185984200 +0200
+@@ -64,6 +64,10 @@
+ ## Patches
+ ##
+ 
++# see https://lists.andrew.cmu.edu/pipermail/cyrus-devel/2016-November/003919.html
++Patch1:             cyrus_filter_kolab_mailboxes.patch
++Patch2:             cyrus_canonification_multiple_domains.patch
++
+ BuildRoot:          %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+ 
+ ##
+@@ -257,6 +261,8 @@
+ 
+ %prep
+ %setup -q -n %{name}-%{tag_version}-%{revision}-%{git_hash}
++%patch1 -p1
++%patch2 -p1
+ 
+ %if 0%{?with_bdb} < 1
+ sed -i -e 's/,berkeley//g' cunit/db.testc
+

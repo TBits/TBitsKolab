@@ -1,0 +1,224 @@
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/config/nsinstall.c mozldap-6.0.5/mozilla/directory/c-sdk/config/nsinstall.c
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/config/nsinstall.c	2003-10-10 16:03:43.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/config/nsinstall.c	2013-09-07 16:35:36.268374378 +0100
+@@ -109,7 +109,7 @@
+ }
+ #endif /* NEXTSTEP */
+ 
+-#ifdef LINUX
++#if defined(LINUX) || defined(__GLIBC__) || defined(__GNU__)
+ #include <getopt.h>
+ #endif
+ 
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/configure.in mozldap-6.0.5/mozilla/directory/c-sdk/configure.in
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/configure.in	2007-09-17 18:46:23.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/configure.in	2013-09-07 16:36:01.274304681 +0100
+@@ -42,7 +42,7 @@
+ AC_PREREQ(2.12)
+ AC_INIT(ldap/include/ldap.h)
+ 
+-AC_CONFIG_AUX_DIR(${srcdir}/config/autoconf)
++AC_CONFIG_AUX_DIR(config/autoconf)
+ AC_CANONICAL_SYSTEM
+ 
+ dnl ========================================================
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/include/portable.h mozldap-6.0.5/mozilla/directory/c-sdk/ldap/include/portable.h
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/include/portable.h	2006-10-03 21:43:40.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/include/portable.h	2013-09-07 16:35:36.268374378 +0100
+@@ -122,7 +122,7 @@
+  * some systems don't have the BSD re_comp and re_exec routines
+  */
+ #ifndef NEED_BSDREGEX
+-#if ( defined( SYSV ) || defined( NETBSD ) || defined( freebsd ) || defined( linux ) || defined( DARWIN )) && !defined(sgi)
++#if ( defined( SYSV ) || defined( NETBSD ) || defined( freebsd ) || defined( linux ) || defined(__GNU__) || defined(__GLIBC__) || defined( DARWIN )) && !defined(sgi)
+ #define NEED_BSDREGEX
+ #endif
+ #endif
+@@ -151,7 +151,8 @@
+  * Is snprintf() part of the standard C runtime library?
+  */
+ #if !defined(HAVE_SNPRINTF)
+-#if defined(SOLARIS) || defined(LINUX) || defined(HPUX) || defined(AIX)
++#if defined(SOLARIS) || defined(LINUX) || defined(__GNU__) || defined(__GLIBC__) || defined(HPUX) || defined(AIX)
++
+ #define HAVE_SNPRINTF
+ #endif
+ #if defined(_WINDOWS)
+@@ -175,7 +176,7 @@
+  * for select()
+  */
+ #if !defined(WINSOCK) && !defined(_WINDOWS) && !defined(macintosh) && !defined(XP_OS2)
+-#if defined(hpux) || defined(LINUX) || defined(SUNOS4) || defined(XP_BEOS)
++#if defined(hpux) || defined(LINUX) || defined(__GNU__) || defined(__GLIBC__) || defined(SUNOS4) || defined(XP_BEOS)
+ #include <sys/time.h>
+ #else
+ #include <sys/select.h>
+@@ -247,15 +248,15 @@
+ #define HAVE_TIME_R
+ #endif
+ 
+-#if defined(SNI) || defined(LINUX1_2)
++#if defined(SNI) || defined(LINUX1_2) || defined(__GNU__) || defined(__GLIBC__)
+ int strcasecmp(const char *, const char *);
+ #ifdef SNI
+ int strncasecmp(const char *, const char *, int);
+-#endif /* SNI */
+-#ifdef LINUX1_2
++#else /* SNI */
+ int strncasecmp(const char *, const char *, size_t);
+-#endif /* LINUX1_2 */
+-#endif /* SNI || LINUX1_2 */
++#endif
++#endif /* SNI || LINUX1_2 || __GNU__ || __GLIBC__ */
++
+ 
+ #if defined(_WINDOWS) || defined(macintosh) || defined(XP_OS2) || defined(DARWIN)
+ #define GETHOSTBYNAME( n, r, b, l, e )  gethostbyname( n )
+@@ -306,7 +307,7 @@
+ #define GETHOSTBYNAME( n, r, b, l, e )  gethostbyname_r( n, r, b, l, e )
+ #endif
+ #if defined(HPUX9) || defined(LINUX1_2) || defined(LINUX2_0) || \
+-    defined(LINUX2_1) || defined(SUNOS4) || defined(SNI) || \
++    defined(LINUX2_1) || defined(__GNU__) || defined(__GLIBC__) || defined(SUNOS4) || defined(SNI) || \
+     defined(SCOOS) || defined(BSDI) || defined(NCR) || \
+     defined(NEC) || ( defined(HPUX10) && !defined(_REENTRANT)) || \
+     (defined(AIX) && !defined(USE_REENTRANT_LIBC))
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.client mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.client
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.client	2003-10-15 18:26:01.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.client	2013-09-07 16:35:36.269374375 +0100
+@@ -177,7 +177,7 @@
+ EXTRA_LIBS += -L$(NSCP_DISTDIR)/lib
+ endif
+ 
+-ifeq ($(OS_ARCH), Linux)
++ifneq (,$(filter Linux GNU GNU_%, $(OS_ARCH)))
+ EXTRA_LIBS = -L$(NSCP_DISTDIR)/$(OBJDIR_NAME)/lib -l$(LBER_LIBNAME)
+ EXTRA_LIBS += -L$(NSCP_DISTDIR)/lib
+ endif
+@@ -253,7 +253,7 @@
+ ifeq ($(OS_ARCH), AIX)
+ 	$(LINK_LIB) ../liblber/$(OBJDIR_NAME)/*.a
+ else
+-ifeq ($(OS_ARCH), Linux)
++ifneq (,$(filter Linux GNU GNU_%, $(OS_ARCH)))
+ 	$(LINK_LIB) ../liblber/$(OBJDIR_NAME)/*.a
+ else
+ 	$(LINK_LIB) $(EXTRA_LIBS)
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.in mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.in
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.in	2007-06-20 18:57:11.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldap/Makefile.in	2013-09-07 16:35:51.511333122 +0100
+@@ -122,7 +122,7 @@
+ HDIR		= $(topsrcdir)/ldap/include
+ 
+ LIBLDAP		= $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDAP_LIBNAME).$(LIB_SUFFIX))
+-DLLLDAP		= $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDAP_LIBNAME).$(DLL_SUFFIX))
++DLLLDAP		= $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDAP_LIBNAME).$(DLL_SUFFIX))$(DEBIAN_SO_SUFFIX)
+ 
+ INSTALLDIR	= $(DIST)/$(OBJDIR_NAME)
+ 
+@@ -202,8 +202,8 @@
+ EXTRA_LIBS = -L$(dist_libdir) -l$(LBER_LIBNAME) $(OS_LIBS) -lc
+ endif
+ 
+-ifeq ($(OS_ARCH), Linux)
+-EXTRA_LIBS = -L$(dist_libdir) -l$(LBER_LIBNAME)
++ifneq (,$(filter Linux GNU GNU_%, $(OS_ARCH)))
++EXTRA_LIBS = -L$(dist_libdir) -l$(LBER_LIBNAME) -pthread
+ endif
+ 
+ ifeq ($(OS_ARCH), WINNT)
+@@ -324,7 +324,7 @@
+ ifdef SO_FILES_TO_REMOVE
+ 	-$(RM) $(SO_FILES_TO_REMOVE)
+ endif
+-ifneq (,$(filter AIX Linux HP-UX Darwin BeOS QNX NetBSD OSF1 OpenBSD, $(OS_ARCH)))
++ifneq (,$(filter AIX Linux GNU GNU_% HP-UX Darwin BeOS QNX NetBSD OSF1 OpenBSD, $(OS_ARCH)))
+ 	$(LINK_LIB)
+ else
+ ifeq ($(OS_ARCH),OS2)
+@@ -364,6 +364,7 @@
+ 	$(INSTALL) -m 444 $(LIBLDAP) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLLDAP) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLLDAP) $(dist_bindir)
++	ln -sf $(DLLLDAP) $(dist_libdir)/$(LIB_PREFIX)$(LDAP_LIBNAME).$(DLL_SUFFIX)
+ endif
+ ifeq ($(OS_ARCH), WINNT)
+ 	$(INSTALL) -m 444 $(LIBLDAP) $(dist_libdir)
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldif/Makefile.in mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldif/Makefile.in
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libldif/Makefile.in	2007-06-20 18:57:11.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libldif/Makefile.in	2013-09-07 16:35:47.129344984 +0100
+@@ -53,7 +53,7 @@
+ HDIR		= $(topsrcdir)/ldap/include
+ 
+ LIBLDIF		= $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDIF_LIBNAME).$(LIB_SUFFIX))
+-DLLLDIF         = $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDIF_LIBNAME).$(DLL_SUFFIX))
++DLLLDIF         = $(addprefix $(OBJDIR_NAME)/, $(LIB_PREFIX)$(LDIF_LIBNAME).$(DLL_SUFFIX))$(DEBIAN_SO_SUFFIX)
+ 
+ INSTALLDIR      = $(DIST)/$(OBJDIR_NAME)
+ 
+@@ -163,4 +163,5 @@
+ 	$(INSTALL) -m 444 $(LIBLDIF) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLLDIF) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLLDIF) $(dist_bindir)
++	ln -sf $(DLLLDIF) $(dist_libdir)/$(LIB_PREFIX)$(LDIF_LIBNAME).$(DLL_SUFFIX)
+ endif
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libprldap/ldappr-error.c mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libprldap/ldappr-error.c
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2004-03-15 06:25:32.000000000 +0000
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2013-09-07 16:35:36.269374375 +0100
+@@ -233,7 +233,7 @@
+ 
+ #if defined(__hpux) || defined(_AIX) || defined(OSF1) || defined(DARWIN) || \
+   defined(BEOS) || defined(FREEBSD) || defined(BSDI) || defined(VMS) || \
+-  defined(OPENBSD) || defined(NETBSD)
++  defined(OPENBSD) || defined(NETBSD) || defined(__FreeBSD_kernel__)
+ #define EDEADLOCK       -1
+ #endif
+ 
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libprldap/Makefile.in mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libprldap/Makefile.in
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libprldap/Makefile.in	2007-06-20 18:57:12.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libprldap/Makefile.in	2013-09-07 16:35:47.130344981 +0100
+@@ -64,7 +64,7 @@
+ LIBPRLDAP =
+ endif
+ DLLPRLDAP	= $(addprefix $(OBJDIR_NAME)/, \
+-			$(LIB_PREFIX)$(PRLDAP_LIBNAME).$(DLL_SUFFIX))
++			$(LIB_PREFIX)$(PRLDAP_LIBNAME).$(DLL_SUFFIX))$(DEBIAN_SO_SUFFIX)
+ 
+ INSTALLDIR      = $(DIST)/$(OBJDIR_NAME)
+ 
+@@ -247,4 +247,5 @@
+ ifdef MKSHLIB
+ 	$(INSTALL) -m 555 $(DLLPRLDAP) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLPRLDAP) $(dist_bindir)
++	ln -sf $(DLLPRLDAP) $(dist_libdir)/$(LIB_PREFIX)$(PRLDAP_LIBNAME).$(DLL_SUFFIX)
+ endif
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libssldap/Makefile.in mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libssldap/Makefile.in
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libssldap/Makefile.in	2007-06-20 18:57:12.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libssldap/Makefile.in	2013-09-07 16:35:47.130344981 +0100
+@@ -60,7 +60,7 @@
+ HDIR		= $(topsrcdir)/ldap/include
+ 
+ LIBSSLDAP	= $(addprefix $(SSLOBJDEST)/, $(LIB_PREFIX)$(SSLDAP_LIBNAME).$(LIB_SUFFIX))
+-DLLSSLDAP	= $(addprefix $(SSLOBJDEST)/, $(LIB_PREFIX)$(SSLDAP_LIBNAME).$(DLL_SUFFIX))
++DLLSSLDAP	= $(addprefix $(SSLOBJDEST)/, $(LIB_PREFIX)$(SSLDAP_LIBNAME).$(DLL_SUFFIX))$(DEBIAN_SO_SUFFIX)
+ 
+ INSTALLDIR      = $(DIST)/$(OBJDIR_NAME)
+ 
+@@ -240,4 +240,5 @@
+ ifdef MKSHLIB
+ 	$(INSTALL) -m 555 $(DLLSSLDAP) $(dist_libdir)
+ 	$(INSTALL) -m 444 $(DLLSSLDAP) $(dist_bindir)
++	ln -sf $(DLLSSLDAP) $(dist_libdir)/$(LIB_PREFIX)$(SSLDAP_LIBNAME).$(DLL_SUFFIX)
+ endif
+diff -ur mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libssldap/sslerrstrs.h mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libssldap/sslerrstrs.h
+--- mozldap-6.0.5.orig/mozilla/directory/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2006-10-10 14:37:35.000000000 +0100
++++ mozldap-6.0.5/mozilla/directory/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2013-09-07 16:35:55.767321281 +0100
+@@ -247,7 +247,7 @@
+ "SSL peer was not expecting a handshake message it received.")
+ 
+ ER3(SSL_ERROR_DECOMPRESSION_FAILURE_ALERT   , (SSL_ERROR_BASE + 60),
+-"SSL peer was unable to succesfully decompress an SSL record it received.")
++"SSL peer was unable to successfully decompress an SSL record it received.")
+ 
+ ER3(SSL_ERROR_HANDSHAKE_FAILURE_ALERT       , (SSL_ERROR_BASE + 61),
+ "SSL peer was unable to negotiate an acceptable set of security parameters.")

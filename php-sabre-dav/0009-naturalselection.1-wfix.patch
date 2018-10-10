@@ -1,0 +1,22 @@
+From: =?utf-8?q?David_Pr=C3=A9vot?= <taffit@debian.org>
+Date: Tue, 26 Jan 2016 10:25:52 -0400
+Subject: naturalselection.1: wfix
+
+Forwareded: https://github.com/fruux/sabre-dav/pull/768
+---
+ bin/naturalselection | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bin/naturalselection b/bin/naturalselection
+index 7926900..dc3ddce 100755
+--- a/bin/naturalselection
++++ b/bin/naturalselection
+@@ -107,7 +107,7 @@ def main():
+     parser.add_option(
+         '-m', '--min-erase',
+         help="Minimum number of bytes to erase when the threshold is reached. " +
+-            "Setting this option higher will reduce the amount of times the cache directory will need to be scanned. " +
++            "Setting this option higher will reduce the number of times the cache directory will need to be scanned. " +
+             "(the default is 1073741824, which is 1GB.)",
+         type="int",
+         dest="min_erase",
