@@ -5,7 +5,7 @@ Index: kolab-webadmin.spec
 @@ -42,6 +42,25 @@
  Url:            http://www.kolab.org
  
- Source0:        kolab-webadmin-3.2.11.tar.gz
+ Source0:        kolab-webadmin-3.2.12.tar.gz
 +Source1:        99tbits.ldif
 +Source2:        initTBitsUserTypes.php
 +

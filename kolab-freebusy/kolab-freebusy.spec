@@ -23,8 +23,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           kolab-freebusy
-Version:        1.1.0
-Release:        2%{?dist}
+Version:        1.1.1
+Release:        1%{?dist}
 Summary:        Kolab Free/Busy Web Presentation Layer
 
 Group:          Applications/Internet
@@ -163,6 +163,9 @@ fi
 %attr(0770,root,%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Wed Aug  1 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.1.1-1
+- Release of version 1.1.1
+
 * Wed Feb  7 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.1.0-2
 - Repack of tagged version
 

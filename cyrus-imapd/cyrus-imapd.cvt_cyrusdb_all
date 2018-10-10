@@ -6,6 +6,18 @@ function usage() {
     exit 1
 }
 
+if [ ! -c /dev/null ]; then
+    exit 1
+fi
+
+if [ ! -r /dev/null -o ! -w /dev/null ]; then
+    exit 1
+fi
+
+if [ "$(stat -c %a /dev/null)" != "666" ]; then
+    chmod 666 /dev/null
+fi
+
 if [ -f /etc/sysconfig/cyrus-imapd ]; then
     . /etc/sysconfig/cyrus-imapd
 elif [ -f /etc/default/cyrus-imapd ]; then
@@ -16,14 +28,6 @@ if [ ! -z "${QUICK}" ]; then
     if [ ${QUICK} -ne 0 ]; then
         exit 0
     fi
-fi
-
-if [ ! -b /dev/null ]; then
-    exit 1
-fi
-
-if [ ! -r /dev/null -o ! -w /dev/null ]; then
-    exit 1
 fi
 
 # Ensure this script is run as the cyrus user.

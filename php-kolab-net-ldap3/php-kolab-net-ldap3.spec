@@ -24,16 +24,14 @@ Name:               php5-Net_LDAP3
 %else
 Name:               php-kolab-net-ldap3
 %endif
-Version:            1.0.4
-Release:            2%{?dist}
+Version:            1.0.7
+Release:            1%{?dist}
 Summary:            Object oriented interface for searching and manipulating LDAP-entries
 Group:              Development/Libraries
 License:            GPLv3+
 URL:                https://kolab.org
 
 Source0:            pear-Net-LDAP3-%{version}.tar.gz
-
-Patch0001:          0001-Ensure-that-multi-valued-attributes-have-sequential-.patch
 
 BuildRoot:          %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:          noarch
@@ -43,14 +41,13 @@ Requires:           php-ldap
 Requires:           php-pear(Net_LDAP2)
 Obsoletes:          php-pear(%{pear_name}) < %{version}-%{release}
 Provides:           php-pear(%{pear_name}) = %{version}-%{release}
+Obsoletes:          php-Net-LDAP3 < %{version}-%{release}
 
 %description
 Net_LDAP3 is an LDAPv3 compatible enhancement to Net_LDAP2
 
 %prep
 %setup -q -n pear-Net-LDAP3-%{version}
-
-%patch0001 -p1
 
 %build
 
@@ -74,6 +71,16 @@ rm -rf %{buildroot}
 %{_datadir}/%{php}/Net/LDAP3/Result.php
 
 %changelog
+* Wed Jun 20 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.0.7-1
+- Release of version 1.0.7
+
+* Thu May 03 2018 Christoph Erhardt <kolab@sicherha.de> - 1.0.6-2
+- Fix upgrade path
+
+* Wed May 02 2018 Christoph Erhardt <kolab@sicherha.de> - 1.0.6-1
+- New upstream release 1.0.6
+- Add upstream patches
+
 * Thu Oct 22 2015 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.0.4-2
 - Ensure multi-valued attributes have sequential indexes
 

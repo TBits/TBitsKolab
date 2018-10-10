@@ -37,8 +37,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           iRony
-Version:        0.4.0
-Release:	    0.20170502.git%{?dist}
+Version:        0.4.1
+Release:	    1%{?dist}
 Summary:        DAV for Kolab Groupware
 
 Group:          Applications/Internet
@@ -52,16 +52,18 @@ Source2:        iRony.logrotate
 
 BuildArch:      noarch
 
-Requires:       chwala
-Requires:       php-sabre-dav >= 2.1.3
-Requires:       php-sabre-vobject >= 3.2.4
-Requires:       roundcubemail(core) >= 1.1
+Requires:       chwala >= 0.5.2
+Requires:       php-sabre-dav >= 2.1.11
+Requires:       php-sabre-event >= 2.0.2
+Requires:       php-sabre-http >= 3.0.5
+Requires:       php-sabre-vobject >= 3.5.3
+Requires:       roundcubemail(core) >= 1.3
 %if 0%{?plesk} < 1
-Requires:       roundcubemail-plugin-kolab_auth >= 3.3
+Requires:       roundcubemail-plugin-kolab_auth >= 3.3.6
 %endif
-Requires:       roundcubemail-plugin-kolab_folders >= 3.3
-Requires:       roundcubemail-plugin-libcalendaring >= 3.3
-Requires:       roundcubemail-plugin-libkolab >= 3.3
+Requires:       roundcubemail-plugin-kolab_folders >= 3.3.6
+Requires:       roundcubemail-plugin-libcalendaring >= 3.3.6
+Requires:       roundcubemail-plugin-libkolab >= 3.3.6
 %if 0%{?suse_version}
 Requires:       http_daemon
 %else
@@ -71,12 +73,21 @@ Requires:       webserver
 # Build requirements needed of *SUSE, which otherwise bails over
 # dead-end symbolic links and/or files and directories not owned
 # by any package.
-BuildRequires:  chwala
+BuildRequires:  chwala >= 0.5.2
 BuildRequires:  composer
-BuildRequires:  roundcubemail
-BuildRequires:  roundcubemail-plugins-kolab
-BuildRequires:  php-sabre-dav >= 2.1.3
-BuildRequires:  php-sabre-vobject >= 3.2.4
+%if 0%{?fedora}
+# fix issue:
+# have choice for php-composer(justinrainbow/json-schema) >= 2.0 needed by composer: php-justinrainbow-json-schema4 php-justinrainbow-json-schema
+# have choice for php-composer(justinrainbow/json-schema) < 5 needed by composer: php-justinrainbow-json-schema4 php-justinrainbow-json-schema php-JsonSchema
+BuildRequires:  php-justinrainbow-json-schema4
+%endif
+
+BuildRequires:  roundcubemail(core) >= 1.3
+BuildRequires:  roundcubemail-plugins-kolab >= 3.3.6
+BuildRequires:  php-sabre-dav >= 2.1.11
+BuildRequires:  php-sabre-event >= 2.0.2
+BuildRequires:  php-sabre-http >= 3.0.5
+BuildRequires:  php-sabre-vobject >= 3.5.3
 
 %if 0%{?fedora} >= 21
 # Fedora 21 has qca2 and qca, qca2 has been renamed to qca, required by kdelibs
@@ -91,6 +102,8 @@ Kolab Groupware solution.
 %setup -q
 
 %build
+rm -rvf vendor/sabre
+
 rm -rf composer.json
 mv composer.json-dist composer.json
 mkdir -p $HOME/.composer/
@@ -153,7 +166,7 @@ install -pm 640 config/dav.inc.php.sample %{buildroot}/%{_sysconfdir}/%{name}/da
 
 %post
 if [ -f "/etc/php.d/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
-    if [ ! -z "`grep ^apc.enabled=1 /etc/php.d/apc{,u}.ini`" ]; then
+    if [ ! -z "`grep ^apc.enabled=1 /etc/php.d/apc{,u}.ini 2>/dev/null`" ]; then
         /sbin/service httpd condrestart
     fi
 fi
@@ -161,7 +174,7 @@ fi
 %files
 %doc README.md
 %if 0%{?plesk} < 1
-%{_ap_sysconfdir}/conf.d/%{name}.conf
+%config(noreplace) %{_ap_sysconfdir}/conf.d/%{name}.conf
 %endif
 %attr(0750,root,%{httpd_group}) %dir %{_sysconfdir}/%{name}
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{_sysconfdir}/%{name}/dav.inc.php
@@ -172,6 +185,17 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Wed Jun 20 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.1-2
+- Fix marking httpd's conf.d/iRony.conf file as a configuration file not
+  to be replaced by package updates
+- Require a more narrow range of Sabre packages
+
+* Wed Jun 13 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.1-1
+- Release of version 0.4.1
+
+* Thu May 25 2017 Timotheus Pokorra <tp@tbits.net> - 0.4.0-3
+- Fix build error on Fedora 25, composer needs php-justinrainbow-json-schema4
+
 * Wed May 10 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.0-2
 - Fix log rotation on Plesk
 

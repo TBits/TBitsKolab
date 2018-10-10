@@ -12,6 +12,8 @@
 #!BuildIgnore:  php-mysql
 %endif
 
+%global bootstrap 0
+
 %{!?php_inidir: %global php_inidir %{_sysconfdir}/php.d}
 
 # Needed to reload the webserver if APC is installed/enabled.
@@ -46,8 +48,13 @@
 %global logdir /var/log/roundcubemail
 %global tmpdir /var/lib/roundcubemail
 
+%global rc_version 1.4
+%global rc_rel_suffix beta36
+%global dot_rel_suffix %{?rc_rel_suffix:.%{rc_rel_suffix}}
+%global dash_rel_suffix %{?rc_rel_suffix:-%{rc_rel_suffix}}
+
 Name:           roundcubemail
-Version:        1.3.3
+Version:        1.4
 
 Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
 
@@ -57,14 +64,15 @@ Group:          Applications/System
 License:        GPLv2
 URL:            http://www.roundcube.net
 
-Source0:        roundcubemail-%{version}.tar.gz
+Source0:        roundcubemail-%{version}%{?dash_rel_suffix}.tar.gz
 Source1:        comm.py
 
 Source20:       roundcubemail.conf
 Source21:       roundcubemail.logrotate
 
 Source100:      plesk.config.inc.php
-Source101:      plesk.password.inc.php
+Source101:      plesk.managesieve.inc.php
+Source102:      plesk.password.inc.php
 
 Source200:      2017111400.sql
 
@@ -101,15 +109,23 @@ BuildRequires:  php-pear(MDB2) >= 2.5.0
 BuildRequires:  php-pear(MDB2_Driver_mysqli)
 BuildRequires:  php-pear(Net_IDNA2)
 BuildRequires:  php-pear(Net_LDAP2)
-BuildRequires:  php-pear(Net_LDAP3)
+BuildRequires:  php-kolab-net-ldap3
 BuildRequires:  php-pear(Net_Sieve)
 BuildRequires:  php-pear(Net_SMTP)
 BuildRequires:  php-pear(Net_Socket)
 %endif
 
+%if "%{_arch}" != "ppc64" && "%{_arch}" != "ppc64le"
+BuildRequires:  nodejs-less
+%if 0%{?suse_version} < 1
+BuildRequires:  uglify-js
+%endif
+%else
+BuildRequires:  php-lessphp
+%endif
+
 %if "%{_arch}" != "ppc64" && "%{_arch}" != "ppc64le" && 0%{?suse_version} < 1
 BuildRequires:  python-cssmin
-BuildRequires:  uglify-js
 %endif
 
 # This can, regrettably, not be BuildRequires'ed, since the OSC
@@ -123,6 +139,7 @@ Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %if 0%{?plesk}
 Requires:       %{name}-skin-plesk
+Requires:       %{name}-skin-plesk-larry
 %else
 %if 0%{?kolab_enterprise}
 Requires:       %{name}-skin-enterprise
@@ -183,11 +200,29 @@ Requires:       php-pear(Net_Socket)
 
 %if 0%{?plesk} < 1
 Requires:       php-pear(Net_LDAP2)
-Requires:       php-pear(Net_LDAP3)
+Requires:       php-kolab-net-ldap3
+%endif
+
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-plesk)
+Requires:       %{name}(skin-plesk-larry)
+Requires:       %{name}(skin-plesk-larry-assets)
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise)
+Requires:       %{name}(skin-kolab)
+%endif
+%else
+Requires:       %{name}(skin-chameleon)
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
 %endif
 
 Requires:       %{name}(core-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 # The filesystem_attachments plugin is required.
 Requires:       %{name}(plugin-filesystem_attachments) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -219,7 +254,26 @@ Summary:        Plugin acl
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-acl-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-acl-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(plugin-acl-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-acl-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-acl-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-acl-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-acl-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-acl) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-acl
@@ -230,6 +284,10 @@ Summary:        Plugin additional_message_headers
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-additional_message_headers-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-additional_message_headers-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-additional_message_headers-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-additional_message_headers-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-additional_message_headers-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-additional_message_headers) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-additional_message_headers
@@ -240,7 +298,10 @@ Summary:        Plugin archive
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-archive-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-archive-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-archive-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-archive-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-archive-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-archive-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-archive) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-archive
@@ -251,6 +312,10 @@ Summary:        Plugin attachment_reminder
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-attachment_reminder-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-attachment_reminder-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-attachment_reminder-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-attachment_reminder-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-attachment_reminder-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-attachment_reminder) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-attachment_reminder
@@ -261,6 +326,10 @@ Summary:        Plugin autologon
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-autologon-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-autologon-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-autologon-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-autologon-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-autologon-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-autologon) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-autologon
@@ -271,6 +340,10 @@ Summary:        Plugin database_attachments
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-database_attachments-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-database_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-database_attachments-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-database_attachments-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-database_attachments-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-database_attachments) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-database_attachments
@@ -281,6 +354,10 @@ Summary:        Plugin debug_logger
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-debug_logger-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-debug_logger-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-debug_logger-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-debug_logger-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-debug_logger-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-debug_logger) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-debug_logger
@@ -291,6 +368,10 @@ Summary:        Plugin emoticons
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-emoticons-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-emoticons-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-emoticons-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-emoticons-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-emoticons-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-emoticons) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-emoticons
@@ -301,8 +382,26 @@ Summary:        Plugin enigma
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-enigma-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       php-pear-crypt-gpg
-Requires:       %{name}(plugin-enigma-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(plugin-enigma-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-enigma-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-enigma-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-enigma-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-enigma-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-enigma) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-enigma
@@ -313,6 +412,10 @@ Summary:        Plugin example_addressbook
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-example_addressbook-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-example_addressbook-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-example_addressbook-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-example_addressbook-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-example_addressbook-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-example_addressbook) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-example_addressbook
@@ -323,6 +426,10 @@ Summary:        Plugin filesystem_attachments
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-filesystem_attachments-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-filesystem_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-filesystem_attachments-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-filesystem_attachments-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-filesystem_attachments-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-filesystem_attachments) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-filesystem_attachments
@@ -333,7 +440,26 @@ Summary:        Plugin help
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-help-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-help-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(plugin-help-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-help-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-help-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-help-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-help-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-help) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-help
@@ -344,7 +470,29 @@ Summary:        Plugin hide_blockquote
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-hide_blockquote-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-hide_blockquote-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Obsoletes:      %{name}-plugin-hide_blockquote-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-hide_blockquote-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-hide_blockquote-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-hide_blockquote-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+Obsoletes:      %{name}-plugin-hide_blockquote-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-hide_blockquote-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-hide_blockquote-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-hide_blockquote-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-hide_blockquote) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-hide_blockquote
@@ -355,6 +503,10 @@ Summary:        Plugin http_authentication
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-http_authentication-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-http_authentication-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-http_authentication-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-http_authentication-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-http_authentication-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-http_authentication) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-http_authentication
@@ -364,6 +516,11 @@ Plugin http_authentication
 Summary:        Plugin identicon
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-identicon-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identicon-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identicon-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identicon-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identicon-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-identicon) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-identicon
@@ -374,6 +531,10 @@ Summary:        Plugin identity_select
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-identity_select-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identity_select-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identity_select-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identity_select-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-identity_select-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-identity_select) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-identity_select
@@ -384,7 +545,26 @@ Summary:        Plugin jqueryui
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-jqueryui-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-jqueryui-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(plugin-jqueryui-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-jqueryui-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-jqueryui-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-jqueryui-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-jqueryui-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-jqueryui) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-jqueryui
@@ -395,6 +575,10 @@ Summary:        Plugin krb_authentication
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-krb_authentication-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-krb_authentication-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-krb_authentication-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-krb_authentication-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-krb_authentication-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-krb_authentication) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-krb_authentication
@@ -405,7 +589,26 @@ Summary:        Plugin managesieve
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-managesieve-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-managesieve-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(plugin-managesieve-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-managesieve-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-managesieve-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-managesieve-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-managesieve-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-managesieve) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-managesieve
@@ -416,7 +619,10 @@ Summary:        Plugin markasjunk
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-markasjunk-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-markasjunk-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-markasjunk-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-markasjunk-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-markasjunk-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-markasjunk-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-markasjunk) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-markasjunk
@@ -427,6 +633,10 @@ Summary:        Plugin new_user_dialog
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-new_user_dialog-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_dialog-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_dialog-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_dialog-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_dialog-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-new_user_dialog) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-new_user_dialog
@@ -437,6 +647,10 @@ Summary:        Plugin new_user_identity
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-new_user_identity-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_identity-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_identity-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_identity-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-new_user_identity-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-new_user_identity) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-new_user_identity
@@ -447,6 +661,10 @@ Summary:        Plugin newmail_notifier
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-newmail_notifier-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-newmail_notifier-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-newmail_notifier-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-newmail_notifier-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-newmail_notifier-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-newmail_notifier) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-newmail_notifier
@@ -457,6 +675,10 @@ Summary:        Plugin password
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-password-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-password-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-password-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-password-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-password-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-password) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-password
@@ -467,6 +689,10 @@ Summary:        Plugin redundant_attachments
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-redundant_attachments-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-redundant_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-redundant_attachments-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-redundant_attachments-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-redundant_attachments-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-redundant_attachments) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-redundant_attachments
@@ -477,6 +703,10 @@ Summary:        Plugin show_additional_headers
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-show_additional_headers-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-show_additional_headers-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-show_additional_headers-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-show_additional_headers-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-show_additional_headers-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-show_additional_headers) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-show_additional_headers
@@ -487,6 +717,10 @@ Summary:        Plugin squirrelmail_usercopy
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-squirrelmail_usercopy-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-squirrelmail_usercopy-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-squirrelmail_usercopy-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-squirrelmail_usercopy-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-squirrelmail_usercopy-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-squirrelmail_usercopy) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-squirrelmail_usercopy
@@ -497,6 +731,10 @@ Summary:        Plugin subscriptions_option
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-subscriptions_option-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-subscriptions_option-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-subscriptions_option-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-subscriptions_option-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-subscriptions_option-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-subscriptions_option) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-subscriptions_option
@@ -507,6 +745,10 @@ Summary:        Plugin userinfo
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-userinfo-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-userinfo-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-userinfo-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-userinfo-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-userinfo-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-userinfo) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-userinfo
@@ -517,7 +759,29 @@ Summary:        Plugin vcard_attachments
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-vcard_attachments-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-vcard_attachments-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Obsoletes:      %{name}-plugin-vcard_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-vcard_attachments-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-vcard_attachments-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-vcard_attachments-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+Obsoletes:      %{name}-plugin-vcard_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-vcard_attachments-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-vcard_attachments-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-vcard_attachments-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-vcard_attachments) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-vcard_attachments
@@ -528,6 +792,10 @@ Summary:        Plugin virtuser_file
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-virtuser_file-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_file-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_file-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_file-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_file-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-virtuser_file) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-virtuser_file
@@ -538,6 +806,10 @@ Summary:        Plugin virtuser_query
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-virtuser_query-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_query-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_query-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_query-skin-larry < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-virtuser_query-skin-larry-assets < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-virtuser_query) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-virtuser_query
@@ -548,7 +820,29 @@ Summary:        Plugin zipdownload
 Group:          Applications/Internet
 Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-zipdownload-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-zipdownload-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+%if 0%{?plesk}
+%if 0%{?bootstrap} < 1
+Obsoletes:      %{name}-plugin-zipdownload-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-zipdownload-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-plesk) >= 0.4
+Requires:       %{name}(skin-plesk-larry) >= 0.3
+Requires:       %{name}(plugin-zipdownload-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%else
+%if 0%{?kolab_enterprise}
+%if 0%{?bootstrap} < 1
+Requires:       %{name}(skin-enterprise) >= 0.3.7
+Requires:       %{name}(plugin-zipdownload-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-kolab) >= 0.4
+%endif
+Obsoletes:      %{name}-plugin-zipdownload-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-zipdownload-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
+%else
+Requires:       %{name}(skin-chameleon) >= 0.3.9
+Requires:       %{name}(plugin-zipdownload-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-zipdownload-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+%endif
+%endif
 Provides:       %{name}(plugin-zipdownload) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description plugin-zipdownload
@@ -665,6 +959,14 @@ Provides:       %{name}(plugin-http_authentication-assets) = %{?epoch:%{epoch}:}
 
 %description plugin-http_authentication-assets
 Plugin http_authentication Assets
+
+%package plugin-identicon-assets
+Summary:        Plugin identicon Assets
+Group:          Applications/Internet
+Provides:       %{name}(plugin-identicon-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-identicon-assets
+Plugin identicon Assets
 
 %package plugin-identity_select-assets
 Summary:        Plugin identity_select Assets
@@ -810,6 +1112,18 @@ Provides:       %{name}(plugin-zipdownload-assets) = %{?epoch:%{epoch}:}%{versio
 %description plugin-zipdownload-assets
 Plugin zipdownload Assets
 
+%package plugin-acl-skin-elastic
+Summary:        Plugin acl / Skin elastic
+Group:          Applications/Internet
+Requires:       %{name}(plugin-acl) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-acl-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-acl-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-acl-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-acl-skin-elastic
+Plugin acl / Skin elastic
+
 %package plugin-acl-skin-larry
 Summary:        Plugin acl / Skin larry
 Group:          Applications/Internet
@@ -822,17 +1136,17 @@ Provides:       %{name}(plugin-acl-skin-larry) = %{?epoch:%{epoch}:}%{version}-%
 %description plugin-acl-skin-larry
 Plugin acl / Skin larry
 
-%package plugin-archive-skin-larry
-Summary:        Plugin archive / Skin larry
+%package plugin-enigma-skin-elastic
+Summary:        Plugin enigma / Skin elastic
 Group:          Applications/Internet
-Requires:       %{name}(plugin-archive) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-archive-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-archive-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-archive-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-enigma) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-enigma-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-enigma-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-enigma-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description plugin-archive-skin-larry
-Plugin archive / Skin larry
+%description plugin-enigma-skin-elastic
+Plugin enigma / Skin elastic
 
 %package plugin-enigma-skin-larry
 Summary:        Plugin enigma / Skin larry
@@ -845,6 +1159,18 @@ Provides:       %{name}(plugin-enigma-skin-larry) = %{?epoch:%{epoch}:}%{version
 
 %description plugin-enigma-skin-larry
 Plugin enigma / Skin larry
+
+%package plugin-help-skin-elastic
+Summary:        Plugin help / Skin elastic
+Group:          Applications/Internet
+Requires:       %{name}(plugin-help) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-help-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-help-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-help-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-help-skin-elastic
+Plugin help / Skin elastic
 
 %package plugin-help-skin-larry
 Summary:        Plugin help / Skin larry
@@ -870,6 +1196,18 @@ Provides:       %{name}(plugin-hide_blockquote-skin-larry) = %{?epoch:%{epoch}:}
 %description plugin-hide_blockquote-skin-larry
 Plugin hide_blockquote / Skin larry
 
+%package plugin-jqueryui-skin-elastic
+Summary:        Plugin jqueryui / Skin elastic
+Group:          Applications/Internet
+Requires:       %{name}(plugin-jqueryui) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-jqueryui-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-jqueryui-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-jqueryui-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-jqueryui-skin-elastic
+Plugin jqueryui / Skin elastic
+
 %package plugin-jqueryui-skin-larry
 Summary:        Plugin jqueryui / Skin larry
 Group:          Applications/Internet
@@ -882,6 +1220,18 @@ Provides:       %{name}(plugin-jqueryui-skin-larry) = %{?epoch:%{epoch}:}%{versi
 %description plugin-jqueryui-skin-larry
 Plugin jqueryui / Skin larry
 
+%package plugin-managesieve-skin-elastic
+Summary:        Plugin managesieve / Skin elastic
+Group:          Applications/Internet
+Requires:       %{name}(plugin-managesieve) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-managesieve-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-managesieve-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-managesieve-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-managesieve-skin-elastic
+Plugin managesieve / Skin elastic
+
 %package plugin-managesieve-skin-larry
 Summary:        Plugin managesieve / Skin larry
 Group:          Applications/Internet
@@ -893,18 +1243,6 @@ Provides:       %{name}(plugin-managesieve-skin-larry) = %{?epoch:%{epoch}:}%{ve
 
 %description plugin-managesieve-skin-larry
 Plugin managesieve / Skin larry
-
-%package plugin-markasjunk-skin-larry
-Summary:        Plugin markasjunk / Skin larry
-Group:          Applications/Internet
-Requires:       %{name}(plugin-markasjunk) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(plugin-markasjunk-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-markasjunk-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-markasjunk-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description plugin-markasjunk-skin-larry
-Plugin markasjunk / Skin larry
 
 %package plugin-vcard_attachments-skin-larry
 Summary:        Plugin vcard_attachments / Skin larry
@@ -930,6 +1268,16 @@ Provides:       %{name}(plugin-zipdownload-skin-larry) = %{?epoch:%{epoch}:}%{ve
 %description plugin-zipdownload-skin-larry
 Plugin zipdownload / Skin larry
 
+%package plugin-acl-skin-elastic-assets
+Summary:        Plugin acl / Skin elastic (Assets)
+Group:          Applications/Internet
+Requires:       %{name}(plugin-acl-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-acl-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-acl-skin-elastic-assets
+Plugin acl / Skin elastic (Assets Package)
+
 %package plugin-acl-skin-larry-assets
 Summary:        Plugin acl / Skin larry (Assets)
 Group:          Applications/Internet
@@ -940,15 +1288,15 @@ Provides:       %{name}(plugin-acl-skin-larry-assets) = %{?epoch:%{epoch}:}%{ver
 %description plugin-acl-skin-larry-assets
 Plugin acl / Skin larry (Assets Package)
 
-%package plugin-archive-skin-larry-assets
-Summary:        Plugin archive / Skin larry (Assets)
+%package plugin-enigma-skin-elastic-assets
+Summary:        Plugin enigma / Skin elastic (Assets)
 Group:          Applications/Internet
-Requires:       %{name}(plugin-archive-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-archive-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(plugin-enigma-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-enigma-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description plugin-archive-skin-larry-assets
-Plugin archive / Skin larry (Assets Package)
+%description plugin-enigma-skin-elastic-assets
+Plugin enigma / Skin elastic (Assets Package)
 
 %package plugin-enigma-skin-larry-assets
 Summary:        Plugin enigma / Skin larry (Assets)
@@ -959,6 +1307,16 @@ Provides:       %{name}(plugin-enigma-skin-larry-assets) = %{?epoch:%{epoch}:}%{
 
 %description plugin-enigma-skin-larry-assets
 Plugin enigma / Skin larry (Assets Package)
+
+%package plugin-help-skin-elastic-assets
+Summary:        Plugin help / Skin elastic (Assets)
+Group:          Applications/Internet
+Requires:       %{name}(plugin-help-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-help-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-help-skin-elastic-assets
+Plugin help / Skin elastic (Assets Package)
 
 %package plugin-help-skin-larry-assets
 Summary:        Plugin help / Skin larry (Assets)
@@ -980,6 +1338,16 @@ Provides:       %{name}(plugin-hide_blockquote-skin-larry-assets) = %{?epoch:%{e
 %description plugin-hide_blockquote-skin-larry-assets
 Plugin hide_blockquote / Skin larry (Assets Package)
 
+%package plugin-jqueryui-skin-elastic-assets
+Summary:        Plugin jqueryui / Skin elastic (Assets)
+Group:          Applications/Internet
+Requires:       %{name}(plugin-jqueryui-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-jqueryui-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-jqueryui-skin-elastic-assets
+Plugin jqueryui / Skin elastic (Assets Package)
+
 %package plugin-jqueryui-skin-larry-assets
 Summary:        Plugin jqueryui / Skin larry (Assets)
 Group:          Applications/Internet
@@ -990,6 +1358,16 @@ Provides:       %{name}(plugin-jqueryui-skin-larry-assets) = %{?epoch:%{epoch}:}
 %description plugin-jqueryui-skin-larry-assets
 Plugin jqueryui / Skin larry (Assets Package)
 
+%package plugin-managesieve-skin-elastic-assets
+Summary:        Plugin managesieve / Skin elastic (Assets)
+Group:          Applications/Internet
+Requires:       %{name}(plugin-managesieve-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(plugin-managesieve-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description plugin-managesieve-skin-elastic-assets
+Plugin managesieve / Skin elastic (Assets Package)
+
 %package plugin-managesieve-skin-larry-assets
 Summary:        Plugin managesieve / Skin larry (Assets)
 Group:          Applications/Internet
@@ -999,16 +1377,6 @@ Provides:       %{name}(plugin-managesieve-skin-larry-assets) = %{?epoch:%{epoch
 
 %description plugin-managesieve-skin-larry-assets
 Plugin managesieve / Skin larry (Assets Package)
-
-%package plugin-markasjunk-skin-larry-assets
-Summary:        Plugin markasjunk / Skin larry (Assets)
-Group:          Applications/Internet
-Requires:       %{name}(plugin-markasjunk-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       %{name}(skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       %{name}(plugin-markasjunk-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description plugin-markasjunk-skin-larry-assets
-Plugin markasjunk / Skin larry (Assets Package)
 
 %package plugin-vcard_attachments-skin-larry-assets
 Summary:        Plugin vcard_attachments / Skin larry (Assets)
@@ -1030,6 +1398,17 @@ Provides:       %{name}(plugin-zipdownload-skin-larry-assets) = %{?epoch:%{epoch
 %description plugin-zipdownload-skin-larry-assets
 Plugin zipdownload / Skin larry (Assets Package)
 
+%package skin-elastic
+Summary:        Skin elastic
+Group:          Applications/Internet
+Requires:       %{name}(core) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description skin-elastic
+Skin elastic
+
 %package skin-larry
 Summary:        Skin larry
 Group:          Applications/Internet
@@ -1041,6 +1420,15 @@ Provides:       %{name}(skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %description skin-larry
 Skin larry
 
+%package skin-elastic-assets
+Summary:        Skin elastic (Assets)
+Group:          Applications/Internet
+Provides:       %{name}(skin-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       %{name}(skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description skin-elastic-assets
+Skin elastic (Assets Package)
+
 %package skin-larry-assets
 Summary:        Skin larry (Assets)
 Group:          Applications/Internet
@@ -1051,11 +1439,11 @@ Provides:       %{name}(skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{rel
 Skin larry (Assets Package)
 
 %prep
-%setup -q -c "%{name}-%{version}"
+%setup -q -c "%{name}-%{version}%{?dash_rel_suffix}"
 
-pushd %{name}-%{version}
+pushd %{name}-%{version}%{?dash_rel_suffix}
 
-cp -vf %{SOURCE200} SQL/mysql/
+cp -vf "%{SOURCE200}" SQL/mysql/
 rm -rvf SQL/mysql/2016081200.sql
 
 rm -rf temp/js_cache/
@@ -1066,7 +1454,8 @@ done
 
 %if 0%{?plesk}
 cp -vf %{SOURCE100} config/config.inc.php.sample
-cp -vf %{SOURCE101} plugins/password/config.inc.php.dist
+cp -vf %{SOURCE101} plugins/managesieve/config.inc.php.dist
+cp -vf %{SOURCE102} plugins/password/config.inc.php.dist
 %endif
 
 %patch201 -p1
@@ -1077,12 +1466,23 @@ cp -vf %{SOURCE101} plugins/password/config.inc.php.dist
 sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' public_html/program/js/jstz.min.js
 
 # Remove the results of patching when there's an incidental offset
-find . -type f -name "*.orig" -delete
+find . -type f -name "*.orig" | while read file; do
+    rm -rvf ${file}
+done
 
 # Remove hidden files and directories
-find . -type f -name ".*" -delete
+find . -type f -name ".*" | while read file; do
+    rm -rvf ${file}
+done
+
 find . -type d -name ".*" ! -name "." ! -name ".." | while read dir; do
     rm -rvf ${dir}
+done
+
+while [ ! -z "$(find . -type d -empty)" ]; do
+    find . -type d -empty | while read dir; do
+        rm -rvf ${dir}
+    done
 done
 
 # Remove any reference to sqlite in config file so people don't
@@ -1094,17 +1494,17 @@ done
 rm -rf plugins/password/helpers/chpass-wrapper.py
 popd
 
-cp -a %{name}-%{version}/{CHANGELOG,LICENSE,README.md} .
+cp -a %{name}-%{version}%{?dash_rel_suffix}/{CHANGELOG,LICENSE,README.md} .
 
-rm -rf %{name}-%{version}/plugins/jqueryui/themes/redmond
+rm -rf %{name}-%{version}%{?dash_rel_suffix}/plugins/jqueryui/themes/redmond
 
-for skin in larry; do
+for skin in elastic larry; do
     # Template files and the like
-    for sdir in $(find %{name}-%{version}/ -type d -name "${skin}" | sort); do
-        target_dir=$(echo $sdir | %{__sed} -e "s|%{name}-%{version}|%{name}-skin-${skin}-%{version}|g")
-        %{__mkdir_p} $(dirname $target_dir)
+    for sdir in $(find %{name}-%{version}%{?dash_rel_suffix}/ -type d -name "${skin}" | sort); do
+        target_dir=$(echo ${sdir} | %{__sed} -e "s|%{name}-%{version}%{?dash_rel_suffix}|%{name}-skin-${skin}-%{version}%{?dash_rel_suffix}|g")
+        %{__mkdir_p} $(dirname ${target_dir})
         # Copy all, including assets, for the -devel sub-package
-        cp -av $sdir $target_dir
+        cp -av ${sdir} ${target_dir}
     done
 
     (
@@ -1145,18 +1545,18 @@ for skin in larry; do
         echo ""
     ) >> skins-assets.files
 
-    %{__rm} -rf %{name}-skin-${skin}-%{version}/plugins
+    %{__rm} -rf %{name}-skin-${skin}-%{version}%{?dash_rel_suffix}/plugins
 done
 
-for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
-    target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}|%{name}-plugin-$(basename ${plugin})-%{version}|g")
-    %{__mkdir_p} $(dirname $target_dir)
-    cp -av ${plugin} $target_dir
+for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
+    target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}%{?dash_rel_suffix}|%{name}-plugin-$(basename ${plugin})-%{version}%{?dash_rel_suffix}|g")
+    %{__mkdir_p} $(dirname ${target_dir})
+    cp -av ${plugin} ${target_dir}
 
     # Special treatment of the jquery plugin
     if [ "$(basename ${plugin})" == "jqueryui" ]; then
-        %{__mv} $target_dir/themes $target_dir/skins
-        %{__sed} -i -e 's/themes/skins/g' $target_dir/{config.inc.php.dist,jqueryui.php,README}
+        %{__mv} ${target_dir}/themes ${target_dir}/skins
+        %{__sed} -i -e 's/themes/skins/g' ${target_dir}/{config.inc.php.dist,jqueryui.php,README}
     fi
 
     (
@@ -1166,7 +1566,40 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo "Requires:       %%{name}(core) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         echo "Requires:       %%{name}(plugin-$(basename ${plugin})-assets) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         if [ -d "${target_dir}/skins/" ]; then
-            echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "%%if 0%%{?plesk}"
+            echo "%%if 0%%{?bootstrap} < 1"
+            if [ -d "${target_dir}/skins/elastic/" ]; then
+                echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-elastic) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            else
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            fi
+            echo "Requires:       %%{name}(skin-plesk) >= 0.4"
+            echo "Requires:       %%{name}(skin-plesk-larry) >= 0.3"
+            echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-larry) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "%%endif"
+            echo "%%else"
+            echo "%%if 0%%{?kolab_enterprise}"
+            echo "%%if 0%%{?bootstrap} < 1"
+            echo "Requires:       %%{name}(skin-enterprise) >= 0.3.7"
+            echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-larry) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "Requires:       %%{name}(skin-kolab) >= 0.4"
+            echo "%%endif"
+            if [ ! -d "${target_dir}/skins/elastic/" ]; then
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            fi
+            echo "%%else"
+            echo "Requires:       %%{name}(skin-chameleon) >= 0.3.9"
+            echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-elastic) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-larry) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "%%endif"
+            echo "%%endif"
+        else
+            echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-larry < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+            echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-larry-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         fi
         echo "Provides:       %%{name}(plugin-$(basename ${plugin})) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         echo ""
@@ -1244,11 +1677,11 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo ""
     ) >> plugins-assets.files
 
-    for skin in larry; do
-        for dir in $(find $target_dir -type d -name "${skin}" | sort); do
-            starget_dir=$(echo $dir | %{__sed} -e "s|%{name}-plugin-$(basename ${plugin})-%{version}|%{name}-plugin-$(basename ${plugin})-skin-${skin}-%{version}|g")
-            %{__mkdir_p} $(dirname $starget_dir)
-            %{__mv} $dir $starget_dir
+    for skin in elastic larry; do
+        for dir in $(find ${target_dir} -type d -name "${skin}" | sort); do
+            starget_dir=$(echo ${dir} | %{__sed} -e "s|%{name}-plugin-$(basename ${plugin})-%{version}%{?dash_rel_suffix}|%{name}-plugin-$(basename ${plugin})-skin-${skin}-%{version}%{?dash_rel_suffix}|g")
+            %{__mkdir_p} $(dirname ${starget_dir})
+            %{__mv} ${dir} ${starget_dir}
 
             (
                 echo "%package plugin-$(basename ${plugin})-skin-${skin}"
@@ -1314,7 +1747,7 @@ cat \
 find | sort | tee files.find >/dev/null
 
 %build
-pushd %{name}-%{version}
+pushd %{name}-%{version}%{?dash_rel_suffix}
 mkdir -p $HOME/.composer
 echo '{}' > $HOME/.composer/composer.json
 cat > composer.json << EOF
@@ -1359,9 +1792,9 @@ function new_files() {
     %{buildroot}%{confdir} \
     %{buildroot}%{datadir}/public_html \
     %{buildroot}%{logdir} \
-    %{buildroot}%{tmpdir}
+    %{buildroot}%{tmpdir}/plugins
 
-pushd %{name}-%{version}
+pushd %{name}-%{version}%{?dash_rel_suffix}
 
 %if 0%{?plesk} < 1
 %{__install} -pm 644 %SOURCE20 %{buildroot}%{_ap_sysconfdir}/conf.d
@@ -1450,8 +1883,8 @@ fi
 
 %{__mkdir_p} ${asset_path}
 
-orig_dir="%{name}-%{version}"
-asset_dir="%{name}-assets-%{version}$(echo ${asset_path} | %{__sed} -e 's|%{buildroot}%{datadir}||g')"
+orig_dir="%{name}-%{version}%{?dash_rel_suffix}"
+asset_dir="%{name}-assets-%{version}%{?dash_rel_suffix}$(echo ${asset_path} | %{__sed} -e 's|%{buildroot}%{datadir}||g')"
 
 # Remove the skins and installer directories from ${orig_dir}
 %{__rm} -rf ${orig_dir}/{installer,skins}
@@ -1459,29 +1892,36 @@ asset_dir="%{name}-assets-%{version}$(echo ${asset_path} | %{__sed} -e 's|%{buil
 echo "Original directory for core: ${orig_dir}"
 echo "Asset directory for core: ${asset_dir}"
 
+# Compile and compress the CSS
+for file in `find ${orig_dir} -type f -name "styles.less" -o -name "print.less" -o -name "embed.less" | grep -vE "${orig_dir}/(plugins|skins)/" `; do
+    asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
+    %{__mkdir_p} ${asset_loc}
+    %{_bindir}/lessc -x ${file} > ${asset_loc}/$(basename ${file} .less).css
+done
+find ${asset_loc} -type f -name "*.css" -empty -delete
+find ${asset_loc} -type d -empty -delete
+
 # Compress the CSS
 for file in `find ${orig_dir} -type f -name "*.css" ! -path "*tests/*" | grep -vE "${orig_dir}/(plugins|skins)/"`; do
     asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
     %{__mkdir_p} ${asset_loc}
-    cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
-        %{__rm} -rf ${file} || \
-        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+    cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
 done
 
 # Compress the JS, but not the already minified
 for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js" | grep -vE "${orig_dir}/(plugins|skins)/"`; do
     asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
     %{__mkdir_p} ${asset_loc}
-    uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
-        %{__rm} -rf ${file} || \
-        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+    uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
 done
 
 # The already minified JS can just be copied over to the assets location
 for file in `find ${orig_dir} -type f -name "*.min.js" | grep -vE "${orig_dir}/(plugins|skins)/"`; do
     asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
     %{__mkdir_p} ${asset_loc}
-    %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+    %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
 done
 
 # Other assets
@@ -1500,12 +1940,13 @@ for file in $(find ${orig_dir} -type f \
         -name "*.ttf" -o \
         -name "*.wav" -o \
         -name "*.webp" -o \
-        -name "*.woff" | \
+        -name "*.woff" -o \
+        -name "*.woff2" | \
         grep -vE "${orig_dir}/(plugins|skins)/"
     ); do
     asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
     %{__mkdir_p} ${asset_loc}
-    %{__mv} -vf ${file} ${asset_loc}/$(basename ${file})
+    %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
 done
 
 new_files > core.files
@@ -1514,10 +1955,10 @@ new_files > core.files
 #cat core.files
 #echo "==========================="
 
-for file in `find %{name}-assets-%{version}/ -type f`; do
-    asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-assets-%{version}|%{buildroot}%{datadir}|g"))
+for file in `find %{name}-assets-%{version}%{?dash_rel_suffix}/ -type f`; do
+    asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-assets-%{version}%{?dash_rel_suffix}|%{buildroot}%{datadir}|g"))
     %{__mkdir_p} ${asset_loc}
-    %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+    %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
 done
 
 new_files > core-assets.files
@@ -1530,40 +1971,47 @@ echo "================================================================="
 echo "Dividing Skin Assets and Non-Assets"
 echo "================================================================="
 
-for skin in larry; do
+for skin in elastic larry; do
     # Take the files from the original directory,
     # Find the ones that are assets,
     # Move those over to the assets-specific directory.
 
-    orig_dir="%{name}-skin-${skin}-%{version}"
-    asset_dir="%{name}-skin-${skin}-assets-%{version}$(echo ${asset_path} | %{__sed} -e 's|%{buildroot}%{datadir}||g')"
+    orig_dir="%{name}-skin-${skin}-%{version}%{?dash_rel_suffix}"
+    asset_dir="%{name}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}$(echo ${asset_path} | %{__sed} -e 's|%{buildroot}%{datadir}||g')"
 
     echo "Original directory for the ${skin} skin: ${orig_dir}"
     echo "Asset directory for the ${skin} skin: ${asset_dir}"
+
+    # Compile and compress the CSS
+    for file in `find ${orig_dir} -type f -name "styles.less" -o -name "print.less" -o -name "embed.less"`; do
+        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
+        %{__mkdir_p} ${asset_loc}
+        %{_bindir}/lessc -x ${file} > ${asset_loc}/$(basename ${file} .less).css
+    done
+    find ${asset_loc} -type f -name "*.css" -empty -delete
+    find ${asset_log} -type d -empty -delete
 
     # Compress the CSS
     for file in `find ${orig_dir} -type f -name "*.css" ! -path "*tests/*"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
-            %{__rm} -rf ${file} || \
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Compress the JS, but not the already minified
     for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
-            %{__rm} -rf ${file} || \
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # The already minified JS can just be copied over to the assets location
     for file in `find ${orig_dir} -type f -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Other assets
@@ -1582,22 +2030,30 @@ for skin in larry; do
             -name "*.ttf" -o \
             -name "*.wav" -o \
             -name "*.webp" -o \
-            -name "*.woff"
+            -name "*.woff" -o \
+            -name "*.woff2"
         ); do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__mv} -vf ${file} ${asset_loc}/$(basename ${file})
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # The watermark.html is an asset, too
     if [ -f "${orig_dir}/skins/${skin}/watermark.html" ]; then
-        %{__mv} -v ${orig_dir}/skins/${skin}/watermark.html \
+        %{__cp} -av ${orig_dir}/skins/${skin}/watermark.html \
             ${asset_dir}/skins/${skin}/watermark.html
     fi
 
-    find %{name}-skin-${skin}-%{version}/skins/ -type d -empty -delete
+    find %{name}-skin-${skin}-%{version}%{?dash_rel_suffix}/skins/ -type d -empty -delete
 
-    cp -a %{name}-skin-${skin}-%{version}/skins/* %{buildroot}%{datadir}/skins/.
+    cp -a %{name}-skin-${skin}-%{version}%{?dash_rel_suffix}/skins/* %{buildroot}%{datadir}/skins/.
+
+    if [ "${skin}" == "elastic" ]; then
+        pushd %{buildroot}%{datadir}/skins/elastic
+        %{__rm} -rvf images
+        ln -s ../../public_html/assets/skins/elastic/images images
+        popd
+    fi
 
     new_files > skin-${skin}.files
 
@@ -1606,7 +2062,7 @@ for skin in larry; do
     #echo "==========================="
 
     %{__mkdir_p} %{buildroot}%{datadir}/public_html/assets/skins/
-    cp -a %{name}-skin-${skin}-assets-%{version}/public_html/assets/skins/* %{buildroot}%{datadir}/public_html/assets/skins/.
+    cp -a %{name}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}/public_html/assets/skins/* %{buildroot}%{datadir}/public_html/assets/skins/.
 
     new_files > skin-${skin}-assets.files
 
@@ -1615,44 +2071,51 @@ for skin in larry; do
     #echo "==========================="
 done
 
-echo "================================================================="
+echo "==================================================================================="
 echo "Dividing Plugins, Plugin Assets, Plugin Skins and Plugin Skin Assets and Non-Assets"
-echo "================================================================="
+echo "==================================================================================="
 
-for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
-    for skin in larry; do
-        orig_dir="%{name}-plugin-${plugin}-skin-${skin}-%{version}"
+for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
+    for skin in elastic larry; do
+        orig_dir="%{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}"
 
         # No skin, no assets
         if [ ! -d "${orig_dir}" ]; then
             continue
         fi
 
-        asset_dir="%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}"
+        asset_dir="%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}"
+
+        # Compile and compress the CSS
+        for file in `find ${orig_dir} -type f -name "styles.less" -o -name "print.less" -o -name "embed.less" `; do
+            asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
+            %{__mkdir_p} ${asset_loc}
+            %{_bindir}/lessc -x ${file} > ${asset_loc}/$(basename ${file} .less).css
+        done
+        find ${asset_loc} -type f ! -name "*.css" -empty -delete
+        find ${asset_loc} -type d -empty -delete
 
         # Compress the CSS
         for file in `find ${orig_dir} -type f -name "*.css" ! -path "*tests/"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
-                %{__rm} -rf ${file} || \
-                %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+            cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
+                %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
         done
 
         # Compress the JS, but not the already minified
         for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
-                %{__rm} -rf ${file} || \
-                %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+            uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
+                %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
         done
 
         # The already minified JS can just be copied over to the assets location
         for file in `find ${orig_dir} -type f -name "*.min.js"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
         done
 
         # Other assets
@@ -1671,11 +2134,12 @@ for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d
                 -name "*.ttf" -o \
                 -name "*.wav" -o \
                 -name "*.webp" -o \
-                -name "*.woff"
+                -name "*.woff" -o \
+                -name "*.woff2"
             ); do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            %{__mv} -vf ${file} ${asset_loc}/$(basename ${file})
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
         done
 
         # Purge empty directories
@@ -1683,12 +2147,21 @@ for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d
     done
 
     %{__mkdir_p} %{buildroot}%{plugindir}
-    cp -a %{name}-plugin-${plugin}-%{version}/plugins/${plugin} %{buildroot}%{plugindir}/.
+    cp -a %{name}-plugin-${plugin}-%{version}%{?dash_rel_suffix}/plugins/${plugin} %{buildroot}%{plugindir}/.
 
     if [ -f "%{buildroot}%{plugindir}/${plugin}/config.inc.php.dist" ]; then
         pushd %{buildroot}%{plugindir}/${plugin}
         %{__mv} config.inc.php.dist %{buildroot}%{confdir}/${plugin}.inc.php
         ln -s ../../../../..%{confdir}/${plugin}.inc.php config.inc.php
+        popd
+    fi
+
+    if [ "${plugin}" == "enigma" ]; then
+        %{__mkdir_p} %{buildroot}%{tmpdir}/plugins/
+        pushd %{buildroot}%{plugindir}/${plugin}
+        %{__mv} -v home %{buildroot}%{tmpdir}/plugins/${plugin} || \
+            mkdir -p %{buildroot}%{tmpdir}/plugins/${plugin}
+        ln -sv ../../../../..%{tmpdir}/plugins/${plugin} home
         popd
     fi
 
@@ -1699,32 +2172,39 @@ for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d
     #echo "==========================="
 
     # Skin-independent assets
-    orig_dir="%{name}-plugin-${plugin}-%{version}"
-    asset_dir="%{name}-plugin-${plugin}-assets-%{version}"
+    orig_dir="%{name}-plugin-${plugin}-%{version}%{?dash_rel_suffix}"
+    asset_dir="%{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix}"
+
+    # Compile and compress the CSS
+    for file in `find ${orig_dir} -type f -name "styles.less" -o -name "print.less" -o -name "embed.less" `; do
+        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
+        %{__mkdir_p} ${asset_loc}
+        %{_bindir}/lessc -x ${file} > ${asset_loc}/$(basename ${file} .less).css
+    done
+    find ${asset_loc} -type f -empty -delete
+    find ${asset_loc} -type d -empty -delete
 
     # Compress the CSS
     for file in `find ${orig_dir} -type f -name "*.css" ! -path "*tests/"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
-            %{__rm} -rf ${file} || \
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        cat ${file} | python %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Compress the JS, but not the already minified
     for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
-            %{__rm} -rf ${file} || \
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # The already minified JS can just be copied over to the assets location
     for file in `find ${orig_dir} -type f -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Other assets
@@ -1743,74 +2223,65 @@ for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d
             -name "*.ttf" -o \
             -name "*.wav" -o \
             -name "*.webp" -o \
-            -name "*.woff"
+            -name "*.woff" -o \
+            -name "*.woff2"
         ); do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__mv} -vf ${file} ${asset_loc}/$(basename ${file})
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Purge empty directories
     find ${orig_dir} -type d -empty -delete
 
-    if [ ! -d ${asset_dir} ]; then
-        %{__mkdir_p} ${asset_dir}
-        touch ${asset_dir}/dummy.js
+%if 0%{?fedora}
+    # Empty packages are not fun with Fedora
+    if [ ! -d ${asset_loc} ]; then
+        %{__mkdir_p} ${asset_loc}
+        echo "/* Nothing here */" > ${asset_loc}/dummy.js
     fi
+%endif
 
     # Install the assets
-    for file in `find %{name}-plugin-${plugin}-assets-%{version} -type f`; do
-        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-assets-%{version}|$asset_path|g"))
+    for file in `find %{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix} -type f`; do
+        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix}|$asset_path|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
     done
 
     new_files > plugin-${plugin}-assets.files
-
-    #echo "== Files for plugin ${plugin}: =="
-    #cat plugin-${plugin}-assets.files
-    #echo "==========================="
 done
 
-for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
-    for skin in larry; do
+for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
+    for skin in elastic larry; do
         touch plugin-${plugin}-skin-${skin}.files
         touch plugin-${plugin}-skin-${skin}-assets.files
 
-        if [ ! -d "%{name}-plugin-${plugin}-skin-${skin}-%{version}/plugins/${plugin}/skins" ]; then
-            echo "%doc README.md" > plugin-${plugin}-skin-${skin}.files
-            echo "%doc README.md" > plugin-${plugin}-skin-${skin}-assets.files
+        if [ ! -d "%{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}/plugins/${plugin}/skins" ]; then
+            rm -f plugin-${plugin}-skin-${skin}.files
+            rm -f plugin-${plugin}-skin-${skin}-assets.files
             continue
         fi
 
         %{__install} -d %{buildroot}%{plugindir}/${plugin}/skins/
-        cp -a %{name}-plugin-${plugin}-skin-${skin}-%{version}/plugins/${plugin}/skins/${skin} %{buildroot}%{plugindir}/${plugin}/skins/.
+        cp -a %{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}/plugins/${plugin}/skins/${skin} %{buildroot}%{plugindir}/${plugin}/skins/.
 
         new_files > plugin-${plugin}-skin-${skin}.files
         if [ ! -s "plugin-${plugin}-skin-${skin}.files" ]; then
-            echo "%doc README.md" > plugin-${plugin}-skin-${skin}.files
+            rm -f plugin-${plugin}-skin-${skin}.files
         fi
 
-        #echo "== Files for skin ${plugin}-${skin}: =="
-        #cat plugin-${plugin}-skin-${skin}.files
-        #echo "==========================="
-
         # Install the assets
-        for file in `find %{name}-plugin-${plugin}-skin-${skin}-assets-%{version} -type f`; do
-            asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}|$asset_path|g"))
+        for file in `find %{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix} -type f`; do
+            asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}|$asset_path|g"))
             %{__mkdir_p} ${asset_loc}
-            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
+            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
         done
 
         new_files > plugin-${plugin}-skin-${skin}-assets.files
         if [ ! -s "plugin-${plugin}-skin-${skin}-assets.files" ]; then
-            echo "%doc README.md" > plugin-${plugin}-skin-${skin}-assets.files
+            rm -f plugin-${plugin}-skin-${skin}-assets.files
         fi
-
-        #echo "== Files for skin ${plugin}-${skin}: =="
-        #cat plugin-${plugin}-skin-${skin}-assets.files
-        #echo "==========================="
-
     done
 done
 
@@ -1830,7 +2301,7 @@ if [ -L %{plugindir}/enigma/home -a ! -d %{plugindir}/enigma/home ]; then
 fi
 
 %check
-pushd %{name}-%{version}/tests
+pushd %{name}-%{version}%{?dash_rel_suffix}/tests
 #phpunit --debug || :
 popd
 
@@ -2044,7 +2515,7 @@ if [ ! -f %{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted ]; then
 fi
 
 /usr/share/roundcubemail/bin/updatedb.sh \
-    --dir /usr/share/doc/roundcubemail-core-%{version}/SQL/ \
+    --dir /usr/share/doc/roundcubemail-core-%{version}%{?dash_rel_suffix}/SQL/ \
     --package roundcube || : \
     >/dev/null 2>&1
 
@@ -2547,13 +3018,13 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc %{name}-%{version}/LICENSE
-%doc %{name}-%{version}/UPGRADING
-%doc %{name}-%{version}/SQL
+%doc %{name}-%{version}%{?dash_rel_suffix}/LICENSE
+%doc %{name}-%{version}%{?dash_rel_suffix}/UPGRADING
+%doc %{name}-%{version}%{?dash_rel_suffix}/SQL
 
 %files core -f core.files
 %defattr(-,root,root,-)
-%doc %{name}-%{version}/SQL
+%doc %{name}-%{version}%{?dash_rel_suffix}/SQL
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %if 0%{?suse_version}
 %dir %{_ap_sysconfdir}/
@@ -2568,6 +3039,7 @@ fi
 %attr(0640,root,%{httpd_group}) %{confdir}/mimetypes.php
 %attr(0770,root,%{httpd_group}) %dir %{logdir}
 %attr(0770,root,%{httpd_group}) %dir %{tmpdir}
+%attr(0770,root,%{httpd_group}) %dir %{tmpdir}/plugins
 %dir %{_localstatedir}/lib/rpm-state/
 %dir %{_localstatedir}/lib/rpm-state/roundcubemail/
 
@@ -2731,6 +3203,9 @@ fi
 %files plugin-http_authentication-assets -f plugin-http_authentication-assets.files
 %defattr(-,root,root,-)
 
+%files plugin-identicon-assets -f plugin-identicon-assets.files
+%defattr(-,root,root,-)
+
 %files plugin-identity_select-assets -f plugin-identity_select-assets.files
 %defattr(-,root,root,-)
 
@@ -2785,13 +3260,19 @@ fi
 %files plugin-zipdownload-assets -f plugin-zipdownload-assets.files
 %defattr(-,root,root,-)
 
+%files plugin-acl-skin-elastic -f plugin-acl-skin-elastic.files
+%defattr(-,root,root,-)
+
 %files plugin-acl-skin-larry -f plugin-acl-skin-larry.files
 %defattr(-,root,root,-)
 
-%files plugin-archive-skin-larry -f plugin-archive-skin-larry.files
+%files plugin-enigma-skin-elastic -f plugin-enigma-skin-elastic.files
 %defattr(-,root,root,-)
 
 %files plugin-enigma-skin-larry -f plugin-enigma-skin-larry.files
+%defattr(-,root,root,-)
+
+%files plugin-help-skin-elastic -f plugin-help-skin-elastic.files
 %defattr(-,root,root,-)
 
 %files plugin-help-skin-larry -f plugin-help-skin-larry.files
@@ -2800,13 +3281,16 @@ fi
 %files plugin-hide_blockquote-skin-larry -f plugin-hide_blockquote-skin-larry.files
 %defattr(-,root,root,-)
 
+%files plugin-jqueryui-skin-elastic -f plugin-jqueryui-skin-elastic.files
+%defattr(-,root,root,-)
+
 %files plugin-jqueryui-skin-larry -f plugin-jqueryui-skin-larry.files
 %defattr(-,root,root,-)
 
-%files plugin-managesieve-skin-larry -f plugin-managesieve-skin-larry.files
+%files plugin-managesieve-skin-elastic -f plugin-managesieve-skin-elastic.files
 %defattr(-,root,root,-)
 
-%files plugin-markasjunk-skin-larry -f plugin-markasjunk-skin-larry.files
+%files plugin-managesieve-skin-larry -f plugin-managesieve-skin-larry.files
 %defattr(-,root,root,-)
 
 %files plugin-vcard_attachments-skin-larry -f plugin-vcard_attachments-skin-larry.files
@@ -2815,13 +3299,19 @@ fi
 %files plugin-zipdownload-skin-larry -f plugin-zipdownload-skin-larry.files
 %defattr(-,root,root,-)
 
+%files plugin-acl-skin-elastic-assets -f plugin-acl-skin-elastic-assets.files
+%defattr(-,root,root,-)
+
 %files plugin-acl-skin-larry-assets -f plugin-acl-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files plugin-archive-skin-larry-assets -f plugin-archive-skin-larry-assets.files
+%files plugin-enigma-skin-elastic-assets -f plugin-enigma-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files plugin-enigma-skin-larry-assets -f plugin-enigma-skin-larry-assets.files
+%defattr(-,root,root,-)
+
+%files plugin-help-skin-elastic-assets -f plugin-help-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files plugin-help-skin-larry-assets -f plugin-help-skin-larry-assets.files
@@ -2830,13 +3320,16 @@ fi
 %files plugin-hide_blockquote-skin-larry-assets -f plugin-hide_blockquote-skin-larry-assets.files
 %defattr(-,root,root,-)
 
+%files plugin-jqueryui-skin-elastic-assets -f plugin-jqueryui-skin-elastic-assets.files
+%defattr(-,root,root,-)
+
 %files plugin-jqueryui-skin-larry-assets -f plugin-jqueryui-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files plugin-managesieve-skin-larry-assets -f plugin-managesieve-skin-larry-assets.files
+%files plugin-managesieve-skin-elastic-assets -f plugin-managesieve-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
-%files plugin-markasjunk-skin-larry-assets -f plugin-markasjunk-skin-larry-assets.files
+%files plugin-managesieve-skin-larry-assets -f plugin-managesieve-skin-larry-assets.files
 %defattr(-,root,root,-)
 
 %files plugin-vcard_attachments-skin-larry-assets -f plugin-vcard_attachments-skin-larry-assets.files
@@ -2845,13 +3338,75 @@ fi
 %files plugin-zipdownload-skin-larry-assets -f plugin-zipdownload-skin-larry-assets.files
 %defattr(-,root,root,-)
 
+%files skin-elastic -f skin-elastic.files
+%defattr(-,root,root,-)
+
 %files skin-larry -f skin-larry.files
+%defattr(-,root,root,-)
+
+%files skin-elastic-assets -f skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files skin-larry-assets -f skin-larry-assets.files
 %defattr(-,root,root,-)
 
 %changelog
+* Tue Sep 18 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-49.beta36
+- Check in 36 revisions ahead of beta release
+- Conditionally include collabora.inc.php per vhost on Plesk
+
+* Mon Aug 27 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-47.beta3
+- Promote to beta (3 fixes ahead of upstream)
+
+* Sat Aug 18 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-39.alpha8
+- New snapshot
+- Set create_default_folders to true on Plesk
+
+* Thu Jul 12 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-38.alpha7
+- Fix unread icon
+- Use bold font for folders with unread messages
+- New skin thumbnail image
+- Fix search scope selection
+
+* Tue Jun  5 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-36.alpha6
+- Fix toolbars in Safari desktop browser (T110373)
+
+* Thu May 31 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-34.alpha6
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Tue May 22 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-32.alpha5
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Tue May 15 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-31.alpha4
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Mon May 14 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-16.alpha4
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Fri May  4 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-13.alpha3
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Mon Apr 30 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-12.alpha2
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Wed Apr 25 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-9.alpha1
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Tue Apr 10 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.4-8.alpha0
+- Check in pre-alpha 1.4 release with Elastic skin
+
+* Thu Apr  5 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.3.5-1
+- Check in 4 revisions ahead of 1.3.5 release
+
+* Thu Mar  8 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.3.4-3
+- Check in 14 revisions ahead of 1.3.4 release
+
+* Wed Feb 28 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.3.4-2
+- Check in 12 revisions ahead of 1.3.4 release
+
+* Sun Feb 11 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.3.4-1
+- Check in upstream 1.3.4 release
+
 * Tue Nov 14 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.3.3-2
 - Stop dropping columns
 

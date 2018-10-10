@@ -88,6 +88,7 @@ Group:          Applications/System
 Requires:       chwala
 Requires:       guam
 Requires:       iRony
+Requires:       kolab-autoconf
 Requires:       kolab-syncroton
 Requires:       php-kolabformat >= 1.0
 Requires:       php-kolab >= 0.5
@@ -102,6 +103,7 @@ Requires:       roundcubemail-plugin-contextmenu
 Requires:       roundcubemail-plugin-jqueryui
 Requires:       roundcubemail-plugin-kolab_activesync
 Requires:       roundcubemail-plugin-kolab_addressbook
+Requires:       roundcubemail-plugin-kolab_chat
 Requires:       roundcubemail-plugin-kolab_config
 Requires:       roundcubemail-plugin-kolab_files
 Requires:       roundcubemail-plugin-kolab_folders
@@ -124,6 +126,18 @@ This is the meta-package to install Kolab Groupware on Plesk %{plesk}
 %package mta
 Summary:        The Kolab Groupware Mail Transfer Agent (MTA) meta-package
 Group:          Applications/System
+Requires:       amavisd-new
+
+%if 0%{?rhel} > 6 || 0%{?fedora} > 0
+Requires:       clamav-update
+%endif
+
+%if 0%{?with_systemd}
+Requires:       clamav-server-systemd
+%else
+Requires:       clamav-server-sysvinit
+%endif
+Requires:       clamav-update
 
 Requires:       postfix
 Requires:       postfix-kolab
@@ -208,6 +222,15 @@ This is the Kolab Groupware web client meta-package
 %doc README
 
 %changelog
+* Wed Jul  4 2019 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 16.0.1-7
+- Require kolab-autoconf for kolab-plesk
+
+* Mon May 07 2018 Christoph Erhardt <kolab@sicherha.de> - 16.0.1-6
+- Fix logical expression
+
+* Tue Sep 05 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 16.0.1-5
+- Exclude requiring guam on fedora/ppc64le
+
 * Wed Jan 11 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 16.0.1-4
 - Initial changes for Plesk 17 installation
 

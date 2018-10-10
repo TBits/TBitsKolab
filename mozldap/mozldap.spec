@@ -17,13 +17,13 @@
 
 %define major           6
 %define minor           0
-%define submin          5
+%define submin          7
 %define libsuffix       %{major}0
 
 Summary:          Mozilla LDAP C SDK
 Name:             mozldap
 Version:          %{major}.%{minor}.%{submin}
-Release:          11%{?dist}
+Release:          1%{?dist}
 License:          MPLv1.1 or GPLv2+ or LGPLv2+
 URL:              http://www.mozilla.org/directory/csdk.html
 Group:            System Environment/Libraries
@@ -81,7 +81,7 @@ Header and Library files for doing development with the Mozilla LDAP C SDK
 %setup -q
 
 %build
-cd mozilla/directory/c-sdk
+cd c-sdk
 
 %configure \
 %ifarch x86_64 ppc64 ia64 s390x sparc64
@@ -117,7 +117,7 @@ make \
 
 # Set up our package file
 %{__mkdir_p} $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-%{__cat} mozilla/directory/c-sdk/mozldap.pc.in \
+%{__cat} c-sdk/mozldap.pc.in \
     | sed -e "s,%%libdir%%,%{_libdir},g" \
           -e "s,%%prefix%%,%{_prefix},g" \
           -e "s,%%major%%,%{major},g" \
@@ -144,13 +144,13 @@ make \
 # Copy the binary libraries we want
 for file in libssldap%{libsuffix}.so libprldap%{libsuffix}.so libldap%{libsuffix}.so libldif%{libsuffix}.so
 do
-  %{__install} -m 755 mozilla/dist/lib/$file $RPM_BUILD_ROOT%{_libdir}
+  %{__install} -m 755 ../dist/lib/$file $RPM_BUILD_ROOT%{_libdir}
 done
 
 # Copy the binaries we want
 for file in ldapsearch ldapmodify ldapdelete ldapcmp ldapcompare ldappasswd
 do
-  %{__install} -m 755 mozilla/dist/bin/$file $RPM_BUILD_ROOT%{_libexecdir}/%{name}
+  %{__install} -m 755 ../dist/bin/$file $RPM_BUILD_ROOT%{_libexecdir}/%{name}
 %if "%{_libexecdir}" != "%{_libdir}"
   pushd $RPM_BUILD_ROOT%{_libdir}/%{name}
   ln -s ../../..%{_libexecdir}/%{name}/$file $file
@@ -159,19 +159,19 @@ do
 done
 
 # Copy the include files
-for file in mozilla/dist/public/ldap/*.h
+for file in ../dist/public/ldap/*.h
 do
   %{__install} -p -m 644 $file $RPM_BUILD_ROOT%{_includedir}/%{name}
 done
 
 # Copy the developer files
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/%{name}
-cp -r mozilla/directory/c-sdk/ldap/examples $RPM_BUILD_ROOT%{_datadir}/%{name}
+cp -r c-sdk/ldap/examples $RPM_BUILD_ROOT%{_datadir}/%{name}
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
-%{__install} -m 644 mozilla/directory/c-sdk/ldap/examples/xmplflt.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
-%{__install} -m 644 mozilla/directory/c-sdk/ldap/libraries/libldap/ldaptemplates.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
-%{__install} -m 644 mozilla/directory/c-sdk/ldap/libraries/libldap/ldapfilter.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
-%{__install} -m 644 mozilla/directory/c-sdk/ldap/libraries/libldap/ldapsearchprefs.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
+%{__install} -m 644 c-sdk/ldap/examples/xmplflt.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
+%{__install} -m 644 c-sdk/ldap/libraries/libldap/ldaptemplates.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
+%{__install} -m 644 c-sdk/ldap/libraries/libldap/ldapfilter.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
+%{__install} -m 644 c-sdk/ldap/libraries/libldap/ldapsearchprefs.conf $RPM_BUILD_ROOT%{_datadir}/%{name}/etc
 
 %pre
 %if "%{_libexecdir}" != "%{_libdir}"
@@ -194,7 +194,7 @@ done
 
 %files
 %defattr(-,root,root,-)
-%doc mozilla/directory/c-sdk/README.rpm
+%doc c-sdk/README.rpm
 %{_libdir}/libssldap*.so
 %{_libdir}/libprldap*.so
 %{_libdir}/libldap*.so
@@ -226,6 +226,9 @@ done
 %{_datadir}/%{name}
 
 %changelog
+* Sat Apr 07 2018 Christoph Erhardt <kolab@sicherha.de> - 6.0.7-1
+- Bump version to 6.0.7.
+
 * Wed Oct 30 2013 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 6.0.5-11
 - Move the commands from a lib_t labeled directory to a bin_t labeled
   directory.
@@ -279,7 +282,7 @@ done
 - Fixed exports file generation for Solaris and Windows - no effect on linux
 - bumped version to 6.0.2
 
-* Mon Jan  9 2007 Rich Megginson <richm@stanfordalumni.org> - 6.0.1-2
+* Tue Jan  9 2007 Rich Megginson <richm@stanfordalumni.org> - 6.0.1-2
 - Remove buildroot = "/" checking
 - Remove buildroot removal from %%build section
 

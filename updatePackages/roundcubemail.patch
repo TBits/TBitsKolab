@@ -24,7 +24,7 @@
 @@ -1844,7 +1849,7 @@
  
  %check
- pushd %{name}-%{version}/tests
+ pushd %{name}-%{version}%{?dash_rel_suffix}/tests
 -phpunit --debug || :
 +#phpunit --debug || :
  popd

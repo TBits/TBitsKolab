@@ -1,10 +1,14 @@
 --- a/kolab.spec	2017-07-25 17:00:33.887563445 +0200
 +++ b/kolab.spec	2017-07-25 17:01:57.943041738 +0200
-@@ -60,7 +60,6 @@
+@@ -60,10 +60,5 @@
  Summary:        Kolab Groupware IMAP Component
  Group:          Applications/System
  Requires:       cyrus-imapd
+-%if %{?_arch} == "ppc64le" && 0%{?fedora}
+-# Do not require Guam on fedora/ppc64le
+-%else
 -Requires:       guam
+-%endif
  Requires:       kolab-saslauthd
  Requires:       pykolab
  

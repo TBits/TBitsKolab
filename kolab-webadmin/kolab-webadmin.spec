@@ -34,14 +34,14 @@
 %global kolabr_group_id 414
 
 Name:           kolab-webadmin
-Version: 3.2.11
+Version:        3.2.12
 Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Kolab Groupware Server Web Administration Interface
 License:        AGPLv3+
 Group:          Productivity/Office/Organizers
 Url:            http://www.kolab.org
 
-Source0:        kolab-webadmin-3.2.11.tar.gz
+Source0:        kolab-webadmin-3.2.12.tar.gz
 Source1:        99tbits.ldif
 Source2:        initTBitsUserTypes.php
 
@@ -206,6 +206,9 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Fri Nov 17 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 3.2.12-1
+- Release 3.2.12
+
 * Wed Jan 13 2016 Timotheus Pokorra <tp@tbits.net> - 3.2.11-2
 - requires php because libphp5.so provides php_value needed in kolab-webadmin.conf (#3678)
 

@@ -36,7 +36,7 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           kolab-syncroton
-Version:        2.3.8
+Version:        2.3.13
 Release:        1%{?dist}
 Summary:        ActiveSync for Kolab Groupware
 
@@ -195,6 +195,25 @@ exit 0
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Fri Aug 17 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.13-1
+- Release 2.3.13
+
+* Wed Jun 13 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.12-1
+- Release 2.3.12
+
+* Thu Mar  8 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.10-1
+- Release 2.3.10
+
+* Fri Mar  2 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.9-1
+- Release 2.3.9
+
+* Fri Feb  2 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.8-3
+- Fix redundant GETMETADATA requests for mail folders
+
+* Wed Jan 24 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.8-2
+- Fix logging
+- Fix version number
+
 * Wed Dec 20 2017 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.8-1
 - Release 2.3.8
 
@@ -292,9 +311,6 @@ exit 0
 
 * Sun Sep  8 2013 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.2.0-1
 - Release version 2.2.0
-
-* Wed Sep  3 2013 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.1.0-1
-- Bug fixes for #1658, and attachment sending
 
 * Tue Mar 12 2013 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.1-0.2.rc2
 - New upstream release
