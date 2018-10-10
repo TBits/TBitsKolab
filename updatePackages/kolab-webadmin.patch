@@ -2,7 +2,7 @@ Index: kolab-webadmin.spec
 ===================================================================
 --- a/kolab-webadmin.spec	(revision 1)
 +++ b/kolab-webadmin.spec	(working copy)
-@@ -42,6 +42,26 @@
+@@ -42,6 +42,25 @@
  Url:            http://www.kolab.org
  
  Source0:        kolab-webadmin-3.2.11.tar.gz
@@ -18,7 +18,6 @@ Index: kolab-webadmin.spec
 +Patch14:        domainAdminMaxAccounts.patch
 +Patch15:        lastLoginTBitsAttribute-wap.patch
 +Patch16:        quotaused_wap.patch
-+Patch17:        tbitsWAPFooter.patch
 +Patch18:        canonification_via_uid_wap.patch
 +Patch19:        listUsersLastLoginQuotaUsage.patch
 +Patch20:        intranetToken-wap.patch
@@ -29,7 +28,7 @@ Index: kolab-webadmin.spec
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-@@ -73,12 +95,31 @@
+@@ -73,12 +95,30 @@
  Requires:       php-ldap
  Requires:       php-mbstring
  Requires:       php-mysqlnd
@@ -48,7 +47,6 @@ Index: kolab-webadmin.spec
 +%patch14 -p1
 +%patch15 -p1
 +%patch16 -p1
-+%patch17 -p1
 +%patch18 -p1
 +%patch19 -p1
 +%patch20 -p1
