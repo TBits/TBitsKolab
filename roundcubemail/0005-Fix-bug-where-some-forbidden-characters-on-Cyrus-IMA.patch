@@ -1,0 +1,122 @@
+From 16b5a345e0000c1909f5a7bcb309f083cae50878 Mon Sep 17 00:00:00 2001
+From: Aleksander Machniak <machniak@kolabsys.com>
+Date: Tue, 8 May 2018 12:20:11 +0200
+Subject: [PATCH 5/5] Fix bug where some forbidden characters on Cyrus-IMAP
+ were not prevented from use in folder names
+
+Conflicts:
+	plugins/archive/archive.php
+---
+ CHANGELOG                               |  1 +
+ program/lib/Roundcube/rcube_imap.php    | 29 +++++++++++++++++++++++++++++
+ program/lib/Roundcube/rcube_storage.php | 20 ++++++++++++++++++++
+ program/steps/settings/save_folder.inc  | 10 ++--------
+ 4 files changed, 52 insertions(+), 8 deletions(-)
+
+diff --git a/CHANGELOG b/CHANGELOG
+index 21eedff5b..6cbd10164 100644
+--- a/CHANGELOG
++++ b/CHANGELOG
+@@ -4,6 +4,7 @@ CHANGELOG Roundcube Webmail
+ - Fix PHP Warning: Use of undefined constant IDNA_DEFAULT on systems without php-intl (#6244)
+ - Fix bug where some parts of quota information could have been ignored (#6280)
+ - Fix bug where some escape sequences in html styles could bypass security checks
++- Fix bug where some forbidden characters on Cyrus-IMAP were not prevented from use in folder names
+ 
+ RELEASE 1.3.6
+ -------------
+diff --git a/program/lib/Roundcube/rcube_imap.php b/program/lib/Roundcube/rcube_imap.php
+index be359d066..eaae624c8 100644
+--- a/program/lib/Roundcube/rcube_imap.php
++++ b/program/lib/Roundcube/rcube_imap.php
+@@ -3722,6 +3722,35 @@ class rcube_imap extends rcube_storage
+         }
+     }
+ 
++    /**
++     * Check if the folder name is valid
++     *
++     * @param string $folder Folder name (UTF-8)
++     * @param string &$char  First forbidden character found
++     *
++     * @return bool True if the name is valid, False otherwise
++     */
++    public function folder_validate($folder, &$char = null)
++    {
++        if (parent::folder_validate($folder, $char)) {
++            $vendor = $this->get_vendor();
++            $regexp = '\\x00-\\x1F\\x7F%*';
++
++            if ($vendor == 'cyrus') {
++                // List based on testing Kolab's Cyrus-IMAP 2.5
++                $regexp .= '!`@(){}|\\?<;"';
++            }
++
++            if (!preg_match("/[$regexp]/", $folder, $m)) {
++                return true;
++            }
++
++            $char = $m[0];
++        }
++
++        return false;
++    }
++
+     /**
+      * Get message header names for rcube_imap_generic::fetchHeader(s)
+      *
+diff --git a/program/lib/Roundcube/rcube_storage.php b/program/lib/Roundcube/rcube_storage.php
+index 56703177c..faacd4f65 100644
+--- a/program/lib/Roundcube/rcube_storage.php
++++ b/program/lib/Roundcube/rcube_storage.php
+@@ -796,6 +796,26 @@ abstract class rcube_storage
+      */
+     abstract function mod_folder($folder, $mode = 'out');
+ 
++    /**
++     * Check if the folder name is valid
++     *
++     * @param string $folder Folder name (UTF-8)
++     * @param string &$char  First forbidden character found
++     *
++     * @return bool True if the name is valid, False otherwise
++     */
++    public function folder_validate($folder, &$char = null)
++    {
++        $delim = $this->get_hierarchy_delimiter();
++
++        if (strpos($folder, $delim) !== false) {
++            $char = $delim;
++            return false;
++        }
++
++        return true;
++    }
++
+     /**
+      * Create all folders specified as default
+      */
+diff --git a/program/steps/settings/save_folder.inc b/program/steps/settings/save_folder.inc
+index ed1b09fc1..0b777798b 100644
+--- a/program/steps/settings/save_folder.inc
++++ b/program/steps/settings/save_folder.inc
+@@ -45,14 +45,8 @@ else if (mb_strlen($name) > 128) {
+ else if ($name[0] == '.' && $RCMAIL->config->get('imap_skip_hidden_folders')) {
+     $error = $RCMAIL->gettext('namedotforbidden');
+ }
+-else {
+-    // these characters are problematic e.g. when used in LIST/LSUB
+-    foreach (array($delimiter, '%', '*') as $char) {
+-        if (strpos($name, $char) !== false) {
+-            $error = $RCMAIL->gettext('forbiddencharacter') . " ($char)";
+-            break;
+-        }
+-    }
++else if (!$STORAGE->folder_validate($name, $char)) {
++    $error = $RCMAIL->gettext('forbiddencharacter') . " ($char)";
+ }
+ 
+ if ($error) {
+-- 
+2.14.3
+

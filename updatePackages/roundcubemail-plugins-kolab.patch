@@ -1,12 +1,10 @@
 --- a/roundcubemail-plugins-kolab.spec	2017-06-14 09:02:14.709793334 +0200
 +++ b/roundcubemail-plugins-kolab.spec	2017-06-14 10:30:24.683577971 +0200
-@@ -31,7 +31,7 @@
+@@ -31,5 +31,5 @@
  Name:           roundcubemail-plugins-kolab
- Version:        3.4
-
--Release:        46%{?dot_rel_suffix}%{?dist}
+ Version:        3.3.6
+-Release:        1%{?dist}
 +Release:        100.tbits%(date +%%Y%%m%%d)%{?dist}
-
  Summary:        Kolab Groupware plugins for Roundcube Webmail
  
 @@ -46,8 +46,17 @@

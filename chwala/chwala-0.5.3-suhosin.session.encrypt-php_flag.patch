@@ -1,8 +1,0 @@
-diff -ur chwala-0.5.3.orig/public_html/.htaccess chwala-0.5.3/public_html/.htaccess
---- chwala-0.5.3.orig/public_html/.htaccess	2018-06-27 09:07:38.000000000 +0200
-+++ chwala-0.5.3/public_html/.htaccess	2018-08-10 12:25:45.519638515 +0200
-@@ -3,3 +3,4 @@
- php_flag  log_errors                On
- php_flag  suhosin.session.encrypt   Off
- php_value error_log                 ../logs/errors
-+php_flag  session.auto_start        Off

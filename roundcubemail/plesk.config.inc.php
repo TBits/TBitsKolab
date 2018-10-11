@@ -14,12 +14,12 @@
 */
     $config['support_url'] = "https://www.plesk.com/support/";
 
-    $config['product_name'] = "Plesk Premium Mail, powered by Kolab";
+    $config['product_name'] = "Plesk Premium Email, powered by Kolab";
 
-    $config['default_host'] = "localhost";
-    $config['default_port'] = 143;
+    $config['default_host'] = "ssl://localhost";
+    $config['default_port'] = 9993;
 
-    $config['smtp_server'] = "localhost";
+    $config['smtp_server'] = "tls://localhost";
     $config['smtp_port'] = 25;
     $config['smtp_user'] = '%u';
     $config['smtp_pass'] = '%p';
@@ -140,15 +140,10 @@
 
     $config['performance_stats'] = true;
 
-    $config['archive_mbox'] = 'Archive';
     $config['drafts_mbox'] = 'Drafts';
     $config['junk_mbox'] = 'Spam';
     $config['sent_mbox'] = 'Sent';
     $config['trash_mbox'] = 'Trash';
-
-    $config['create_default_folders'] = true;
-
-    $config['default_folders'] = array('INBOX', 'Archive', 'Drafts', 'Sent', 'Spam', 'Trash');
 
     $config['skin_include_php'] = false;
     $config['mime_magic'] = null;
@@ -156,6 +151,10 @@
     $config['im_convert_path'] = '/usr/bin/convert';
     $config['log_dir'] = 'logs/';
     $config['temp_dir'] = '/tmp';
+
+    $config['archive_mbox'] = 'Archive';
+    $config['junk_mbox'] = 'Spam';
+    $config['default_folders'] = array('INBOX', 'Archive', 'Drafts', 'Sent', 'Spam', 'Trash');
 
     $config['log_driver'] = 'file';
     $config['log_date_format'] = 'Y-M-d H:i:s O';
@@ -191,21 +190,11 @@
         )
     );
 
+    // Discretionary user-supplied overrides
     if (file_exists(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/'. basename(__FILE__))) {
         @include_once(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/'. basename(__FILE__));
     }
 
-    // Integration between Plesk Premium Email and Collabora Online extensions
-    if (file_exists(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/collabora.inc.php')) {
-        @include_once(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/collabora.inc.php');
-    }
-
-    // Integration between Plesk Premium Email and Mattermost extensions
-    if (file_exists(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/mattermost.inc.php')) {
-        @include_once(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/mattermost.inc.php');
-    }
-
-    // Integration between Plesk Premium Email and Seafile extensions
     if (file_exists(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/seafile.inc.php')) {
         @include_once(RCUBE_CONFIG_DIR .'/'. $_SERVER['HTTP_HOST'] .'/seafile.inc.php');
     }

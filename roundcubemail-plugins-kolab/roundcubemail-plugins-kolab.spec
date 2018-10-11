@@ -1,10 +1,3 @@
-%if 0%{?opensuse_bs}
-#!BuildIgnore: lighttpd
-#!BuildIgnore: nginx
-%endif
-
-%global bootstrap 0
-
 %{!?php_inidir: %global php_inidir %{_sysconfdir}/php.d}
 
 %if 0%{?suse_version} < 1 && 0%{?fedora} < 1 && 0%{?rhel} < 7
@@ -35,16 +28,9 @@
 %global confdir %{_sysconfdir}/roundcubemail
 %global tmpdir %{_var}/lib/roundcubemail
 
-%global rc_version 3.4
-%global rc_rel_suffix alpha8
-%global dot_rel_suffix %{?rc_rel_suffix:.%{rc_rel_suffix}}
-%global dash_rel_suffix %{?rc_rel_suffix:-%{rc_rel_suffix}}
-
 Name:           roundcubemail-plugins-kolab
-Version:        3.4
-
+Version:        3.3.6
 Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
-
 Summary:        Kolab Groupware plugins for Roundcube Webmail
 
 Group:          Applications/Internet
@@ -52,14 +38,15 @@ License:        AGPLv3+ and GPLv3+
 URL:            http://www.kolab.org
 
 # From 562ed98bd2e265c0d8a12bd2092b72d85d3e3543
-Source0:        https://mirror.kolabenterprise.com/pub/releases/roundcubemail-plugins-kolab-%{version}%{?dash_rel_suffix}.tar.gz
+Source0:        https://mirror.kolabenterprise.com/pub/releases/roundcubemail-plugins-kolab-%{version}.tar.gz
 Source1:        comm.py
 
 Source100:      plesk.calendar.inc.php
 Source101:      plesk.kolab_addressbook.inc.php
-Source102:      plesk.kolab_chat.inc.php
-Source103:      plesk.kolab_folders.inc.php
-Source104:      plesk.libkolab.inc.php
+Source102:      plesk.kolab_folders.inc.php
+Source103:      plesk.libkolab.inc.php
+
+Patch0001:      0001-Fix-missing-first-occurrence-of-an-event-when-moved-.patch
 
 Source200:      ude_login.inc.php
 Source201:      ude_login.php
@@ -83,24 +70,20 @@ BuildRequires:  composer
 BuildRequires:  php-justinrainbow-json-schema4
 %endif
 
-%if "%{_arch}" != "ppc64" && "%{_arch}" != "ppc64le"
-BuildRequires:  nodejs-less
-%if 0%{?suse_version} < 1
+%if "%{_arch}" != "ppc64" && "%{_arch}" != "ppc64le" && 0%{?suse_version} < 1
 BuildRequires:  python-cssmin
 BuildRequires:  uglify-js
-%endif
 %else
-BuildRequires:  php-lessphp
+BuildRequires:  roundcubemail(core)
 %endif
 
 BuildRequires:  python
-BuildRequires:  roundcubemail(skin-elastic)
 
 Requires:       php-kolabformat >= 1.0
 Requires:       php-kolab >= 0.5
 Requires:       php-pear(HTTP_Request2)
 %if 0%{?plesk} < 1
-Requires:       php-kolab-net-ldap3
+Requires:       php-pear(Net_LDAP3)
 %endif
 Requires:       php-pear(Mail_Mime) >= 1.8.5
 Requires:       roundcubemail >= %{roundcube_version}
@@ -129,24 +112,13 @@ Summary:        Plugin calendar
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-calendar-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-calendar-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
+%if 0%{?fedora} >= 25
+# avoid that plugin-calendar-skin-classic is installed, which is not what we want. that would return an error when loading the calendar
+Requires:       roundcubemail(plugin-calendar-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-calendar-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-calendar-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-calendar-skin-larry) >= 1.4
-%endif
+Requires:       roundcubemail(plugin-calendar-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 Requires:       roundcubemail(plugin-libcalendaring) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-calendar) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -158,10 +130,7 @@ Summary:        Plugin html_converter
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-html_converter-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-html_converter-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-html_converter-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-html_converter-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-html_converter-skin-larry-assets < 1.4.0
+Requires:       roundcubemail(plugin-html_converter-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       lynx
 Provides:       roundcubemail(plugin-html_converter) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -173,22 +142,7 @@ Summary:        Plugin kolab_2fa
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_2fa-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_2fa-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_2fa-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_2fa-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_2fa-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_2fa-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       php-endroid-qrcode
 Requires:       php-enygma-yubikey
 Requires:       php-spomky-labs-otphp
@@ -213,22 +167,7 @@ Summary:        Plugin kolab_activesync
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_activesync-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_activesync-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_activesync-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_activesync-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_activesync-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_activesync-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-jqueryui) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_activesync) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -241,22 +180,7 @@ Summary:        Plugin kolab_addressbook
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_addressbook-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_addressbook-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_addressbook-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_addressbook-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_addressbook-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_addressbook-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_addressbook) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -268,50 +192,16 @@ Summary:        Plugin kolab_auth
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_auth-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-kolab_auth-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_auth-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_auth-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_auth-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-kolab_auth) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-kolab_auth
 Plugin kolab_auth
-
-%package -n roundcubemail-plugin-kolab_chat
-Summary:        Plugin kolab_chat
-Group:          Applications/Internet
-Requires:       roundcubemail(core) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_chat-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_chat-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_chat-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_chat-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_chat-skin-larry) >= 1.4
-%endif
-%endif
-Provides:       roundcubemail(plugin-kolab_chat) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_chat
-Plugin kolab_chat
 
 %package -n roundcubemail-plugin-kolab_config
 Summary:        Plugin kolab_config
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_config-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-kolab_config-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_config-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_config-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_config-skin-larry-assets < 1.4.0
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_config) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -323,22 +213,7 @@ Summary:        Plugin kolab_delegation
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_delegation-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_delegation-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_delegation-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_delegation-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_delegation-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_delegation-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-kolab_auth) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_delegation) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -351,22 +226,7 @@ Summary:        Plugin kolab_files
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_files-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_files-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_files-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_files-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_files-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_files-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       php-curl
 Provides:       roundcubemail(plugin-kolab_files) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -379,10 +239,6 @@ Summary:        Plugin kolab_folders
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_folders-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-kolab_folders-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_folders-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_folders-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_folders-skin-larry-assets < 1.4.0
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_folders) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -394,22 +250,8 @@ Summary:        Plugin kolab_notes
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_notes-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_notes-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_notes-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_notes-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_notes-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_notes-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-acl) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_notes) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -421,10 +263,6 @@ Summary:        Plugin kolab_shortcuts
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_shortcuts-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-kolab_shortcuts-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_shortcuts-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_shortcuts-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-kolab_shortcuts-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-kolab_shortcuts) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-kolab_shortcuts
@@ -435,22 +273,7 @@ Summary:        Plugin kolab_tags
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-kolab_tags-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-kolab_tags-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-kolab_tags-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-kolab_tags-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-kolab_tags-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-kolab_tags-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-kolab_tags) = %{?epoch:%{epoch}:}%{version}-%{release}
 
@@ -462,10 +285,6 @@ Summary:        Plugin ldap_authentication
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-ldap_authentication-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-ldap_authentication-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-ldap_authentication-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-ldap_authentication-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-ldap_authentication-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-ldap_authentication) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-ldap_authentication
@@ -474,27 +293,10 @@ Plugin ldap_authentication
 %package -n roundcubemail-plugin-libcalendaring
 Summary:        Plugin libcalendaring
 Group:          Applications/Internet
+Requires:       php-sabre-vobject
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-libcalendaring-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Obsoletes:      roundcubemail-plugin-libcalendaring-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-libcalendaring-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-libcalendaring-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-Obsoletes:      roundcubemail-plugin-libcalendaring-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-libcalendaring-skin-elastic-assets < %{?epoch:%{epoch}:}%{version}-%{release}
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-libcalendaring-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-libcalendaring-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-libcalendaring-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-libcalendaring) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-libcalendaring
@@ -505,22 +307,7 @@ Summary:        Plugin libkolab
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-libkolab-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-libkolab-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-libkolab-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-libkolab-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-libkolab-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-libkolab-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-libkolab
@@ -531,10 +318,6 @@ Summary:        Plugin loginfail
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-loginfail-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-loginfail-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-loginfail-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-loginfail-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-loginfail-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-loginfail) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-loginfail
@@ -545,10 +328,6 @@ Summary:        Plugin logon_page
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-logon_page-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-logon_page-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-logon_page-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-logon_page-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-logon_page-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-logon_page) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-logon_page
@@ -559,10 +338,6 @@ Summary:        Plugin odfviewer
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-odfviewer-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-odfviewer-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-odfviewer-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-odfviewer-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-odfviewer-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-odfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-odfviewer
@@ -573,10 +348,6 @@ Summary:        Plugin pdfviewer
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-pdfviewer-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-pdfviewer-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-pdfviewer-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-pdfviewer-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-pdfviewer-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-pdfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-pdfviewer
@@ -587,10 +358,6 @@ Summary:        Plugin piwik_analytics
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-piwik_analytics-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-piwik_analytics-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-piwik_analytics-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-piwik_analytics-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-piwik_analytics-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-piwik_analytics) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-piwik_analytics
@@ -601,22 +368,8 @@ Summary:        Plugin tasklist
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-tasklist-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?plesk}
-Requires:       roundcubemail(plugin-tasklist-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-plesk) >= 0.4
-%else
-%if 0%{?kolab_enterprise}
-%if 0%{?bootstrap} < 1
-Requires:       roundcubemail(skin-enterprise) >= 0.3.7
-Requires:       roundcubemail(plugin-tasklist-skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(skin-kolab) >= 0.4
-%endif
-%else
-Requires:       roundcubemail(skin-chameleon) >= 0.3.9
-Requires:       roundcubemail(plugin-tasklist-skin-elastic) >= 1.4
-Requires:       roundcubemail(plugin-tasklist-skin-larry) >= 1.4
-%endif
-%endif
+Requires:       roundcubemail(plugin-tasklist-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-acl) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-jqueryui) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-libcalendaring) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -630,10 +383,6 @@ Summary:        Plugin tinymce_config
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-tinymce_config-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-tinymce_config-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-tinymce_config-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-tinymce_config-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-tinymce_config-skin-larry-assets < 1.4.0
 Provides:       roundcubemail(plugin-tinymce_config) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-tinymce_config
@@ -644,11 +393,6 @@ Summary:        Plugin wap_client
 Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-wap_client-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-plugin-wap_client-skin-elastic < 1.4.0
-Obsoletes:      roundcubemail-plugin-wap_client-skin-elastic-assets < 1.4.0
-Obsoletes:      roundcubemail-plugin-wap_client-skin-larry < 1.4.0
-Obsoletes:      roundcubemail-plugin-wap_client-skin-larry-assets < 1.4.0
-Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-wap_client) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-wap_client
@@ -661,14 +405,6 @@ Provides:       roundcubemail(plugin-calendar-assets) = %{?epoch:%{epoch}:}%{ver
 
 %description -n roundcubemail-plugin-calendar-assets
 Plugin calendar Assets
-
-%package -n roundcubemail-plugin-html_converter-assets
-Summary:        Plugin html_converter Assets
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-html_converter-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-html_converter-assets
-Plugin html_converter Assets
 
 %package -n roundcubemail-plugin-kolab_2fa-assets
 Summary:        Plugin kolab_2fa Assets
@@ -709,14 +445,6 @@ Provides:       roundcubemail(plugin-kolab_auth-assets) = %{?epoch:%{epoch}:}%{v
 
 %description -n roundcubemail-plugin-kolab_auth-assets
 Plugin kolab_auth Assets
-
-%package -n roundcubemail-plugin-kolab_chat-assets
-Summary:        Plugin kolab_chat Assets
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_chat-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_chat-assets
-Plugin kolab_chat Assets
 
 %package -n roundcubemail-plugin-kolab_config-assets
 Summary:        Plugin kolab_config Assets
@@ -862,18 +590,6 @@ Provides:       roundcubemail(plugin-wap_client-assets) = %{?epoch:%{epoch}:}%{v
 %description -n roundcubemail-plugin-wap_client-assets
 Plugin wap_client Assets
 
-%package -n roundcubemail-plugin-calendar-skin-elastic
-Summary:        Plugin calendar / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-calendar) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-calendar-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-calendar-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-calendar-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-calendar-skin-elastic
-Plugin calendar / Skin elastic
-
 %package -n roundcubemail-plugin-calendar-skin-larry
 Summary:        Plugin calendar / Skin larry
 Group:          Applications/Internet
@@ -886,17 +602,17 @@ Provides:       roundcubemail(plugin-calendar-skin-larry) = %{?epoch:%{epoch}:}%
 %description -n roundcubemail-plugin-calendar-skin-larry
 Plugin calendar / Skin larry
 
-%package -n roundcubemail-plugin-kolab_2fa-skin-elastic
-Summary:        Plugin kolab_2fa / Skin elastic
+%package -n roundcubemail-plugin-calendar-skin-classic
+Summary:        Plugin calendar / Skin classic
 Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_2fa) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_2fa-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_2fa-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_2fa-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-calendar) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-classic) >= %{roundcube_version}
+Requires:       roundcubemail(plugin-calendar-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-calendar-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-calendar-skin-classic) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_2fa-skin-elastic
-Plugin kolab_2fa / Skin elastic
+%description -n roundcubemail-plugin-calendar-skin-classic
+Plugin calendar / Skin classic
 
 %package -n roundcubemail-plugin-kolab_2fa-skin-larry
 Summary:        Plugin kolab_2fa / Skin larry
@@ -909,18 +625,6 @@ Provides:       roundcubemail(plugin-kolab_2fa-skin-larry) = %{?epoch:%{epoch}:}
 
 %description -n roundcubemail-plugin-kolab_2fa-skin-larry
 Plugin kolab_2fa / Skin larry
-
-%package -n roundcubemail-plugin-kolab_activesync-skin-elastic
-Summary:        Plugin kolab_activesync / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_activesync) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_activesync-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_activesync-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_activesync-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_activesync-skin-elastic
-Plugin kolab_activesync / Skin elastic
 
 %package -n roundcubemail-plugin-ude_login-skin-larry
 Summary:        Plugin ude_login / Skin larry
@@ -946,17 +650,17 @@ Provides:       roundcubemail(plugin-kolab_activesync-skin-larry) = %{?epoch:%{e
 %description -n roundcubemail-plugin-kolab_activesync-skin-larry
 Plugin kolab_activesync / Skin larry
 
-%package -n roundcubemail-plugin-kolab_addressbook-skin-elastic
-Summary:        Plugin kolab_addressbook / Skin elastic
+%package -n roundcubemail-plugin-kolab_activesync-skin-classic
+Summary:        Plugin kolab_activesync / Skin classic
 Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_addressbook) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_addressbook-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_addressbook-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_addressbook-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-kolab_activesync) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-classic) >= %{roundcube_version}
+Requires:       roundcubemail(plugin-kolab_activesync-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_activesync-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_activesync-skin-classic) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_addressbook-skin-elastic
-Plugin kolab_addressbook / Skin elastic
+%description -n roundcubemail-plugin-kolab_activesync-skin-classic
+Plugin kolab_activesync / Skin classic
 
 %package -n roundcubemail-plugin-kolab_addressbook-skin-larry
 Summary:        Plugin kolab_addressbook / Skin larry
@@ -970,41 +674,17 @@ Provides:       roundcubemail(plugin-kolab_addressbook-skin-larry) = %{?epoch:%{
 %description -n roundcubemail-plugin-kolab_addressbook-skin-larry
 Plugin kolab_addressbook / Skin larry
 
-%package -n roundcubemail-plugin-kolab_chat-skin-elastic
-Summary:        Plugin kolab_chat / Skin elastic
+%package -n roundcubemail-plugin-kolab_addressbook-skin-classic
+Summary:        Plugin kolab_addressbook / Skin classic
 Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_chat) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_chat-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_chat-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_chat-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-kolab_addressbook) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-classic) >= %{roundcube_version}
+Requires:       roundcubemail(plugin-kolab_addressbook-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_addressbook-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_addressbook-skin-classic) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_chat-skin-elastic
-Plugin kolab_chat / Skin elastic
-
-%package -n roundcubemail-plugin-kolab_chat-skin-larry
-Summary:        Plugin kolab_chat / Skin larry
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_chat) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_chat-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_chat-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_chat-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_chat-skin-larry
-Plugin kolab_chat / Skin larry
-
-%package -n roundcubemail-plugin-kolab_delegation-skin-elastic
-Summary:        Plugin kolab_delegation / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_delegation) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_delegation-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_delegation-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_delegation-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_delegation-skin-elastic
-Plugin kolab_delegation / Skin elastic
+%description -n roundcubemail-plugin-kolab_addressbook-skin-classic
+Plugin kolab_addressbook / Skin classic
 
 %package -n roundcubemail-plugin-kolab_delegation-skin-larry
 Summary:        Plugin kolab_delegation / Skin larry
@@ -1018,17 +698,17 @@ Provides:       roundcubemail(plugin-kolab_delegation-skin-larry) = %{?epoch:%{e
 %description -n roundcubemail-plugin-kolab_delegation-skin-larry
 Plugin kolab_delegation / Skin larry
 
-%package -n roundcubemail-plugin-kolab_files-skin-elastic
-Summary:        Plugin kolab_files / Skin elastic
+%package -n roundcubemail-plugin-kolab_delegation-skin-classic
+Summary:        Plugin kolab_delegation / Skin classic
 Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_files) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_files-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_files-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_files-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(plugin-kolab_delegation) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-classic) >= %{roundcube_version}
+Requires:       roundcubemail(plugin-kolab_delegation-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_delegation-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_delegation-skin-classic) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_files-skin-elastic
-Plugin kolab_files / Skin elastic
+%description -n roundcubemail-plugin-kolab_delegation-skin-classic
+Plugin kolab_delegation / Skin classic
 
 %package -n roundcubemail-plugin-kolab_files-skin-larry
 Summary:        Plugin kolab_files / Skin larry
@@ -1042,18 +722,6 @@ Provides:       roundcubemail(plugin-kolab_files-skin-larry) = %{?epoch:%{epoch}
 %description -n roundcubemail-plugin-kolab_files-skin-larry
 Plugin kolab_files / Skin larry
 
-%package -n roundcubemail-plugin-kolab_notes-skin-elastic
-Summary:        Plugin kolab_notes / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_notes) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_notes-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_notes-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_notes-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_notes-skin-elastic
-Plugin kolab_notes / Skin elastic
-
 %package -n roundcubemail-plugin-kolab_notes-skin-larry
 Summary:        Plugin kolab_notes / Skin larry
 Group:          Applications/Internet
@@ -1065,18 +733,6 @@ Provides:       roundcubemail(plugin-kolab_notes-skin-larry) = %{?epoch:%{epoch}
 
 %description -n roundcubemail-plugin-kolab_notes-skin-larry
 Plugin kolab_notes / Skin larry
-
-%package -n roundcubemail-plugin-kolab_tags-skin-elastic
-Summary:        Plugin kolab_tags / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-kolab_tags) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-kolab_tags-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_tags-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-kolab_tags-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_tags-skin-elastic
-Plugin kolab_tags / Skin elastic
 
 %package -n roundcubemail-plugin-kolab_tags-skin-larry
 Summary:        Plugin kolab_tags / Skin larry
@@ -1090,54 +746,6 @@ Provides:       roundcubemail(plugin-kolab_tags-skin-larry) = %{?epoch:%{epoch}:
 %description -n roundcubemail-plugin-kolab_tags-skin-larry
 Plugin kolab_tags / Skin larry
 
-%package -n roundcubemail-plugin-libcalendaring-skin-larry
-Summary:        Plugin libcalendaring / Skin larry
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-libcalendaring) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-libcalendaring-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libcalendaring-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libcalendaring-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-libcalendaring-skin-larry
-Plugin libcalendaring / Skin larry
-
-%package -n roundcubemail-plugin-libkolab-skin-elastic
-Summary:        Plugin libkolab / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-libkolab-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libkolab-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libkolab-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-libkolab-skin-elastic
-Plugin libkolab / Skin elastic
-
-%package -n roundcubemail-plugin-libkolab-skin-larry
-Summary:        Plugin libkolab / Skin larry
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-libkolab-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libkolab-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-libkolab-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-libkolab-skin-larry
-Plugin libkolab / Skin larry
-
-%package -n roundcubemail-plugin-tasklist-skin-elastic
-Summary:        Plugin tasklist / Skin elastic
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-tasklist) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-elastic) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-tasklist-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-tasklist-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-tasklist-skin-elastic) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-tasklist-skin-elastic
-Plugin tasklist / Skin elastic
-
 %package -n roundcubemail-plugin-tasklist-skin-larry
 Summary:        Plugin tasklist / Skin larry
 Group:          Applications/Internet
@@ -1150,14 +758,6 @@ Provides:       roundcubemail(plugin-tasklist-skin-larry) = %{?epoch:%{epoch}:}%
 %description -n roundcubemail-plugin-tasklist-skin-larry
 Plugin tasklist / Skin larry
 
-%package -n roundcubemail-plugin-calendar-skin-elastic-assets
-Summary:        Plugin calendar / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-calendar-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-calendar-skin-elastic-assets
-Plugin calendar / Skin elastic (Assets Package)
-
 %package -n roundcubemail-plugin-calendar-skin-larry-assets
 Summary:        Plugin calendar / Skin larry (Assets)
 Group:          Applications/Internet
@@ -1166,13 +766,13 @@ Provides:       roundcubemail(plugin-calendar-skin-larry-assets) = %{?epoch:%{ep
 %description -n roundcubemail-plugin-calendar-skin-larry-assets
 Plugin calendar / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-kolab_2fa-skin-elastic-assets
-Summary:        Plugin kolab_2fa / Skin elastic (Assets)
+%package -n roundcubemail-plugin-calendar-skin-classic-assets
+Summary:        Plugin calendar / Skin classic (Assets)
 Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_2fa-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-calendar-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_2fa-skin-elastic-assets
-Plugin kolab_2fa / Skin elastic (Assets Package)
+%description -n roundcubemail-plugin-calendar-skin-classic-assets
+Plugin calendar / Skin classic (Assets Package)
 
 %package -n roundcubemail-plugin-kolab_2fa-skin-larry-assets
 Summary:        Plugin kolab_2fa / Skin larry (Assets)
@@ -1181,14 +781,6 @@ Provides:       roundcubemail(plugin-kolab_2fa-skin-larry-assets) = %{?epoch:%{e
 
 %description -n roundcubemail-plugin-kolab_2fa-skin-larry-assets
 Plugin kolab_2fa / Skin larry (Assets Package)
-
-%package -n roundcubemail-plugin-kolab_activesync-skin-elastic-assets
-Summary:        Plugin kolab_activesync / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_activesync-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_activesync-skin-elastic-assets
-Plugin kolab_activesync / Skin elastic (Assets Package)
 
 %package -n roundcubemail-plugin-ude_login-skin-larry-assets
 Summary:        Plugin ude_login / Skin larry (Assets)
@@ -1206,13 +798,13 @@ Provides:       roundcubemail(plugin-kolab_activesync-skin-larry-assets) = %{?ep
 %description -n roundcubemail-plugin-kolab_activesync-skin-larry-assets
 Plugin kolab_activesync / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-kolab_addressbook-skin-elastic-assets
-Summary:        Plugin kolab_addressbook / Skin elastic (Assets)
+%package -n roundcubemail-plugin-kolab_activesync-skin-classic-assets
+Summary:        Plugin kolab_activesync / Skin classic (Assets)
 Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_addressbook-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_activesync-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_addressbook-skin-elastic-assets
-Plugin kolab_addressbook / Skin elastic (Assets Package)
+%description -n roundcubemail-plugin-kolab_activesync-skin-classic-assets
+Plugin kolab_activesync / Skin classic (Assets Package)
 
 %package -n roundcubemail-plugin-kolab_addressbook-skin-larry-assets
 Summary:        Plugin kolab_addressbook / Skin larry (Assets)
@@ -1222,29 +814,13 @@ Provides:       roundcubemail(plugin-kolab_addressbook-skin-larry-assets) = %{?e
 %description -n roundcubemail-plugin-kolab_addressbook-skin-larry-assets
 Plugin kolab_addressbook / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-kolab_chat-skin-elastic-assets
-Summary:        Plugin kolab_chat / Skin elastic (Assets)
+%package -n roundcubemail-plugin-kolab_addressbook-skin-classic-assets
+Summary:        Plugin kolab_addressbook / Skin classic (Assets)
 Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_chat-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_addressbook-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_chat-skin-elastic-assets
-Plugin kolab_chat / Skin elastic (Assets Package)
-
-%package -n roundcubemail-plugin-kolab_chat-skin-larry-assets
-Summary:        Plugin kolab_chat / Skin larry (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_chat-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_chat-skin-larry-assets
-Plugin kolab_chat / Skin larry (Assets Package)
-
-%package -n roundcubemail-plugin-kolab_delegation-skin-elastic-assets
-Summary:        Plugin kolab_delegation / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_delegation-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_delegation-skin-elastic-assets
-Plugin kolab_delegation / Skin elastic (Assets Package)
+%description -n roundcubemail-plugin-kolab_addressbook-skin-classic-assets
+Plugin kolab_addressbook / Skin classic (Assets Package)
 
 %package -n roundcubemail-plugin-kolab_delegation-skin-larry-assets
 Summary:        Plugin kolab_delegation / Skin larry (Assets)
@@ -1254,13 +830,13 @@ Provides:       roundcubemail(plugin-kolab_delegation-skin-larry-assets) = %{?ep
 %description -n roundcubemail-plugin-kolab_delegation-skin-larry-assets
 Plugin kolab_delegation / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-kolab_files-skin-elastic-assets
-Summary:        Plugin kolab_files / Skin elastic (Assets)
+%package -n roundcubemail-plugin-kolab_delegation-skin-classic-assets
+Summary:        Plugin kolab_delegation / Skin classic (Assets)
 Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_files-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-kolab_delegation-skin-classic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-kolab_files-skin-elastic-assets
-Plugin kolab_files / Skin elastic (Assets Package)
+%description -n roundcubemail-plugin-kolab_delegation-skin-classic-assets
+Plugin kolab_delegation / Skin classic (Assets Package)
 
 %package -n roundcubemail-plugin-kolab_files-skin-larry-assets
 Summary:        Plugin kolab_files / Skin larry (Assets)
@@ -1270,14 +846,6 @@ Provides:       roundcubemail(plugin-kolab_files-skin-larry-assets) = %{?epoch:%
 %description -n roundcubemail-plugin-kolab_files-skin-larry-assets
 Plugin kolab_files / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-kolab_notes-skin-elastic-assets
-Summary:        Plugin kolab_notes / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_notes-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_notes-skin-elastic-assets
-Plugin kolab_notes / Skin elastic (Assets Package)
-
 %package -n roundcubemail-plugin-kolab_notes-skin-larry-assets
 Summary:        Plugin kolab_notes / Skin larry (Assets)
 Group:          Applications/Internet
@@ -1285,14 +853,6 @@ Provides:       roundcubemail(plugin-kolab_notes-skin-larry-assets) = %{?epoch:%
 
 %description -n roundcubemail-plugin-kolab_notes-skin-larry-assets
 Plugin kolab_notes / Skin larry (Assets Package)
-
-%package -n roundcubemail-plugin-kolab_tags-skin-elastic-assets
-Summary:        Plugin kolab_tags / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-kolab_tags-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-kolab_tags-skin-elastic-assets
-Plugin kolab_tags / Skin elastic (Assets Package)
 
 %package -n roundcubemail-plugin-kolab_tags-skin-larry-assets
 Summary:        Plugin kolab_tags / Skin larry (Assets)
@@ -1305,34 +865,28 @@ Plugin kolab_tags / Skin larry (Assets Package)
 %package -n roundcubemail-plugin-libcalendaring-skin-larry-assets
 Summary:        Plugin libcalendaring / Skin larry (Assets)
 Group:          Applications/Internet
+Requires:       roundcubemail(plugin-libcalendaring) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
+Obsoletes:      roundcubemail-plugin-libcalendaring-skin-larry
+Provides:       roundcubemail(plugin-libcalendaring-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-libcalendaring-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-libcalendaring-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-libcalendaring-skin-larry-assets
 Plugin libcalendaring / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-libkolab-skin-elastic-assets
-Summary:        Plugin libkolab / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-libkolab-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-libkolab-skin-elastic-assets
-Plugin libkolab / Skin elastic (Assets Package)
-
 %package -n roundcubemail-plugin-libkolab-skin-larry-assets
 Summary:        Plugin libkolab / Skin larry (Assets)
 Group:          Applications/Internet
+Requires:       roundcubemail(plugin-libkolab) = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
+Obsoletes:      roundcubemail-plugin-libkolab-skin-larry
+Provides:       roundcubemail(plugin-libkolab-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
+Provides:       roundcubemail(plugin-libkolab-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-libkolab-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n roundcubemail-plugin-libkolab-skin-larry-assets
 Plugin libkolab / Skin larry (Assets Package)
-
-%package -n roundcubemail-plugin-tasklist-skin-elastic-assets
-Summary:        Plugin tasklist / Skin elastic (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-tasklist-skin-elastic-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-tasklist-skin-elastic-assets
-Plugin tasklist / Skin elastic (Assets Package)
 
 %package -n roundcubemail-plugin-tasklist-skin-larry-assets
 Summary:        Plugin tasklist / Skin larry (Assets)
@@ -1343,26 +897,19 @@ Provides:       roundcubemail(plugin-tasklist-skin-larry-assets) = %{?epoch:%{ep
 Plugin tasklist / Skin larry (Assets Package)
 
 %prep
-%setup -q  -c "%{name}-%{version}%{?dash_rel_suffix}"
+%setup -q  -c "%{name}-%{version}"
 
-pushd %{name}-%{version}%{?dash_rel_suffix}
-
-ls -l
-mkdir -p skins/elastic/
-rm -rvf skins/elastic/images
-mkdir -p skins/elastic/images/
-cp -av %{datadir}/skins/elastic/images/* skins/elastic/images/. || :
-cp -av %{datadir}/skins/elastic/styles/ skins/elastic/. || :
+pushd %{name}-%{version}
 
 %if 0%{?plesk}
 # Provide defaults for Plesk
-cp -afv %{SOURCE100} plugins/calendar/config.inc.php.dist
-cp -afv %{SOURCE101} plugins/kolab_addressbook/config.inc.php.dist
-cp -afv %{SOURCE102} plugins/kolab_chat/config.inc.php.dist
-cp -afv %{SOURCE103} plugins/kolab_folders/config.inc.php.dist
-cp -afv %{SOURCE104} plugins/libkolab/config.inc.php.dist
+cp -af %{SOURCE100} plugins/calendar/config.inc.php.dist
+cp -af %{SOURCE101} plugins/kolab_addressbook/config.inc.php.dist
+cp -af %{SOURCE102} plugins/kolab_folders/config.inc.php.dist
+cp -af %{SOURCE103} plugins/libkolab/config.inc.php.dist
 %endif
 
+%patch0001 -p1
 %patch1001 -p1
 %patch10 -p1
 %patch11 -p1
@@ -1377,20 +924,11 @@ find -type d -name "helpdocs" -exec rm -rvf {} \; 2>/dev/null || :
 rm -rf plugins/kolab_zpush
 rm -rf plugins/owncloud
 
-# Remove hidden files and directories
-find . -type f -name ".*" -delete | while read file; do
-    rm -rvf ${file}
-done
+# Remove the results of patching when there's an incidental offset
+find . -type f -name "*.orig" -delete
 
-find . -type d -name ".*" ! -name "." ! -name ".." | while read dir; do
-    rm -rvf ${dir}
-done
-
-while [ ! -z "$(find . -type d -empty)" ]; do
-    find . -type d -empty | while read dir; do
-        rm -rvf ${dir}
-    done
-done
+# Remove hidden files
+find . -type f -name ".*" -delete
 
 # Eliminate links
 for link in `find . -type l`; do
@@ -1401,8 +939,8 @@ done
 
 popd
 
-for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
-    target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}%{?dash_rel_suffix}|%{name}-plugin-$(basename ${plugin})-%{version}%{?dash_rel_suffix}|g")
+for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
+    target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}|%{name}-plugin-$(basename ${plugin})-%{version}|g")
     %{__mkdir_p} $(dirname ${target_dir})
     cp -av ${plugin} ${target_dir}
 
@@ -1413,40 +951,11 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -
         echo "Requires:       roundcubemail(core) >= %%{roundcube_version}"
         echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-assets) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         if [ -d "${plugin}/skins/" ]; then
-            echo "%%if 0%%{?plesk}"
-            if [ -d "${target_dir}/skins/elastic/" ]; then
-                echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-skin-elastic) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
-            else
-                echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
-                echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
-            fi
-            echo "Requires:       roundcubemail(skin-plesk) >= 0.4"
-            echo "%%else"
-            echo "%%if 0%%{?kolab_enterprise}"
-            echo "%%if 0%%{?bootstrap} < 1"
-            echo "Requires:       roundcubemail(skin-enterprise) >= 0.3.7"
-            echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-skin-larry) >= %%{roundcube_version}"
-            echo "Requires:       roundcubemail(skin-kolab) >= 0.4"
-            echo "%%endif"
-            if [ ! -d "${target_dir}/skins/elastic/" ]; then
-                echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
-                echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic-assets < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
-            fi
-            echo "%%else"
-            echo "Requires:       roundcubemail(skin-chameleon) >= 0.3.9"
-            echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-skin-elastic) >= 1.4"
-            echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-skin-larry) >= 1.4"
-            echo "%%endif"
-            echo "%%endif"
-        else
-            echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic < 1.4.0"
-            echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-elastic-assets < 1.4.0"
-            echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-larry < 1.4.0"
-            echo "Obsoletes:      roundcubemail-plugin-$(basename ${plugin})-skin-larry-assets < 1.4.0"
+            echo "Requires:       roundcubemail(plugin-$(basename ${plugin})-skin) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
         fi
 
         for rplugin in $(grep -rn "require_plugin" ${plugin}/ | cut -d"'" -f2 | sort); do
-            if [ -d "%{name}-%{version}%{?dash_rel_suffix}/plugins/${rplugin}" ]; then
+            if [ -d "%{name}-%{version}/plugins/${rplugin}" ]; then
                 echo "Requires:       roundcubemail(plugin-${rplugin}) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
             else
                 echo "Requires:       roundcubemail(plugin-${rplugin}) >= %%{roundcube_version}"
@@ -1473,6 +982,9 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -
     (
         echo "%files -n roundcubemail-plugin-$(basename ${plugin}) -f plugin-$(basename ${plugin}).files"
         echo "%defattr(-,root,root,-)"
+        if [ -d "${plugin}/config" -o -f "${plugin}/config.inc.php" -o -f "${plugin}/config.inc.php.dist" ]; then
+            echo "%attr(0640,root,%%{httpd_group}) %config(noreplace) %%{_sysconfdir}/roundcubemail/$(basename ${plugin}).inc.php"
+        fi
         echo ""
     ) >> plugins.files
 
@@ -1536,9 +1048,9 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -
         echo ""
     ) >> plugins-assets.files
 
-    for skin in elastic larry; do
+    for skin in larry classic; do
         for dir in $(find ${target_dir} -type d -name "${skin}" | grep -v "helpdocs" | sort); do
-            starget_dir=$(echo ${dir} | %{__sed} -e "s|%{name}-plugin-$(basename ${plugin})-%{version}%{?dash_rel_suffix}|%{name}-plugin-$(basename ${plugin})-skin-${skin}-%{version}%{?dash_rel_suffix}|g")
+            starget_dir=$(echo ${dir} | %{__sed} -e "s|%{name}-plugin-$(basename ${plugin})-%{version}|%{name}-plugin-$(basename ${plugin})-skin-${skin}-%{version}|g")
             %{__mkdir_p} $(dirname ${starget_dir})
             %{__mv} ${dir} ${starget_dir}
 
@@ -1601,35 +1113,11 @@ find | sort | tee files.find >/dev/null
 
 %build
 
-ls -l
-
-pushd %{name}-%{version}%{?dash_rel_suffix}
-
-# Compile and compress the CSS
-for file in `find plugins/ -type f -name "styles.less" -o -name "print.less" -o -name "embed.less" -o -name "libkolab.less"`; do
-    %{_bindir}/lessc --relative-urls ${file} > $(dirname ${file})/$(basename ${file} .less).css
-
-    source="$(dirname ${file})/$(basename ${file} .less).css"
-    target="../$(
-        echo ${source} | \
-        sed -r \
-            -e 's|plugins/([a-z0-9_]+)/|roundcubemail-plugins-kolab-plugin-\1-skin-elastic-%{version}%{?dash_rel_suffix}/plugins/\1/|g'
-    )"
-
-    sed -i \
-        -e "s|../../../skins/elastic/images/contactpic.png|../../../../skins/elastic/images/contactpic.png|" \
-        -e "s|../../../skins/elastic/images/watermark.jpg|../../../../skins/elastic/images/watermark.jpg|" \
-        ${source}
-
-    cp -av ${source} ${target}
-done
-
 %install
 %{__install} -pm 755 %{SOURCE1} .
 
 function new_files() {
-    find %{buildroot}%{confdir} -type f -exec echo "%attr(0640,root,%%{httpd_group}) %config(noreplace) {}" \; > current-new.files
-    find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; >> current-new.files
+    find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; > current-new.files
     find %{buildroot}%{datadir} -type f >> current-new.files
     find %{buildroot}%{datadir} -type l >> current-new.files
 
@@ -1661,32 +1149,34 @@ echo "================================================================="
 echo "Dividing Plugins, Plugin Assets, Plugin Skins and Plugin Skin Assets and Non-Assets"
 echo "================================================================="
 
-for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
-    for skin in elastic larry; do
-        orig_dir="%{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}"
-        asset_dir="%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}"
+for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
+    for skin in larry classic; do
+        orig_dir="%{name}-plugin-${plugin}-skin-${skin}-%{version}"
+        asset_dir="%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}"
 
         # Compress the CSS
         for file in `find ${orig_dir} -type f -name "*.css"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            cat ${file} | %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
-                %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+            cat ${file} | %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
+                %{__rm} -rf ${file} || \
+                %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
         done || :
 
         # Compress the JS, but not the already minified
         for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
-                %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+            uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
+                %{__rm} -rf ${file} || \
+                %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
         done || :
 
         # The already minified JS can just be copied over to the assets location
         for file in `find ${orig_dir} -type f -name "*.min.js"`; do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
         done || :
 
         # Other assets
@@ -1701,12 +1191,11 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 
                 -name "*.swf" -o \
                 -name "*.tif" -o \
                 -name "*.ttf" -o \
-                -name "*.woff" -o \
-                -name "*.woff2"
+                -name "*.woff"
             ); do
             asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
             %{__mkdir_p} ${asset_loc}
-            %{__cp} -av ${file} ${asset_loc}/$(basename $file)
+            %{__mv} -vf ${file} ${asset_loc}/$(basename $file)
         done || :
 
         # Purge empty directories
@@ -1714,30 +1203,32 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 
     done
 
     # Skin-independent assets
-    orig_dir="%{name}-plugin-${plugin}-%{version}%{?dash_rel_suffix}"
-    asset_dir="%{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix}"
+    orig_dir="%{name}-plugin-${plugin}-%{version}"
+    asset_dir="%{name}-plugin-${plugin}-assets-%{version}"
 
     # Compress the CSS
     for file in `find ${orig_dir} -type f -name "*.css"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        cat ${file} | %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) || \
-            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+        cat ${file} | %{_bindir}/python-cssmin > ${asset_loc}/$(basename ${file}) && \
+            %{__rm} -rf ${file} || \
+            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Compress the JS, but not the already minified
     for file in `find ${orig_dir} -type f -name "*.js" ! -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) || \
-            %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+        uglifyjs ${file} > ${asset_loc}/$(basename ${file}) && \
+            %{__rm} -rf ${file} || \
+            %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
     done
 
     # The already minified JS can just be copied over to the assets location
     for file in `find ${orig_dir} -type f -name "*.min.js"`; do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
     done
 
     # Other assets
@@ -1752,41 +1243,40 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 
             -name "*.swf" -o \
             -name "*.tif" -o \
             -name "*.ttf" -o \
-            -name "*.woff" -o \
-            -name "*.woff2"
+            -name "*.woff"
         ); do
         asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|${orig_dir}|${asset_dir}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__cp} -av ${file} ${asset_loc}/$(basename $file)
+        %{__mv} -vf ${file} ${asset_loc}/$(basename $file)
     done
 
     if [ "${plugin}" == "pdfviewer" ]; then
-        %{__cp} -av ${orig_dir}/plugins/pdfviewer/viewer/locale ${asset_dir}/plugins/pdfviewer/viewer/.
-        %{__cp} -av ${orig_dir}/plugins/pdfviewer/viewer/viewer.html ${asset_dir}/plugins/pdfviewer/viewer/.
+        %{__mv} -vf ${orig_dir}/plugins/pdfviewer/viewer/locale ${asset_dir}/plugins/pdfviewer/viewer/.
+        %{__mv} -vf ${orig_dir}/plugins/pdfviewer/viewer/viewer.html ${asset_dir}/plugins/pdfviewer/viewer/.
     fi
 
     # Purge empty directories
     find ${orig_dir} -type d -empty -delete || :
 
     # Install the assets
-    for file in `find %{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix} -type f`; do
-        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-assets-%{version}%{?dash_rel_suffix}|${asset_path}|g"))
+    for file in `find %{name}-plugin-${plugin}-assets-%{version} -type f`; do
+        asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-assets-%{version}|${asset_path}|g"))
         %{__mkdir_p} ${asset_loc}
-        %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
+        %{__mv} -v ${file} ${asset_loc}/$(basename ${file})
     done || :
 
     new_files > plugin-${plugin}-assets.files
 
-    echo "== Files for plugin-${plugin}-assets: =="
+    echo "== Files for plugin ${plugin}: =="
     cat plugin-${plugin}-assets.files
     echo "==========================="
 
     %{__mkdir_p} %{buildroot}%{plugindir}
-    cp -av %{name}-plugin-${plugin}-%{version}%{?dash_rel_suffix}/plugins/${plugin} %{buildroot}%{plugindir}/.
+    cp -a %{name}-plugin-${plugin}-%{version}/plugins/${plugin} %{buildroot}%{plugindir}/.
 
     if [ -f "%{buildroot}%{plugindir}/${plugin}/config.inc.php.dist" ]; then
         pushd %{buildroot}%{plugindir}/${plugin}
-        %{__mv} -vf config.inc.php.dist %{buildroot}%{confdir}/${plugin}.inc.php
+        %{__mv} config.inc.php.dist %{buildroot}%{confdir}/${plugin}.inc.php
         ln -s ../../../../..%{confdir}/${plugin}.inc.php config.inc.php
         popd
     fi
@@ -1801,41 +1291,40 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 
 
     new_files > plugin-${plugin}.files
 
-    echo "== Files for plugin-${plugin}: =="
+    echo "== Files for plugin ${plugin}: =="
     cat plugin-${plugin}.files
     echo "==========================="
 done
 
-for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
-    for skin in elastic larry; do
+for plugin in $(find %{name}-%{version}/plugins/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort); do
+    for skin in larry classic; do
         touch plugin-${plugin}-skin-${skin}.files
         touch plugin-${plugin}-skin-${skin}-assets.files
 
-        if [ ! -d "%{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}/plugins/${plugin}/skins" ]; then
-            rm -vf plugin-${plugin}-skin-${skin}.files
-            rm -vf plugin-${plugin}-skin-${skin}-assets.files
-            continue
-        fi
+        if [ -d "%{name}-plugin-${plugin}-skin-${skin}-%{version}/plugins/${plugin}/skins/${skin}" ]; then
+            %{__install} -d %{buildroot}%{plugindir}/${plugin}/skins/
+            cp -a %{name}-plugin-${plugin}-skin-${skin}-%{version}/plugins/${plugin}/skins/${skin} %{buildroot}%{plugindir}/${plugin}/skins/.
 
-        %{__install} -d %{buildroot}%{plugindir}/${plugin}/skins/
-        cp -av %{name}-plugin-${plugin}-skin-${skin}-%{version}%{?dash_rel_suffix}/plugins/${plugin}/skins/${skin} %{buildroot}%{plugindir}/${plugin}/skins/.
+            new_files > plugin-${plugin}-skin-${skin}.files
 
-        new_files > plugin-${plugin}-skin-${skin}.files
-        if [ ! -s "plugin-${plugin}-skin-${skin}.files" ]; then
-            rm -f plugin-${plugin}-skin-${skin}.files
+            echo "== Files for skin ${plugin}-${skin}: =="
+            cat plugin-${plugin}-skin-${skin}.files
+            echo "==========================="
         fi
 
         # Install the assets
-        for file in `find %{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix} -type f`; do
-            asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}%{?dash_rel_suffix}|${asset_path}|g"))
+        for file in `find %{name}-plugin-${plugin}-skin-${skin}-assets-%{version} -type f`; do
+            asset_loc=$(dirname $(echo ${file} | %{__sed} -e "s|%{name}-plugin-${plugin}-skin-${skin}-assets-%{version}|${asset_path}|g"))
             %{__mkdir_p} ${asset_loc}
             %{__cp} -av ${file} ${asset_loc}/$(basename ${file})
-        done
+        done || :
 
         new_files > plugin-${plugin}-skin-${skin}-assets.files
-        if [ ! -s "plugin-${plugin}-skin-${skin}-assets.files" ]; then
-            rm -f plugin-${plugin}-skin-${skin}-assets.files
-        fi
+
+        echo "== Files for skin ${plugin}-${skin}: =="
+        cat plugin-${plugin}-skin-${skin}-assets.files
+        echo "==========================="
+
     done
 done
 
@@ -1880,11 +1369,6 @@ if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
 fi
 
 %pre -n roundcubemail-plugin-kolab_auth
-if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
-    %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
-fi
-
-%pre -n roundcubemail-plugin-kolab_chat
 if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
 fi
@@ -2071,21 +1555,6 @@ fi
 %posttrans -n roundcubemail-plugin-kolab_auth
 if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
-        if [ ! -z "$(grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini 2>/dev/null)" ]; then
-%if 0%{?with_systemd}
-            /bin/systemctl condrestart %{httpd_name}.service
-%else
-            /sbin/service %{httpd_name} condrestart
-%endif
-        fi
-    fi
-    %{__mkdir_p} %{_localstatedir}/lib/rpm-state/roundcubemail/
-    touch %{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted
-fi
-
-%posttrans -n roundcubemail-plugin-kolab_chat
-if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
-    if [ -f "%{php_inidir}/apc.ini"  -o -f "%{php_inidir}/apcu.ini" ]; then
         if [ ! -z "$(grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini 2>/dev/null)" ]; then
 %if 0%{?with_systemd}
             /bin/systemctl condrestart %{httpd_name}.service
@@ -2393,12 +1862,14 @@ rm -rf %{buildroot}
 
 %files -n roundcubemail-plugin-calendar -f plugin-calendar.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/calendar.inc.php
 
 %files -n roundcubemail-plugin-html_converter -f plugin-html_converter.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_2fa -f plugin-kolab_2fa.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_2fa.inc.php
 
 %files -n roundcubemail-plugin-ude_login -f plugin-ude_login.files
 %defattr(-,root,root,-)
@@ -2406,27 +1877,30 @@ rm -rf %{buildroot}
 
 %files -n roundcubemail-plugin-kolab_activesync -f plugin-kolab_activesync.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_activesync.inc.php
 
 %files -n roundcubemail-plugin-kolab_addressbook -f plugin-kolab_addressbook.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_addressbook.inc.php
 
 %files -n roundcubemail-plugin-kolab_auth -f plugin-kolab_auth.files
 %defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_chat -f plugin-kolab_chat.files
-%defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_auth.inc.php
 
 %files -n roundcubemail-plugin-kolab_config -f plugin-kolab_config.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_delegation -f plugin-kolab_delegation.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_delegation.inc.php
 
 %files -n roundcubemail-plugin-kolab_files -f plugin-kolab_files.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_files.inc.php
 
 %files -n roundcubemail-plugin-kolab_folders -f plugin-kolab_folders.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_folders.inc.php
 
 %files -n roundcubemail-plugin-kolab_notes -f plugin-kolab_notes.files
 %defattr(-,root,root,-)
@@ -2439,18 +1913,21 @@ rm -rf %{buildroot}
 
 %files -n roundcubemail-plugin-ldap_authentication -f plugin-ldap_authentication.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/ldap_authentication.inc.php
 
 %files -n roundcubemail-plugin-libcalendaring -f plugin-libcalendaring.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-libkolab -f plugin-libkolab.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/libkolab.inc.php
 
 %files -n roundcubemail-plugin-loginfail -f plugin-loginfail.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-logon_page -f plugin-logon_page.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/logon_page.html
 
 %files -n roundcubemail-plugin-odfviewer -f plugin-odfviewer.files
 %defattr(-,root,root,-)
@@ -2460,20 +1937,20 @@ rm -rf %{buildroot}
 
 %files -n roundcubemail-plugin-piwik_analytics -f plugin-piwik_analytics.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/piwik_analytics.inc.php
 
 %files -n roundcubemail-plugin-tasklist -f plugin-tasklist.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/tasklist.inc.php
 
 %files -n roundcubemail-plugin-tinymce_config -f plugin-tinymce_config.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-wap_client -f plugin-wap_client.files
 %defattr(-,root,root,-)
+%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/wap_client.inc.php
 
 %files -n roundcubemail-plugin-calendar-assets -f plugin-calendar-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-html_converter-assets -f plugin-html_converter-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_2fa-assets -f plugin-kolab_2fa-assets.files
@@ -2489,9 +1966,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_auth-assets -f plugin-kolab_auth-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_chat-assets -f plugin-kolab_chat-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_config-assets -f plugin-kolab_config-assets.files
@@ -2545,22 +2019,13 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-tinymce_config-assets -f plugin-tinymce_config-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-wap_client-assets -f plugin-wap_client-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-calendar-skin-elastic -f plugin-calendar-skin-elastic.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-calendar-skin-larry -f plugin-calendar-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_2fa-skin-elastic -f plugin-kolab_2fa-skin-elastic.files
+%files -n roundcubemail-plugin-calendar-skin-classic -f plugin-calendar-skin-classic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_2fa-skin-larry -f plugin-kolab_2fa-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_activesync-skin-elastic -f plugin-kolab_activesync-skin-elastic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-ude_login-skin-larry -f plugin-ude_login-skin-larry.files
@@ -2569,70 +2034,40 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-kolab_activesync-skin-larry -f plugin-kolab_activesync-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_addressbook-skin-elastic -f plugin-kolab_addressbook-skin-elastic.files
+%files -n roundcubemail-plugin-kolab_activesync-skin-classic -f plugin-kolab_activesync-skin-classic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_addressbook-skin-larry -f plugin-kolab_addressbook-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_chat-skin-elastic -f plugin-kolab_chat-skin-elastic.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_chat-skin-larry -f plugin-kolab_chat-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_delegation-skin-elastic -f plugin-kolab_delegation-skin-elastic.files
+%files -n roundcubemail-plugin-kolab_addressbook-skin-classic -f plugin-kolab_addressbook-skin-classic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_delegation-skin-larry -f plugin-kolab_delegation-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_files-skin-elastic -f plugin-kolab_files-skin-elastic.files
+%files -n roundcubemail-plugin-kolab_delegation-skin-classic -f plugin-kolab_delegation-skin-classic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_files-skin-larry -f plugin-kolab_files-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_notes-skin-elastic -f plugin-kolab_notes-skin-elastic.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-kolab_notes-skin-larry -f plugin-kolab_notes-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_tags-skin-elastic -f plugin-kolab_tags-skin-elastic.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_tags-skin-larry -f plugin-kolab_tags-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-libcalendaring-skin-larry -f plugin-libcalendaring-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-libkolab-skin-elastic -f plugin-libkolab-skin-elastic.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-libkolab-skin-larry -f plugin-libkolab-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-tasklist-skin-elastic -f plugin-tasklist-skin-elastic.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-tasklist-skin-larry -f plugin-tasklist-skin-larry.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-calendar-skin-elastic-assets -f plugin-calendar-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-calendar-skin-larry-assets -f plugin-calendar-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_2fa-skin-elastic-assets -f plugin-kolab_2fa-skin-elastic-assets.files
+%files -n roundcubemail-plugin-calendar-skin-classic-assets -f plugin-calendar-skin-classic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_2fa-skin-larry-assets -f plugin-kolab_2fa-skin-larry-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_activesync-skin-elastic-assets -f plugin-kolab_activesync-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-ude_login-skin-larry-assets -f plugin-ude_login-skin-larry-assets.files
@@ -2641,37 +2076,25 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-kolab_activesync-skin-larry-assets -f plugin-kolab_activesync-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_addressbook-skin-elastic-assets -f plugin-kolab_addressbook-skin-elastic-assets.files
+%files -n roundcubemail-plugin-kolab_activesync-skin-classic-assets -f plugin-kolab_activesync-skin-classic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_addressbook-skin-larry-assets -f plugin-kolab_addressbook-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_chat-skin-elastic-assets -f plugin-kolab_chat-skin-elastic-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_chat-skin-larry-assets -f plugin-kolab_chat-skin-larry-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_delegation-skin-elastic-assets -f plugin-kolab_delegation-skin-elastic-assets.files
+%files -n roundcubemail-plugin-kolab_addressbook-skin-classic-assets -f plugin-kolab_addressbook-skin-classic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_delegation-skin-larry-assets -f plugin-kolab_delegation-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_files-skin-elastic-assets -f plugin-kolab_files-skin-elastic-assets.files
+%files -n roundcubemail-plugin-kolab_delegation-skin-classic-assets -f plugin-kolab_delegation-skin-classic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_files-skin-larry-assets -f plugin-kolab_files-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-kolab_notes-skin-elastic-assets -f plugin-kolab_notes-skin-elastic-assets.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-kolab_notes-skin-larry-assets -f plugin-kolab_notes-skin-larry-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-kolab_tags-skin-elastic-assets -f plugin-kolab_tags-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_tags-skin-larry-assets -f plugin-kolab_tags-skin-larry-assets.files
@@ -2680,46 +2103,18 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-libcalendaring-skin-larry-assets -f plugin-libcalendaring-skin-larry-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-libkolab-skin-elastic-assets -f plugin-libkolab-skin-elastic-assets.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-libkolab-skin-larry-assets -f plugin-libkolab-skin-larry-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-tasklist-skin-elastic-assets -f plugin-tasklist-skin-elastic-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-tasklist-skin-larry-assets -f plugin-tasklist-skin-larry-assets.files
 %defattr(-,root,root,-)
 
 %changelog
-* Sat Aug 18 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-39.alpha8
-- New snapshot
-- Fix per_user_logging
+* Thu May 17 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.3.6-2
+- Fix removal of first occurence of event when moving (T103344)
 
-* Tue May 29 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-34.alpha6
-- Ship a pre-release version of the Elastic skin
-
-* Tue May 22 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-33.alpha5
-- Ship a pre-release version of the Elastic skin
-
-* Wed May 16 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-16.alpha4
-- Ship a pre-release version of the Elastic skin
-
-* Tue May 15 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-31.alpha4
-- Ship a pre-release version of the Elastic skin
-
-* Mon May 14 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-18.alpha4
-- Ship a pre-release version of the Elastic skin
-
-* Mon Apr 30 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-16.alpha2
-- Ship a pre-release version of the Elastic skin
-
-* Wed Apr 25 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-14.alpha1
-- Ship a pre-release version of the Elastic skin
-
-* Thu Apr 12 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.4-12.alpha0
-- Ship a pre-release version of the Elastic skin
+* Tue Apr 17 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.3.6-1
+- Release of 3.3.6
 
 * Fri Jan  5 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 3.3.5-2
 - Repack of 3.3.5

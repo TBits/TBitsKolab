@@ -1,18 +1,20 @@
 --- a/roundcubemail.spec	2017-04-25 10:11:02.922625277 +0200
 +++ b/roundcubemail.spec	2017-04-25 10:11:55.422300741 +0200
-@@ -74,6 +74,8 @@
- Patch0006:      0006-Fix-re-positioning-of-the-fixed-header-of-messages-l.patch
+@@ -74,7 +74,9 @@
+ Patch0005:      0005-Fix-bug-where-some-forbidden-characters-on-Cyrus-IMA.patch
  
  Patch201:       default-configuration.patch
+ Patch202:       roundcubemail-1.3.6-plugin-enigma-homedir.patch
 +Patch400:       optional_disable_addressbook_export.patch
 +Patch401:       backport_managesieve_forwards.patch
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
-@@ -1090,6 +1091,11 @@
- %patch0006 -p1
+@@ -1090,7 +1091,12 @@
+ %patch0005 -p1
  
  %patch201 -p1
+ %patch202 -p1
 +%patch400 -p1
 +%patch401 -p1
 +
@@ -24,7 +26,7 @@
 @@ -1844,7 +1849,7 @@
  
  %check
- pushd %{name}-%{version}%{?dash_rel_suffix}/tests
+ pushd %{name}-%{version}/tests
 -phpunit --debug || :
 +#phpunit --debug || :
  popd
