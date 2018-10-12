@@ -158,8 +158,6 @@ do
     then
       # from initTBitsISP.sh
       cp $PATCHESPATH/optional_disable_addressbook_export.patch .
-
-      cp $TBITSPATCHESPATH/backport_managesieve_forwards.patch .
     fi
 
     if [[ "$pkgname" == "cyrus-imapd" ]]
