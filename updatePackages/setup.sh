@@ -94,6 +94,8 @@ do
     fi
     if [ -f $TBITSPATCHESPATH/$pkgname.patch ]
     then
+	    echo " ***********************"
+	    echo " patching $TBITSPATCHESPATH/$pkgname.patch "
       patch -p1 < $TBITSPATCHESPATH/$pkgname.patch || exit -1
     fi
 
