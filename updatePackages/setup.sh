@@ -191,8 +191,8 @@ done
 cd ~/tmp/lbs-TBitsKolab
 find . -type f -name "*.orig" -delete
 git add  --all .
-git config --global user.name "LBS BuildBot"
-git config --global user.email tp@tbits.net
+git config --local user.name "LBS BuildBot"
+git config --local user.email tp@tbits.net
 
 # only commit if there is actually something new
 git diff-index --quiet HEAD || git commit -a -m "latest build for TBits" || exit -1
