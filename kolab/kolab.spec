@@ -124,18 +124,6 @@ This is the meta-package to install Kolab Groupware on Plesk %{plesk}
 %package mta
 Summary:        The Kolab Groupware Mail Transfer Agent (MTA) meta-package
 Group:          Applications/System
-Requires:       amavisd-new
-
-%if 0%{?rhel} > 6 || 0%{?fedora} > 0
-Requires:       clamav-update
-%endif
-
-%if 0%{?with_systemd}
-Requires:       clamav-server-systemd
-%else
-Requires:       clamav-server-sysvinit
-%endif
-Requires:       clamav-update
 
 Requires:       postfix
 Requires:       postfix-kolab
