@@ -87,6 +87,11 @@ do
     cd $OBSPATH/$pkgname
 
     # sometimes new files are added in master, which we have to add in the spec file, eg. roundcubemail-plugins-kolab
+    if [ ! -d $TBITSPATCHESPATH ]
+    then
+      echo "missing path " $TBITSPATCHESPATH
+      exit -1
+    fi
     if [ -f $TBITSPATCHESPATH/$pkgname.patch ]
     then
       patch -p1 < $TBITSPATCHESPATH/$pkgname.patch || exit -1
