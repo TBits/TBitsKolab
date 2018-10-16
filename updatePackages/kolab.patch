@@ -1,6 +1,6 @@
 --- a/kolab.spec	2017-07-25 17:00:33.887563445 +0200
 +++ b/kolab.spec	2017-07-25 17:01:57.943041738 +0200
-@@ -60,10 +60,5 @@
+@@ -59,11 +59,6 @@
  Summary:        Kolab Groupware IMAP Component
  Group:          Applications/System
  Requires:       cyrus-imapd
@@ -12,7 +12,7 @@
  Requires:       kolab-saslauthd
  Requires:       pykolab
  
-@@ -126,18 +125,6 @@
+@@ -129,18 +124,6 @@
  %package mta
  Summary:        The Kolab Groupware Mail Transfer Agent (MTA) meta-package
  Group:          Applications/System
@@ -31,3 +31,4 @@
  
  Requires:       postfix
  Requires:       postfix-kolab
+
