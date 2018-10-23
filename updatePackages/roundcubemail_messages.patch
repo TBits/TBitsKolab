@@ -1,0 +1,11 @@
+--- a/program/localization/en_US/messages.inc	2018-10-23 06:19:08.484303417 +0200
++++ b/program/localization/en_US/messages.inc	2018-10-23 06:19:15.946212367 +0200
+@@ -36,7 +36,7 @@
+ $messages['invalidrequest'] = 'Invalid request! No data was saved.';
+ $messages['invalidhost'] = 'Invalid server name.';
+ $messages['nomessagesfound'] = 'No messages found in this mailbox.';
+-$messages['loggedout'] = 'You have successfully terminated the session. Good bye!';
++$messages['loggedout'] = 'You have successfully terminated the session. Goodbye!';
+ $messages['mailboxempty'] = 'Mailbox is empty';
+ $messages['nomessages'] = 'No messages';
+ $messages['refreshing'] = 'Refreshing...';

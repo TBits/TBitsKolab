@@ -158,20 +158,15 @@ do
     then
       # from initTBitsISP.sh
       cp $PATCHESPATH/optional_disable_addressbook_export.patch .
+
+      # fix for the tests
+      cp $TBITSPATCHESPATH/roundcubemail_messages.patch .
     fi
 
     if [[ "$pkgname" == "cyrus-imapd" ]]
     then
       cp $PATCHESPATH/cyrus_canonification_multiple_domains.patch .
       cp $PATCHESPATH/cyrus_filter_kolab_mailboxes.patch .
-    fi
-
-    if [[ "$pkgname" == "tbits-kolab-scripts" ]]
-    then
-      cp $TBITSSCRIPTSPATH/refresh_quota_sieve/kolab_refresh_quota_and_sieve.config.php .
-      cp $TBITSSCRIPTSPATH/refresh_quota_sieve/kolab_refresh_quota_and_sieve.php .
-      cp $TBITSSCRIPTSPATH/import/importKolabWeiterleitungen.php .
-      cp $TBITSSCRIPTSPATH/backup/backup.sh .
     fi
 
     # Adjust spec file for customized builds
