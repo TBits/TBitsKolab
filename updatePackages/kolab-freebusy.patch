@@ -1,7 +1,5 @@
-diff --git a/kolab-freebusy/kolab-freebusy.spec b/kolab-freebusy/kolab-freebusy.spec
-index f83af52..d33d0db 100644
---- a/kolab-freebusy/kolab-freebusy.spec
-+++ b/kolab-freebusy/kolab-freebusy.spec
+--- a/kolab-freebusy.spec
++++ b/kolab-freebusy.spec
 @@ -60,7 +60,7 @@ Requires:       kolab-utils
  Requires:       logrotate
  Requires:       php-ldap
