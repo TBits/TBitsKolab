@@ -60,7 +60,7 @@ Requires:       kolab-utils
 Requires:       logrotate
 Requires:       php-ldap
 Requires:       php-Monolog
-Requires:       php-composer(kolab/Net_LDAP3)
+Requires:       php-kolab-net-ldap3
 Requires:       php-sabre-dav >= 2.1.3
 Requires:       roundcubemail(core)
 Requires:       roundcubemail-plugins-kolab

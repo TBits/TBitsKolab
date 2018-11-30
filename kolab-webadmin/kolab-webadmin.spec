@@ -85,7 +85,7 @@ Requires:       php-pear(Mail)
 %endif
 Requires:       php-pear(Net_Socket)
 Requires:       php-pear(Net_LDAP2)
-Requires:       php-composer(kolab/Net_LDAP3)
+Requires:       php-kolab-net-ldap3
 Requires:       php-pear(Net_SMTP)
 Requires:       php-pear(Net_URL2)
 Requires:       php-gettext

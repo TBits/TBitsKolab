@@ -32,7 +32,7 @@ License:    GPLv3+
 URL:        https://kolab.org
 Source0:    http://mirror.kolabsys.com/pub/releases/%{name}-%{version}.tar.gz
 
-Requires:   php-composer(kolab/Net_LDAP3)
+Requires:   php-kolab-net-ldap3
 Obsoletes:  kolab-autodiscover < %{version}-%{release}
 Provides:   kolab-autodiscover = %{version}-%{release}
 BuildArch:  noarch

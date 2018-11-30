@@ -83,7 +83,7 @@ Requires:       php-kolabformat >= 1.0
 Requires:       php-kolab >= 0.5
 Requires:       php-pear(HTTP_Request2)
 %if 0%{?plesk} < 1
-Requires:       php-composer(kolab/Net_LDAP3)
+Requires:       php-kolab-net-ldap3
 %endif
 Requires:       php-pear(Mail_Mime) >= 1.8.5
 Requires:       roundcubemail >= %{roundcube_version}
