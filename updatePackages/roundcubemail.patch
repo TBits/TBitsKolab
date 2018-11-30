@@ -30,7 +30,7 @@
  BuildRequires:  php-pear(Net_IDNA2)
  BuildRequires:  php-pear(Net_LDAP2)
 -BuildRequires:  php-pear(Net_LDAP3)
-+BuildRequires:  php-composer(kolab/Net_LDAP3)
++BuildRequires:  php-kolab-net_ldap3
  BuildRequires:  php-pear(Net_Sieve)
  BuildRequires:  php-pear(Net_SMTP)
  BuildRequires:  php-pear(Net_Socket)
@@ -39,7 +39,7 @@
  %if 0%{?plesk} < 1
  Requires:       php-pear(Net_LDAP2)
 -Requires:       php-pear(Net_LDAP3)
-+Requires:       php-composer(kolab/Net_LDAP3)
++Requires:       php-kolab-net-ldap3
  %endif
  
  Requires:       %{name}(core-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
