@@ -1,5 +1,5 @@
---- kolab-autoconf.orig	2018-11-30 21:01:17.905775051 +0100
-+++ kolab-autoconf.spec	2018-11-30 21:01:38.513696308 +0100
+--- a/kolab-autoconf.orig	2018-11-30 21:01:17.905775051 +0100
++++ b/kolab-autoconf.spec	2018-11-30 21:01:38.513696308 +0100
 @@ -32,7 +32,7 @@
  URL:        https://kolab.org
  Source0:    http://mirror.kolabsys.com/pub/releases/%{name}-%{version}.tar.gz

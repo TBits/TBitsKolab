@@ -94,7 +94,10 @@ do
     fi
 
     # we need a new tarball for roundcubemail, but not beta
-    cp $TBITSPATCHESPATH/$pkgname*.tar.gz .
+    if ls $TBITSPATCHESPATH/$pkgname*.tar.gz 1> /dev/null 2>&1;
+    then
+      cp $TBITSPATCHESPATH/$pkgname*.tar.gz .
+    fi
 
     if [[ "$pkgname" == "kolab-webadmin" ]]
     then
