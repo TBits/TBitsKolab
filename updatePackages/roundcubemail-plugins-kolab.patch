@@ -200,8 +200,3 @@
  %files -n roundcubemail-plugin-kolab_activesync-skin-larry-assets -f plugin-kolab_activesync-skin-larry-assets.files
  %defattr(-,root,root,-)
  
-@@ -2207,4 +2296,3 @@
- 
- * Sat Apr 14 2012 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.7.1-1
- - First package
--
