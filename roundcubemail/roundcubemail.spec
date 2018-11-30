@@ -47,7 +47,7 @@
 %global tmpdir /var/lib/roundcubemail
 
 Name:           roundcubemail
-Version:        1.3.6
+Version:        1.3.8
 
 Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
 
