@@ -69,7 +69,7 @@ cd ~/tmp/lbs-kolab
 git checkout 4b631825f9afcfae3be3a806e2d31da3ee63180c || exit -1
 cd -
 
-unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar php-kolab-net-ldap3 mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event kolab-freebusy php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema kolab-autoconf )
+unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
@@ -80,7 +80,7 @@ do
     rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
 done
 
-modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail kolab cyrus-imapd )
+modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
 
 for pkgname in "${modified_pkgnames[@]}"
 do
@@ -89,6 +89,7 @@ do
     # sometimes new files are added in master, which we have to add in the spec file, eg. roundcubemail-plugins-kolab
     if [ -f $TBITSPATCHESPATH/$pkgname.patch ]
     then
+      cp $pkgname.spec $pkgname.upstream
       patch -p1 < $TBITSPATCHESPATH/$pkgname.patch || exit -1
     fi
 

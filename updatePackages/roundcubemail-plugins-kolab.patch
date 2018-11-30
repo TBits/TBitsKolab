@@ -1,15 +1,17 @@
---- a/roundcubemail-plugins-kolab.spec	2017-06-14 09:02:14.709793334 +0200
-+++ b/roundcubemail-plugins-kolab.spec	2017-06-14 10:30:24.683577971 +0200
-@@ -31,5 +31,5 @@
+--- a/roundcubemail-plugins-kolab.orig	2018-11-30 21:09:09.675970989 +0100
++++ b/roundcubemail-plugins-kolab.spec	2018-11-30 21:10:04.095762745 +0100
+@@ -30,7 +30,7 @@
+ 
  Name:           roundcubemail-plugins-kolab
  Version:        3.3.6
 -Release:        1%{?dist}
-+Release:        100.tbits%(date +%%Y%%m%%d)%{?dist}
++Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
  Summary:        Kolab Groupware plugins for Roundcube Webmail
  
-@@ -46,8 +46,17 @@
- Source102:      plesk.kolab_folders.inc.php
- Source103:      plesk.libkolab.inc.php
+ Group:          Applications/Internet
+@@ -48,8 +48,17 @@
+ 
+ Patch0001:      0001-Fix-missing-first-occurrence-of-an-event-when-moved-.patch
  
 +Source200:      ude_login.inc.php
 +Source201:      ude_login.php
@@ -25,7 +27,16 @@
  BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
  BuildArch:      noarch
  
-@@ -85,6 +93,7 @@
+@@ -74,7 +83,7 @@
+ Requires:       php-kolab >= 0.5
+ Requires:       php-pear(HTTP_Request2)
+ %if 0%{?plesk} < 1
+-Requires:       php-pear(Net_LDAP3)
++Requires:       php-composer(kolab/Net_LDAP3)
+ %endif
+ Requires:       php-pear(Mail_Mime) >= 1.8.5
+ Requires:       roundcubemail >= %{roundcube_version}
+@@ -91,6 +100,7 @@
  Requires:       roundcubemail(plugin-odfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
  Requires:       roundcubemail(plugin-pdfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
  Requires:       roundcubemail(plugin-tasklist) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -33,7 +44,7 @@
  Obsoletes:      roundcubemail-kolab < %{version}-%{release}
  Provides:       roundcubemail-kolab = %{version}-%{release}
  
-@@ -135,6 +144,17 @@
+@@ -141,6 +151,17 @@
  %description -n roundcubemail-plugin-kolab_2fa
  Plugin kolab_2fa
  
@@ -51,7 +62,7 @@
  %package -n roundcubemail-plugin-kolab_activesync
  Summary:        Plugin kolab_activesync
  Group:          Applications/Internet
-@@ -387,6 +418,14 @@
+@@ -393,6 +414,14 @@
  %description -n roundcubemail-plugin-kolab_2fa-assets
  Plugin kolab_2fa Assets
  
@@ -66,7 +77,7 @@
  %package -n roundcubemail-plugin-kolab_activesync-assets
  Summary:        Plugin kolab_activesync Assets
  Group:          Applications/Internet
-@@ -591,6 +638,18 @@
+@@ -597,6 +626,18 @@
  %description -n roundcubemail-plugin-kolab_2fa-skin-larry
  Plugin kolab_2fa / Skin larry
  
@@ -85,7 +96,7 @@
  %package -n roundcubemail-plugin-kolab_activesync-skin-larry
  Summary:        Plugin kolab_activesync / Skin larry
  Group:          Applications/Internet
-@@ -735,6 +806,14 @@
+@@ -741,6 +782,14 @@
  %description -n roundcubemail-plugin-kolab_2fa-skin-larry-assets
  Plugin kolab_2fa / Skin larry (Assets Package)
  
@@ -100,7 +111,7 @@
  %package -n roundcubemail-plugin-kolab_activesync-skin-larry-assets
  Summary:        Plugin kolab_activesync / Skin larry (Assets)
  Group:          Applications/Internet
-@@ -856,6 +944,13 @@
+@@ -862,6 +911,13 @@
  
  %patch0001 -p1
  %patch1001 -p1
@@ -114,7 +125,7 @@
  
  find -type d -name "helpdocs" -exec rm -rvf {} \; 2>/dev/null || :
  
-@@ -1281,6 +1386,11 @@
+@@ -1297,6 +1353,11 @@
      %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
  fi
  
@@ -126,7 +137,7 @@
  %pre -n roundcubemail-plugin-kolab_activesync
  if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
      %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
-@@ -1426,6 +1541,21 @@
+@@ -1446,6 +1507,21 @@
      touch %{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted
  fi
  
@@ -148,7 +159,7 @@
  %posttrans -n roundcubemail-plugin-kolab_activesync
  if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
      if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
-@@ -1775,6 +1920,10 @@
+@@ -1795,6 +1871,10 @@
  %defattr(-,root,root,-)
  %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_2fa.inc.php
  
@@ -159,7 +170,7 @@
  %files -n roundcubemail-plugin-kolab_activesync -f plugin-kolab_activesync.files
  %defattr(-,root,root,-)
  %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_activesync.inc.php
-@@ -1855,6 +2008,9 @@
+@@ -1876,6 +1956,9 @@
  %files -n roundcubemail-plugin-kolab_2fa-assets -f plugin-kolab_2fa-assets.files
  %defattr(-,root,root,-)
  
@@ -169,7 +180,7 @@
  %files -n roundcubemail-plugin-kolab_activesync-assets -f plugin-kolab_activesync-assets.files
  %defattr(-,root,root,-)
  
-@@ -1924,6 +2083,9 @@
+@@ -1945,6 +2028,9 @@
  %files -n roundcubemail-plugin-kolab_2fa-skin-larry -f plugin-kolab_2fa-skin-larry.files
  %defattr(-,root,root,-)
  
@@ -179,7 +190,7 @@
  %files -n roundcubemail-plugin-kolab_activesync-skin-larry -f plugin-kolab_activesync-skin-larry.files
  %defattr(-,root,root,-)
  
-@@ -1963,6 +2128,9 @@
+@@ -1984,6 +2070,9 @@
  %files -n roundcubemail-plugin-kolab_2fa-skin-larry-assets -f plugin-kolab_2fa-skin-larry-assets.files
  %defattr(-,root,root,-)
  
@@ -189,3 +200,8 @@
  %files -n roundcubemail-plugin-kolab_activesync-skin-larry-assets -f plugin-kolab_activesync-skin-larry-assets.files
  %defattr(-,root,root,-)
  
+@@ -2207,4 +2296,3 @@
+ 
+ * Sat Apr 14 2012 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.7.1-1
+ - First package
+-

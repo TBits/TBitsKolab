@@ -1,5 +1,5 @@
---- a/roundcubemail.spec	2018-11-30 10:49:43.526028570 +0100
-+++ b/roundcubemail.spec	2018-11-30 10:50:04.317949975 +0100
+--- a/roundcubemail.orig	2018-11-30 20:57:25.742661536 +0100
++++ b/roundcubemail.spec	2018-11-30 21:00:55.789859547 +0100
 @@ -47,7 +47,7 @@
  %global tmpdir /var/lib/roundcubemail
  
@@ -25,6 +25,24 @@
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
+@@ -106,7 +103,7 @@
+ BuildRequires:  php-pear(MDB2_Driver_mysqli)
+ BuildRequires:  php-pear(Net_IDNA2)
+ BuildRequires:  php-pear(Net_LDAP2)
+-BuildRequires:  php-pear(Net_LDAP3)
++BuildRequires:  php-composer(kolab/Net_LDAP3)
+ BuildRequires:  php-pear(Net_Sieve)
+ BuildRequires:  php-pear(Net_SMTP)
+ BuildRequires:  php-pear(Net_Socket)
+@@ -188,7 +185,7 @@
+ 
+ %if 0%{?plesk} < 1
+ Requires:       php-pear(Net_LDAP2)
+-Requires:       php-pear(Net_LDAP3)
++Requires:       php-composer(kolab/Net_LDAP3)
+ %endif
+ 
+ Requires:       %{name}(core-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 @@ -1075,13 +1072,13 @@
  cp -vf %{SOURCE102} plugins/password/config.inc.php.dist
  %endif
