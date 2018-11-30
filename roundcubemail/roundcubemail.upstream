@@ -47,9 +47,9 @@
 %global tmpdir /var/lib/roundcubemail
 
 Name:           roundcubemail
-Version:        1.3.8
+Version:        1.3.6
 
-Release:        103.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        4%{?dist}
 
 Summary:        Round Cube Webmail is a browser-based multilingual IMAP client
 
@@ -69,10 +69,13 @@ Source102:      plesk.password.inc.php
 
 Source200:      2017111400.sql
 
+Patch0002:      0002-Parse-all-quotas-from-GETQUOTAROOT-6280.patch
+Patch0003:      0003-Update-changelog.patch
+Patch0004:      0004-Fix-bug-where-some-escape-sequences-in-html-styles-c.patch
+Patch0005:      0005-Fix-bug-where-some-forbidden-characters-on-Cyrus-IMA.patch
+
 Patch201:       default-configuration.patch
 Patch202:       roundcubemail-1.3.6-plugin-enigma-homedir.patch
-Patch400:       optional_disable_addressbook_export.patch
-Patch401:       roundcubemail_messages.patch
 
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
@@ -103,7 +106,7 @@ BuildRequires:  php-pear(MDB2) >= 2.5.0
 BuildRequires:  php-pear(MDB2_Driver_mysqli)
 BuildRequires:  php-pear(Net_IDNA2)
 BuildRequires:  php-pear(Net_LDAP2)
-BuildRequires:  php-composer(kolab/Net_LDAP3)
+BuildRequires:  php-pear(Net_LDAP3)
 BuildRequires:  php-pear(Net_Sieve)
 BuildRequires:  php-pear(Net_SMTP)
 BuildRequires:  php-pear(Net_Socket)
@@ -185,7 +188,7 @@ Requires:       php-pear(Net_Socket)
 
 %if 0%{?plesk} < 1
 Requires:       php-pear(Net_LDAP2)
-Requires:       php-composer(kolab/Net_LDAP3)
+Requires:       php-pear(Net_LDAP3)
 %endif
 
 Requires:       %{name}(core-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -1072,13 +1075,13 @@ cp -vf %{SOURCE101} plugins/managesieve/config.inc.php.dist
 cp -vf %{SOURCE102} plugins/password/config.inc.php.dist
 %endif
 
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+
 %patch201 -p1
 %patch202 -p1
-%patch400 -p1
-%patch401 -p1
-
-# do not use timezones like Etc/GMT-1 in the jstz library (see also https://bitbucket.org/pellepim/jstimezonedetect/issues/168/ignore-timezones-like-etc-gmt-1)
-sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' public_html/program/js/jstz.min.js
 
 # Remove the results of patching when there's an incidental offset
 find . -type f -name "*.orig" -delete
@@ -1843,7 +1846,7 @@ fi
 
 %check
 pushd %{name}-%{version}/tests
-#phpunit --debug || :
+phpunit --debug || :
 popd
 
 %clean
