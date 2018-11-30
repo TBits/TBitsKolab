@@ -103,7 +103,7 @@ BuildRequires:  php-pear(MDB2) >= 2.5.0
 BuildRequires:  php-pear(MDB2_Driver_mysqli)
 BuildRequires:  php-pear(Net_IDNA2)
 BuildRequires:  php-pear(Net_LDAP2)
-BuildRequires:  php-kolab-net_ldap3
+BuildRequires:  php-kolab-net-ldap3
 BuildRequires:  php-pear(Net_Sieve)
 BuildRequires:  php-pear(Net_SMTP)
 BuildRequires:  php-pear(Net_Socket)
