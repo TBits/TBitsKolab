@@ -69,11 +69,6 @@ Source102:      plesk.password.inc.php
 
 Source200:      2017111400.sql
 
-Patch0002:      0002-Parse-all-quotas-from-GETQUOTAROOT-6280.patch
-Patch0003:      0003-Update-changelog.patch
-Patch0004:      0004-Fix-bug-where-some-escape-sequences-in-html-styles-c.patch
-Patch0005:      0005-Fix-bug-where-some-forbidden-characters-on-Cyrus-IMA.patch
-
 Patch201:       default-configuration.patch
 Patch202:       roundcubemail-1.3.6-plugin-enigma-homedir.patch
 Patch400:       optional_disable_addressbook_export.patch
@@ -1076,11 +1071,6 @@ cp -vf %{SOURCE100} config/config.inc.php.sample
 cp -vf %{SOURCE101} plugins/managesieve/config.inc.php.dist
 cp -vf %{SOURCE102} plugins/password/config.inc.php.dist
 %endif
-
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
 
 %patch201 -p1
 %patch202 -p1
