@@ -92,6 +92,9 @@ do
       patch -p1 < $TBITSPATCHESPATH/$pkgname.patch || exit -1
     fi
 
+    # we need a new tarball for roundcubemail, but not beta
+    cp $TBITSPATCHESPATH/$pkgname*.tar.gz .
+
     if [[ "$pkgname" == "kolab-webadmin" ]]
     then
       # from initMultiDomain.sh
