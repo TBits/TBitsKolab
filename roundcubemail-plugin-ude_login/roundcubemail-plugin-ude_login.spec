@@ -284,7 +284,6 @@ find | sort | tee files.find >/dev/null
 %build
 
 %install
-%{__install} -pm 755 %{SOURCE1} .
 
 function new_files() {
     find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; > current-new.files
