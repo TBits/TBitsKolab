@@ -56,7 +56,7 @@ mkdir -p ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_log
 cp ~/tmp/ude_login/* ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
 cd ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
 mv ude_login.inc.php config.inc.php.dist
-cd ~/tmp; tar czf roundcubemail-plugin-ude_login-$ude_login_version.tar.gz roundcubemail-plugin-ude_login-1.0.0
+cd ~/tmp; tar czf roundcubemail-plugin-ude_login-$ude_login_version.tar.gz roundcubemail-plugin-ude_login-$ude_login_version
 
 # get the latest src package from Kolab OBS. they get synched to Github every night
 if [ -d ~/tmp/lbs-kolab ]
