@@ -37,7 +37,7 @@ Group:          Applications/Internet
 License:        AGPLv3+ and GPLv3+
 URL:            http://www.kolab.org
 
-Source:         ude_login.tar.gz
+Source:         %{name}-%{version}.tar.gz
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:      noarch
