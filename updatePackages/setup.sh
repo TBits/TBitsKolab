@@ -84,6 +84,7 @@ modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcube
 
 for pkgname in "${modified_pkgnames[@]}"
 do
+    mkdir -p $OBSPATH/$pkgname
     cd $OBSPATH/$pkgname
 
     # sometimes new files are added in master, which we have to add in the spec file, eg. roundcubemail-plugins-kolab
@@ -188,10 +189,7 @@ do
 
     rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/*
     mkdir -p ~/tmp/lbs-TBitsKolab/$pkgname
-    if [ -d $OBSPATH/$pkgname ]
-    then
-      cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
-    fi
+    cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
     rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/debian
     rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
 done
