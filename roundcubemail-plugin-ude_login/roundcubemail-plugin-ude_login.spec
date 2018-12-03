@@ -101,6 +101,8 @@ Plugin ude_login / Skin larry (Assets Package)
 
 %prep
 %setup -q -c %{name}-%{version}
+rm %{name}-%{version}/plugins/ude_login/users.txt
+rm %{name}-%{version}/plugins/ude_login/composer.json
 
 for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
     target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}|%{name}-plugin-$(basename ${plugin})-%{version}|g")
@@ -286,8 +288,6 @@ find | sort | tee files.find >/dev/null
 
 %install
 %{__install} -pm 755 %{SOURCE1} .
-rm users.txt
-rm composer.json
 
 function new_files() {
     find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; > current-new.files
