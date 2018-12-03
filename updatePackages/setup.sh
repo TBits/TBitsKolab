@@ -166,7 +166,7 @@ do
 
     if [[ "$pkgname" == "roundcubemail-plugin-ude_login" ]]
     then
-      # add the ude_login plugin
+      cp $TBITSPATCHESPATH/comm.py .
       cp ~/tmp/lbs-TBitsKolab/$pkgname/*.spec .
       cp ~/tmp/lbs-TBitsKolab/$pkgname/*.tar.gz .
       if [ ! -f roundcubemail-plugin-ude_login-$ude_login_version.tar.gz ]
