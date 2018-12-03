@@ -99,7 +99,7 @@ Provides:       roundcubemail(plugin-ude_login-skin-larry-assets) = %{?epoch:%{e
 Plugin ude_login / Skin larry (Assets Package)
 
 %prep
-%setup -q %{name}-%{version}
+%setup -q -c %{name}-%{version}
 
 for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
     target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}|%{name}-plugin-$(basename ${plugin})-%{version}|g")
