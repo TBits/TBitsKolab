@@ -516,8 +516,6 @@ if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
 fi
 
-fi
-
 %posttrans -n roundcubemail-plugin-ude_login
 if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
