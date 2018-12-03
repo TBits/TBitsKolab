@@ -80,7 +80,7 @@ do
     rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
 done
 
-modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
+modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
 
 for pkgname in "${modified_pkgnames[@]}"
 do
@@ -155,7 +155,10 @@ do
 
       # from initMultiDomain.sh
       cp $PATCHESPATH/canonification_via_uid_roundcube.patch .
+    fi
 
+    if [[ "$pkgname" == "roundcubemail-plugin-ude_login" ]]
+    then
       # add the ude_login plugin
       cp ~/tmp/ude_login/ude_login.php .
       cp ~/tmp/ude_login/ude_login.inc.php .
@@ -185,7 +188,10 @@ do
 
     rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/*
     mkdir -p ~/tmp/lbs-TBitsKolab/$pkgname
-    cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
+    if [ -d $OBSPATH/$pkgname ]
+    then
+      cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
+    fi
     rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/debian
     rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
 done
