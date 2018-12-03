@@ -150,6 +150,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo ""
     ) >> plugins.files
 
+    touch plugins.pre
     (
         echo "%pre -n roundcubemail-plugin-$(basename ${plugin})"
         echo "if [ -f \"%%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted\" ]; then"
@@ -158,6 +159,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo ""
     ) >> plugins.pre
 
+    touch plugins.post
     (
         echo "%posttrans -n roundcubemail-plugin-$(basename ${plugin})"
         echo "if [ ! -f \"%%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted\" ]; then"
@@ -193,6 +195,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         fi
     ) >> plugins.post
 
+    touch plugins-assets.packages
     (
         echo "%package -n roundcubemail-plugin-$(basename ${plugin})-assets"
         echo "Summary:        Plugin $(basename ${plugin}) Assets"
@@ -204,6 +207,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo ""
     ) >> plugins-assets.packages
 
+    touch plugins-assets.files
     (
         echo "%files -n roundcubemail-plugin-$(basename ${plugin})-assets -f plugin-$(basename ${plugin})-assets.files"
         echo "%defattr(-,root,root,-)"
@@ -216,6 +220,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
             %{__mkdir_p} $(dirname ${starget_dir})
             %{__mv} ${dir} ${starget_dir}
 
+            touch plugins-skins.packages
             (
                 echo "%package -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}"
                 echo "Summary:        Plugin $(basename ${plugin}) / Skin ${skin}"
@@ -231,12 +236,14 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
                 echo ""
             ) >> plugins-skins.packages
 
+            touch plugins-skins.files
             (
                 echo "%files -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin} -f plugin-$(basename ${plugin})-skin-${skin}.files"
                 echo "%defattr(-,root,root,-)"
                 echo ""
             ) >> plugins-skins.files
 
+            touch plugins-skins-assets.packages
             (
                 echo "%package -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}-assets"
                 echo "Summary:        Plugin $(basename ${plugin}) / Skin ${skin} (Assets)"
@@ -248,6 +255,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
                 echo ""
             ) >> plugins-skins-assets.packages
 
+            touch plugins-skins-assets.files
             (
                 echo "%files -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}-assets -f plugin-$(basename ${plugin})-skin-${skin}-assets.files"
                 echo "%defattr(-,root,root,-)"
