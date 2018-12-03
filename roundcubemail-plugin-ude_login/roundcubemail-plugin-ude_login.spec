@@ -536,10 +536,9 @@ fi
 %clean
 rm -rf %{buildroot}
 
-files -f plugin-ude_login.files
+%files -f plugin-ude_login.files
 %defattr(-,root,root,-)
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/ude_login.inc.php
-%{plugin_dir}/ude_login/README.md
 
 %files -n roundcubemail-plugin-ude_login-assets -f plugin-ude_login-assets.files
 %defattr(-,root,root,-)
