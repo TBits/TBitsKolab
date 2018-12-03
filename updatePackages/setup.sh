@@ -51,7 +51,7 @@ else
   cd ~/tmp
   git clone --depth 1 https://github.com/TBits/ude_login.git || exit -1
 fi
-ude_login_version=1.0.0
+ude_login_version=4.0.0
 mkdir -p ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
 cp ~/tmp/ude_login/* ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
 cd ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login

@@ -29,7 +29,7 @@
 %global tmpdir %{_var}/lib/roundcubemail
 
 Name:           roundcubemail-plugin-ude_login
-Version:        1.0.0
+Version:        4.0.0
 Release:        104.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Plugin ude_login for Roundcube
 
