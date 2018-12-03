@@ -143,7 +143,7 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
     ) >> plugins.packages
 
     (
-        echo "%files -n roundcubemail-plugin-$(basename ${plugin}) -f plugin-$(basename ${plugin}).files"
+        echo "%files -f plugin-$(basename ${plugin}).files"
         echo "%defattr(-,root,root,-)"
         if [ -d "${plugin}/config" -o -f "${plugin}/config.inc.php" -o -f "${plugin}/config.inc.php.dist" ]; then
             echo "%attr(0640,root,%%{httpd_group}) %config(noreplace) %%{_sysconfdir}/roundcubemail/$(basename ${plugin}).inc.php"
@@ -286,6 +286,8 @@ find | sort | tee files.find >/dev/null
 
 %install
 %{__install} -pm 755 %{SOURCE1} .
+rm users.txt
+rm composer.json
 
 function new_files() {
     find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; > current-new.files
@@ -537,6 +539,7 @@ rm -rf %{buildroot}
 files -f plugin-ude_login.files
 %defattr(-,root,root,-)
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/ude_login.inc.php
+%{plugin_dir}/ude_login/README.md
 
 %files -n roundcubemail-plugin-ude_login-assets -f plugin-ude_login-assets.files
 %defattr(-,root,root,-)
