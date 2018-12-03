@@ -52,9 +52,10 @@ else
   git clone --depth 1 https://github.com/TBits/ude_login.git || exit -1
 fi
 ude_login_version=1.0.0
-mkdir ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version
-cp ~/tmp/ude_login/* ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version
-mv ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/ude_login.inc.php ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/config.inc.php.dist
+mkdir -p ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
+cp ~/tmp/ude_login/* ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
+cd ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/plugins/ude_login
+mv ude_login.inc.php config.inc.php.dist
 cd ~/tmp; tar czf roundcubemail-plugin-ude_login-$ude_login_version.tar.gz roundcubemail-plugin-ude_login-1.0.0
 
 # get the latest src package from Kolab OBS. they get synched to Github every night
