@@ -37,7 +37,8 @@ Group:          Applications/Internet
 License:        AGPLv3+ and GPLv3+
 URL:            http://www.kolab.org
 
-Source:         %{name}-%{version}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
+Source1:        comm.py
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:      noarch
@@ -284,6 +285,7 @@ find | sort | tee files.find >/dev/null
 %build
 
 %install
+%{__install} -pm 755 %{SOURCE1} .
 
 function new_files() {
     find %{buildroot}%{datadir} -type d -exec echo "%dir {}" \; > current-new.files
