@@ -51,6 +51,11 @@ else
   cd ~/tmp
   git clone --depth 1 https://github.com/TBits/ude_login.git || exit -1
 fi
+ude_login_version=1.0.0
+mkdir ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version
+cp ~/tmp/ude_login/* ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version
+mv ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/ude_login.inc.php ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version/config.inc.php.dist
+cd ~/tmp; tar czf roundcubemail-plugin-ude_login-$ude_login_version.tar.gz roundcubemail-plugin-ude_login-1.0.0
 
 # get the latest src package from Kolab OBS. they get synched to Github every night
 if [ -d ~/tmp/lbs-kolab ]
@@ -161,9 +166,13 @@ do
     if [[ "$pkgname" == "roundcubemail-plugin-ude_login" ]]
     then
       # add the ude_login plugin
-      cp ~/tmp/ude_login/ude_login.php .
-      cp ~/tmp/ude_login/ude_login.inc.php .
       cp ~/tmp/lbs-TBitsKolab/$pkgname/*.spec .
+      cp ~/tmp/lbs-TBitsKolab/$pkgname/*.tar.gz .
+      if [ ! -f roundcubemail-plugin-ude_login-$ude_login_version.tar.gz ]
+      then
+        rm -f *.tar.gz
+        cp ~/tmp/roundcubemail-plugin-ude_login-$ude_login_version.tar.gz .
+      fi
     fi
 
     if [[ "$pkgname" == "roundcubemail" ]]

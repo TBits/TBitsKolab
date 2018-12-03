@@ -29,7 +29,7 @@
 %global tmpdir %{_var}/lib/roundcubemail
 
 Name:           roundcubemail-plugin-ude_login
-Version:        3.3.6
+Version:        1.0.0
 Release:        104.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Plugin ude_login for Roundcube
 
@@ -37,8 +37,7 @@ Group:          Applications/Internet
 License:        AGPLv3+ and GPLv3+
 URL:            http://www.kolab.org
 
-Source200:      ude_login.inc.php
-Source201:      ude_login.php
+Source:         ude_login.tar.gz
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:      noarch
@@ -100,15 +99,7 @@ Provides:       roundcubemail(plugin-ude_login-skin-larry-assets) = %{?epoch:%{e
 Plugin ude_login / Skin larry (Assets Package)
 
 %prep
-%setup -q  -c "%{name}-%{version}"
-
-pushd %{name}-%{version}
-
-mkdir -p plugins/ude_login
-cp -af %{SOURCE200} plugins/ude_login/config.inc.php.dist
-cp -af %{SOURCE201} plugins/ude_login/ude_login.php
-
-popd
+%setup -q %{name}-%{version}
 
 for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d | sort); do
     target_dir=$(echo ${plugin} | %{__sed} -e "s|%{name}-%{version}|%{name}-plugin-$(basename ${plugin})-%{version}|g")
