@@ -48,9 +48,6 @@ Source103:      plesk.libkolab.inc.php
 
 Patch0001:      0001-Fix-missing-first-occurrence-of-an-event-when-moved-.patch
 
-Source200:      ude_login.inc.php
-Source201:      ude_login.php
-
 Patch1001:      roundcubemail-plugins-kolab-3.3-kolab-files-manticore-api.patch
 
 # from initSetupKolabPatches.sh
@@ -100,7 +97,6 @@ Requires:       roundcubemail(plugin-kolab_tags) = %{?epoch:%{epoch}:}%{version}
 Requires:       roundcubemail(plugin-odfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-pdfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-tasklist) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-ude_login) = %{?epoch:%{epoch}:}%{version}-%{release}
 Obsoletes:      roundcubemail-kolab < %{version}-%{release}
 Provides:       roundcubemail-kolab = %{version}-%{release}
 
@@ -150,17 +146,6 @@ Provides:       roundcubemail(plugin-kolab_2fa) = %{?epoch:%{epoch}:}%{version}-
 
 %description -n roundcubemail-plugin-kolab_2fa
 Plugin kolab_2fa
-
-%package -n roundcubemail-plugin-ude_login
-Summary:        Plugin ude_login
-Group:          Applications/Internet
-Requires:       roundcubemail(core) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-ude_login-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-ude_login-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-ude_login) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-ude_login
-Plugin ude_login
 
 %package -n roundcubemail-plugin-kolab_activesync
 Summary:        Plugin kolab_activesync
@@ -414,14 +399,6 @@ Provides:       roundcubemail(plugin-kolab_2fa-assets) = %{?epoch:%{epoch}:}%{ve
 %description -n roundcubemail-plugin-kolab_2fa-assets
 Plugin kolab_2fa Assets
 
-%package -n roundcubemail-plugin-ude_login-assets
-Summary:        Plugin ude_login Assets
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-ude_login-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-ude_login-assets
-Plugin ude_login Assets
-
 %package -n roundcubemail-plugin-kolab_activesync-assets
 Summary:        Plugin kolab_activesync Assets
 Group:          Applications/Internet
@@ -626,18 +603,6 @@ Provides:       roundcubemail(plugin-kolab_2fa-skin-larry) = %{?epoch:%{epoch}:}
 %description -n roundcubemail-plugin-kolab_2fa-skin-larry
 Plugin kolab_2fa / Skin larry
 
-%package -n roundcubemail-plugin-ude_login-skin-larry
-Summary:        Plugin ude_login / Skin larry
-Group:          Applications/Internet
-Requires:       roundcubemail(plugin-ude_login) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(skin-larry) >= %{roundcube_version}
-Requires:       roundcubemail(plugin-ude_login-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-ude_login-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:       roundcubemail(plugin-ude_login-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-ude_login-skin-larry
-Plugin ude_login / Skin larry
-
 %package -n roundcubemail-plugin-kolab_activesync-skin-larry
 Summary:        Plugin kolab_activesync / Skin larry
 Group:          Applications/Internet
@@ -782,14 +747,6 @@ Provides:       roundcubemail(plugin-kolab_2fa-skin-larry-assets) = %{?epoch:%{e
 %description -n roundcubemail-plugin-kolab_2fa-skin-larry-assets
 Plugin kolab_2fa / Skin larry (Assets Package)
 
-%package -n roundcubemail-plugin-ude_login-skin-larry-assets
-Summary:        Plugin ude_login / Skin larry (Assets)
-Group:          Applications/Internet
-Provides:       roundcubemail(plugin-ude_login-skin-larry-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
-
-%description -n roundcubemail-plugin-ude_login-skin-larry-assets
-Plugin ude_login / Skin larry (Assets Package)
-
 %package -n roundcubemail-plugin-kolab_activesync-skin-larry-assets
 Summary:        Plugin kolab_activesync / Skin larry (Assets)
 Group:          Applications/Internet
@@ -914,10 +871,6 @@ cp -af %{SOURCE103} plugins/libkolab/config.inc.php.dist
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
- 
-mkdir -p plugins/ude_login
-cp -af %{SOURCE200} plugins/ude_login/config.inc.php.dist
-cp -af %{SOURCE201} plugins/ude_login/ude_login.php
 
 find -type d -name "helpdocs" -exec rm -rvf {} \; 2>/dev/null || :
 
@@ -1353,11 +1306,6 @@ if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
 fi
 
-%pre -n roundcubemail-plugin-ude_login
-if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
-    %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
-fi
-
 %pre -n roundcubemail-plugin-kolab_activesync
 if [ -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     %{__rm} -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted"
@@ -1496,21 +1444,6 @@ done
 if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
     if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
         if [ ! -z "$(grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini 2>/dev/null)" ]; then
-%if 0%{?with_systemd}
-            /bin/systemctl condrestart %{httpd_name}.service
-%else
-            /sbin/service %{httpd_name} condrestart
-%endif
-        fi
-    fi
-    %{__mkdir_p} %{_localstatedir}/lib/rpm-state/roundcubemail/
-    touch %{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted
-fi
-
-%posttrans -n roundcubemail-plugin-ude_login
-if [ ! -f "%{_localstatedir}/lib/rpm-state/roundcubemail/httpd.restarted" ]; then
-    if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
-        if [ ! -z "$(grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini)" ]; then
 %if 0%{?with_systemd}
             /bin/systemctl condrestart %{httpd_name}.service
 %else
@@ -1871,10 +1804,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_2fa.inc.php
 
-%files -n roundcubemail-plugin-ude_login -f plugin-ude_login.files
-%defattr(-,root,root,-)
-%attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/ude_login.inc.php
-
 %files -n roundcubemail-plugin-kolab_activesync -f plugin-kolab_activesync.files
 %defattr(-,root,root,-)
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/kolab_activesync.inc.php
@@ -1956,9 +1885,6 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-kolab_2fa-assets -f plugin-kolab_2fa-assets.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-ude_login-assets -f plugin-ude_login-assets.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-kolab_activesync-assets -f plugin-kolab_activesync-assets.files
 %defattr(-,root,root,-)
 
@@ -2028,9 +1954,6 @@ rm -rf %{buildroot}
 %files -n roundcubemail-plugin-kolab_2fa-skin-larry -f plugin-kolab_2fa-skin-larry.files
 %defattr(-,root,root,-)
 
-%files -n roundcubemail-plugin-ude_login-skin-larry -f plugin-ude_login-skin-larry.files
-%defattr(-,root,root,-)
-
 %files -n roundcubemail-plugin-kolab_activesync-skin-larry -f plugin-kolab_activesync-skin-larry.files
 %defattr(-,root,root,-)
 
@@ -2068,9 +1991,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_2fa-skin-larry-assets -f plugin-kolab_2fa-skin-larry-assets.files
-%defattr(-,root,root,-)
-
-%files -n roundcubemail-plugin-ude_login-skin-larry-assets -f plugin-ude_login-skin-larry-assets.files
 %defattr(-,root,root,-)
 
 %files -n roundcubemail-plugin-kolab_activesync-skin-larry-assets -f plugin-kolab_activesync-skin-larry-assets.files
