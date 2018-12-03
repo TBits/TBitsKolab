@@ -62,36 +62,14 @@ Requires:       php-kolab-net-ldap3
 %endif
 Requires:       php-pear(Mail_Mime) >= 1.8.5
 Requires:       roundcubemail >= %{roundcube_version}
-Requires:       roundcubemail(plugin-calendar) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_activesync) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_addressbook) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_auth) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_config) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_delegation) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_files) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_folders) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_notes) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-kolab_tags) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-odfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-pdfviewer) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-tasklist) = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:       roundcubemail(plugin-ude_login) = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:      roundcubemail-kolab < %{version}-%{release}
-Provides:       roundcubemail-kolab = %{version}-%{release}
 
-%description
-A plugin for managing permissions per user or per domain for Roundcube
-
-%package -n roundcubemail-plugin-ude_login
-Summary:        Plugin ude_login
-Group:          Applications/Internet
 Requires:       roundcubemail(core) >= %{roundcube_version}
 Requires:       roundcubemail(plugin-ude_login-assets) = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       roundcubemail(plugin-ude_login-skin) = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       roundcubemail(plugin-ude_login) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-%description -n roundcubemail-plugin-ude_login
-Plugin ude_login
+%description
+A plugin for managing permissions per user or per domain for Roundcube
 
 %package -n roundcubemail-plugin-ude_login-assets
 Summary:        Plugin ude_login Assets
@@ -556,7 +534,7 @@ fi
 %clean
 rm -rf %{buildroot}
 
-files -n roundcubemail-plugin-ude_login -f plugin-ude_login.files
+files -f plugin-ude_login.files
 %defattr(-,root,root,-)
 %attr(0640,root,%{httpd_group}) %config(noreplace) %{confdir}/ude_login.inc.php
 
