@@ -214,13 +214,16 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
         echo ""
     ) >> plugins-assets.files
 
+    touch plugins-skins.packages
+    touch plugins-skins.files
+    touch plugins-skins-assets.packages
+    touch plugins-skins-assets.files
     for skin in larry classic; do
         for dir in $(find ${target_dir} -type d -name "${skin}" | grep -v "helpdocs" | sort); do
             starget_dir=$(echo ${dir} | %{__sed} -e "s|%{name}-plugin-$(basename ${plugin})-%{version}|%{name}-plugin-$(basename ${plugin})-skin-${skin}-%{version}|g")
             %{__mkdir_p} $(dirname ${starget_dir})
             %{__mv} ${dir} ${starget_dir}
 
-            touch plugins-skins.packages
             (
                 echo "%package -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}"
                 echo "Summary:        Plugin $(basename ${plugin}) / Skin ${skin}"
@@ -236,14 +239,12 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
                 echo ""
             ) >> plugins-skins.packages
 
-            touch plugins-skins.files
             (
                 echo "%files -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin} -f plugin-$(basename ${plugin})-skin-${skin}.files"
                 echo "%defattr(-,root,root,-)"
                 echo ""
             ) >> plugins-skins.files
 
-            touch plugins-skins-assets.packages
             (
                 echo "%package -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}-assets"
                 echo "Summary:        Plugin $(basename ${plugin}) / Skin ${skin} (Assets)"
@@ -255,7 +256,6 @@ for plugin in $(find %{name}-%{version}/plugins -mindepth 1 -maxdepth 1 -type d 
                 echo ""
             ) >> plugins-skins-assets.packages
 
-            touch plugins-skins-assets.files
             (
                 echo "%files -n roundcubemail-plugin-$(basename ${plugin})-skin-${skin}-assets -f plugin-$(basename ${plugin})-skin-${skin}-assets.files"
                 echo "%defattr(-,root,root,-)"
