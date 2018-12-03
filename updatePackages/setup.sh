@@ -163,6 +163,7 @@ do
       # add the ude_login plugin
       cp ~/tmp/ude_login/ude_login.php .
       cp ~/tmp/ude_login/ude_login.inc.php .
+      cp ~/tmp/lbs-TBitsKolab/$pkgname/*.spec .
     fi
 
     if [[ "$pkgname" == "roundcubemail" ]]
