@@ -7,7 +7,7 @@ PATCHESPATH=~/tmp/KolabScripts/kolab/patches
 TBITSPATCHESPATH=~/tmp/lbs-TBitsKolab/updatePackages
 TBITSSCRIPTSPATH=~/tmp/KolabUpgradeScripts
 OBSPATH=~/tmp/lbs-kolab
-RELEASE=104
+RELEASE=105
 
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
