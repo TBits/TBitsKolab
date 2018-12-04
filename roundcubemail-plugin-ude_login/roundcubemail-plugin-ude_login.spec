@@ -30,7 +30,7 @@
 
 Name:           roundcubemail-plugin-ude_login
 Version:        4.0.0
-Release:        104.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        105.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Plugin ude_login for Roundcube
 
 Group:          Applications/Internet
