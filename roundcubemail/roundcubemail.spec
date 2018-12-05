@@ -73,6 +73,7 @@ Patch201:       default-configuration.patch
 Patch202:       roundcubemail-1.3.6-plugin-enigma-homedir.patch
 Patch400:       optional_disable_addressbook_export.patch
 Patch401:       roundcubemail_messages.patch
+Patch402:       backport_managesieve_forwards.patch
 
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
@@ -1076,6 +1077,7 @@ cp -vf %{SOURCE102} plugins/password/config.inc.php.dist
 %patch202 -p1
 %patch400 -p1
 %patch401 -p1
+%patch402 -p1
 
 # do not use timezones like Etc/GMT-1 in the jstz library (see also https://bitbucket.org/pellepim/jstimezonedetect/issues/168/ignore-timezones-like-etc-gmt-1)
 sed -i 's#"UTC"===a)#"UTC"===a)\&\&a.indexOf("Etc")<0#' public_html/program/js/jstz.min.js
