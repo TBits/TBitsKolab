@@ -24,7 +24,7 @@
 
 Name:       kolab-autoconf
 Version:    1.3
-Release:        105.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        106.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:    Autodiscovery for clients of Kolab Groupware
 
 Group:      Applications/Internet
