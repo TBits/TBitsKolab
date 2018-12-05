@@ -180,7 +180,7 @@ do
     then
       # from initTBitsISP.sh
       cp $PATCHESPATH/optional_disable_addressbook_export.patch .
-      cp $PATCHESPATH/backport_managesieve_forwards.patch .
+      cp $TBITSPATCHESPATH/backport_managesieve_forwards.patch .
 
       # fix for the tests
       cp $TBITSPATCHESPATH/roundcubemail_messages.patch .
