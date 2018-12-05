@@ -30,7 +30,7 @@
 
 Name:           roundcubemail-plugins-kolab
 Version:        3.3.6
-Release:        105.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        106.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Kolab Groupware plugins for Roundcube Webmail
 
 Group:          Applications/Internet
