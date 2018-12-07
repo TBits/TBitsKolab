@@ -88,6 +88,7 @@ Group:          Applications/System
 Requires:       chwala
 Requires:       guam
 Requires:       iRony
+Requires:       kolab-autoconf
 Requires:       kolab-syncroton
 Requires:       php-kolabformat >= 1.0
 Requires:       php-kolab >= 0.5
@@ -102,6 +103,7 @@ Requires:       roundcubemail-plugin-contextmenu
 Requires:       roundcubemail-plugin-jqueryui
 Requires:       roundcubemail-plugin-kolab_activesync
 Requires:       roundcubemail-plugin-kolab_addressbook
+Requires:       roundcubemail-plugin-kolab_chat
 Requires:       roundcubemail-plugin-kolab_config
 Requires:       roundcubemail-plugin-kolab_files
 Requires:       roundcubemail-plugin-kolab_folders
@@ -208,6 +210,9 @@ This is the Kolab Groupware web client meta-package
 %doc README
 
 %changelog
+* Wed Jul  4 2019 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 16.0.1-7
+- Require kolab-autoconf for kolab-plesk
+
 * Mon May 07 2018 Christoph Erhardt <kolab@sicherha.de> - 16.0.1-6
 - Fix logical expression
 

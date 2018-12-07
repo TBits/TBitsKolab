@@ -92,7 +92,6 @@ Requires:       php-gettext
 Requires:       php-ldap
 Requires:       php-mbstring
 Requires:       php-mysqlnd
-Requires:       php-imap
 
 %description
 Web based admin - and user interface for the Kolab Groupware Server
@@ -206,6 +205,9 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Sat Dec 01 2018 Timotheus Pokorra <tp@tbits.net> - 3.2.12-2
+- require php-kolab-net-ldap3 because it was upgraded in EPEL
+
 * Fri Nov 17 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 3.2.12-1
 - Release 3.2.12
 

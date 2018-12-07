@@ -46,6 +46,7 @@ else
   git clone --depth 1 -b $branch https://github.com/TBits/lbs-TBitsKolab.git lbs-$branch || exit -1
 fi
 
+rm -Rf ~/tmp/lbs-$branch/updatePackages
 mkdir -p ~/tmp/lbs-$branch/updatePackages
 cp -R $CURRENTPATH/* ~/tmp/lbs-$branch/updatePackages
 

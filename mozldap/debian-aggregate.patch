@@ -1,6 +1,6 @@
 diff -ur mozldap-6.0.7.orig/c-sdk/config/nsinstall.c mozldap-6.0.7/c-sdk/config/nsinstall.c
---- mozldap-6.0.7.orig/c-sdk/config/nsinstall.c	2003-10-10 16:03:43.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/config/nsinstall.c	2013-09-07 16:35:36.268374378 +0100
+--- mozldap-6.0.7.orig/c-sdk/config/nsinstall.c	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/config/nsinstall.c	2018-10-03 18:38:31.263804645 +0200
 @@ -109,7 +109,7 @@
  }
  #endif /* NEXTSTEP */
@@ -11,8 +11,8 @@ diff -ur mozldap-6.0.7.orig/c-sdk/config/nsinstall.c mozldap-6.0.7/c-sdk/config/
  #endif
  
 diff -ur mozldap-6.0.7.orig/c-sdk/configure.in mozldap-6.0.7/c-sdk/configure.in
---- mozldap-6.0.7.orig/c-sdk/configure.in	2007-09-17 18:46:23.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/configure.in	2013-09-07 16:36:01.274304681 +0100
+--- mozldap-6.0.7.orig/c-sdk/configure.in	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/configure.in	2018-10-03 18:38:31.312805098 +0200
 @@ -42,7 +42,7 @@
  AC_PREREQ(2.12)
  AC_INIT(ldap/include/ldap.h)
@@ -22,9 +22,21 @@ diff -ur mozldap-6.0.7.orig/c-sdk/configure.in mozldap-6.0.7/c-sdk/configure.in
  AC_CANONICAL_SYSTEM
  
  dnl ========================================================
+diff -ur mozldap-6.0.7.orig/c-sdk/ldap/build/replace.pm mozldap-6.0.7/c-sdk/ldap/build/replace.pm
+--- mozldap-6.0.7.orig/c-sdk/ldap/build/replace.pm	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/build/replace.pm	2018-10-03 18:38:59.058061227 +0200
+@@ -62,7 +62,7 @@
+     while(<TEMPLATE>) {
+         my $line = $_;
+         while(($orig, $replace) = each %$keywords) {
+-            $line =~ s/{{$orig}}/$replace/g;
++            $line =~ s/\{\{$orig\}\}/$replace/g;
+         }
+ 	
+ 	# the first line is a comment specific to the template file, which we
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/include/portable.h mozldap-6.0.7/c-sdk/ldap/include/portable.h
---- mozldap-6.0.7.orig/c-sdk/ldap/include/portable.h	2006-10-03 21:43:40.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/include/portable.h	2013-09-07 16:35:36.268374378 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/include/portable.h	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/include/portable.h	2018-10-03 18:38:31.312805098 +0200
 @@ -122,7 +122,7 @@
   * some systems don't have the BSD re_comp and re_exec routines
   */
@@ -84,8 +96,8 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/include/portable.h mozldap-6.0.7/c-sdk/ld
      defined(NEC) || ( defined(HPUX10) && !defined(_REENTRANT)) || \
      (defined(AIX) && !defined(USE_REENTRANT_LIBC))
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.client mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.client
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.client	2003-10-15 18:26:01.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.client	2013-09-07 16:35:36.269374375 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.client	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.client	2018-10-03 18:38:31.313805107 +0200
 @@ -177,7 +177,7 @@
  EXTRA_LIBS += -L$(NSCP_DISTDIR)/lib
  endif
@@ -105,8 +117,8 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.client mozldap
  else
  	$(LINK_LIB) $(EXTRA_LIBS)
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.in
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in	2007-06-20 18:57:11.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.in	2013-09-07 16:35:51.511333122 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libldap/Makefile.in	2018-10-03 18:38:31.313805107 +0200
 @@ -122,7 +122,7 @@
  HDIR		= $(topsrcdir)/ldap/include
  
@@ -127,7 +139,7 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in mozldap-6.0
  endif
  
  ifeq ($(OS_ARCH), WINNT)
-@@ -324,7 +324,7 @@
+@@ -323,7 +323,7 @@
  ifdef SO_FILES_TO_REMOVE
  	-$(RM) $(SO_FILES_TO_REMOVE)
  endif
@@ -136,7 +148,7 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in mozldap-6.0
  	$(LINK_LIB)
  else
  ifeq ($(OS_ARCH),OS2)
-@@ -364,6 +364,7 @@
+@@ -363,6 +363,7 @@
  	$(INSTALL) -m 444 $(LIBLDAP) $(dist_libdir)
  	$(INSTALL) -m 444 $(DLLLDAP) $(dist_libdir)
  	$(INSTALL) -m 444 $(DLLLDAP) $(dist_bindir)
@@ -144,9 +156,10 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldap/Makefile.in mozldap-6.0
  endif
  ifeq ($(OS_ARCH), WINNT)
  	$(INSTALL) -m 444 $(LIBLDAP) $(dist_libdir)
+Only in mozldap-6.0.7/c-sdk/ldap/libraries/libldap: Makefile.in.orig
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldif/Makefile.in mozldap-6.0.7/c-sdk/ldap/libraries/libldif/Makefile.in
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldif/Makefile.in	2007-06-20 18:57:11.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libldif/Makefile.in	2013-09-07 16:35:47.129344984 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldif/Makefile.in	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libldif/Makefile.in	2018-10-03 18:38:31.313805107 +0200
 @@ -53,7 +53,7 @@
  HDIR		= $(topsrcdir)/ldap/include
  
@@ -163,9 +176,9 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libldif/Makefile.in mozldap-6.0
 +	ln -sf $(DLLLDIF) $(dist_libdir)/$(LIB_PREFIX)$(LDIF_LIBNAME).$(DLL_SUFFIX)
  endif
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/ldappr-error.c mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/ldappr-error.c
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2004-03-15 06:25:32.000000000 +0000
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2013-09-07 16:35:36.269374375 +0100
-@@ -233,7 +233,7 @@
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/ldappr-error.c	2018-10-03 18:38:31.314805116 +0200
+@@ -231,7 +231,7 @@
  
  #if defined(__hpux) || defined(_AIX) || defined(OSF1) || defined(DARWIN) || \
    defined(BEOS) || defined(FREEBSD) || defined(BSDI) || defined(VMS) || \
@@ -174,9 +187,10 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/ldappr-error.c mozlda
  #define EDEADLOCK       -1
  #endif
  
+Only in mozldap-6.0.7/c-sdk/ldap/libraries/libprldap: ldappr-error.c.orig
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/Makefile.in mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/Makefile.in
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/Makefile.in	2007-06-20 18:57:12.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/Makefile.in	2013-09-07 16:35:47.130344981 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/Makefile.in	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libprldap/Makefile.in	2018-10-03 18:38:31.314805116 +0200
 @@ -64,7 +64,7 @@
  LIBPRLDAP =
  endif
@@ -193,8 +207,8 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libprldap/Makefile.in mozldap-6
 +	ln -sf $(DLLPRLDAP) $(dist_libdir)/$(LIB_PREFIX)$(PRLDAP_LIBNAME).$(DLL_SUFFIX)
  endif
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/Makefile.in mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/Makefile.in
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/Makefile.in	2007-06-20 18:57:12.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/Makefile.in	2013-09-07 16:35:47.130344981 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/Makefile.in	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/Makefile.in	2018-10-03 18:38:31.314805116 +0200
 @@ -60,7 +60,7 @@
  HDIR		= $(topsrcdir)/ldap/include
  
@@ -211,8 +225,8 @@ diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/Makefile.in mozldap-6
 +	ln -sf $(DLLSSLDAP) $(dist_libdir)/$(LIB_PREFIX)$(SSLDAP_LIBNAME).$(DLL_SUFFIX)
  endif
 diff -ur mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/sslerrstrs.h mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/sslerrstrs.h
---- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2006-10-10 14:37:35.000000000 +0100
-+++ mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2013-09-07 16:35:55.767321281 +0100
+--- mozldap-6.0.7.orig/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2011-01-06 13:05:39.000000000 +0100
++++ mozldap-6.0.7/c-sdk/ldap/libraries/libssldap/sslerrstrs.h	2018-10-03 18:38:31.314805116 +0200
 @@ -247,7 +247,7 @@
  "SSL peer was not expecting a handshake message it received.")
  

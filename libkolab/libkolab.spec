@@ -4,6 +4,8 @@
 #!BuildIgnore:  httpd
 %endif
 
+%{expand: %(if [ `php-config --vernum` -gt 70000 ]; then echo %%global with_php7 1; else echo %%global with_php7 0; fi)}
+
 %if 0%{?suse_version}
 %global php php5
 %{!?php_inidir: %global php_inidir %{_sysconfdir}/php5/conf.d/}
@@ -127,7 +129,7 @@ Python bindings for libkolab
 %prep
 %setup -q -n libkolab-%{version}
 
-%if 0%{?fedora} >= 25
+%if 0%{?with_php7}
 sed -i "s/-php/-php7/g" cmake/modules/SWIGUtils.cmake
 %endif
 
@@ -157,6 +159,9 @@ cmake \
     -DBUILD_SHARED_LIBS:BOOL=ON \
 %else
 %cmake \
+%endif
+%if 0%{?with_at}
+    -DBUILD_TOOLS:BOOL=OFF \
 %endif
     -DCMAKE_C_FLAGS:STRING="-DNDEBUG -DQT_NO_DEBUG" \
     -DBoost_NO_BOOST_CMAKE=TRUE \

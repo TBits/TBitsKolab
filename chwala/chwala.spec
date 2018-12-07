@@ -37,7 +37,7 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           chwala
-Version:        0.5.2
+Version:        0.5.4
 Release:        1%{?dist}
 Summary:        Glorified WebDAV, done right
 
@@ -47,7 +47,7 @@ URL:            http://chwala.org
 Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
 Source2:        chwala.logrotate
 
-Patch1:         chwala-0.2-suhosin.session.encrypt-php_flag.patch
+Patch1:         chwala-0.5.4-suhosin.session.encrypt-php_flag.patch
 
 BuildArch:      noarch
 
@@ -133,7 +133,7 @@ popd
 
 %post
 if [ -f "%{php_inidir}/apc.ini" -o -f "%{php_inidir}/apcu.ini" ]; then
-    if [ ! -z "`grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini`" ]; then
+    if [ ! -z "`grep ^apc.enabled=1 %{php_inidir}/apc{,u}.ini 2>/dev/null`" ]; then
 %if 0%{?with_systemd}
         /bin/systemctl condrestart %{httpd_name}.service
 %else
@@ -144,9 +144,7 @@ fi
 
 /usr/share/roundcubemail/bin/updatedb.sh \
     --dir /usr/share/doc/%{name}-%{version}/SQL/ \
-    --package %{name} || : \
-    >/dev/null 2>&1
-
+    --package %{name} >/dev/null 2>&1 || :
 
 %files
 %doc README.md LICENSE doc/SQL/
@@ -160,6 +158,12 @@ fi
 %attr(0750,%{httpd_user},%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Fri Oct 26 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.4-1
+- Release 0.5.4
+
+* Fri Aug 10 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.5.3-1
+- Release 0.5.3
+
 * Wed Dec 20 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.5.2-1
 - Release 0.5.2
 
