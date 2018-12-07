@@ -26,22 +26,6 @@
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-@@ -66,13 +85,14 @@
- %endif
- Requires:       php-pear(Net_Socket)
- Requires:       php-pear(Net_LDAP2)
--Requires:       php-pear(Net_LDAP3)
-+Requires:       php-kolab-net-ldap3
- Requires:       php-pear(Net_SMTP)
- Requires:       php-pear(Net_URL2)
- Requires:       php-gettext
- Requires:       php-ldap
- Requires:       php-mbstring
- Requires:       php-mysqlnd
-+Requires:       php-imap
- 
- %description
- Web based admin - and user interface for the Kolab Groupware Server
 @@ -80,6 +100,23 @@
  %prep
  %setup -q

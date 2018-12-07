@@ -7,11 +7,16 @@ PATCHESPATH=~/tmp/KolabScripts/kolab/patches
 TBITSPATCHESPATH=~/tmp/lbs-TBitsKolab/updatePackages
 TBITSSCRIPTSPATH=~/tmp/KolabUpgradeScripts
 OBSPATH=~/tmp/lbs-kolab
-RELEASE=106
+RELEASE=60
+# version from December 2018
+githash=161612e43e0c621176a328237de4f0d0ba4585da
+# version from July 2018
+githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
+githash_roundcubemail_plugins_kolab=$githash_roundcubemail
 
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
-branch="TBitsKolab16Test"
+branch="TBitsKolab16Dev"
 
 if [[ "`whoami`" == "root" ]]
 then
@@ -70,15 +75,16 @@ else
   cd ~/tmp
   git clone --depth 25 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
 fi
-# for the moment lets stay on a version from July 2018
+# for the moment lets stay on a defined version
 cd ~/tmp/lbs-kolab
-git checkout 4b631825f9afcfae3be3a806e2d31da3ee63180c || exit -1
+git checkout $githash || exit -1
 cd -
 
 unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
+    echo "working on $pkgname"
     rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/*
     mkdir -p ~/tmp/lbs-TBitsKolab/$pkgname
     cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
@@ -90,8 +96,19 @@ modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcube
 
 for pkgname in "${modified_pkgnames[@]}"
 do
+    echo "working on modified $pkgname"
     mkdir -p $OBSPATH/$pkgname
     cd $OBSPATH/$pkgname
+
+    git reset --hard
+    pkggithash="githash_"${pkgname//-/_}
+    if [[ ! -z "${!pkggithash}" ]]
+    then
+      echo "getting special git version for package $pkgname"
+      git checkout ${!pkggithash} || exit -1
+    else
+      git checkout $githash || exit -1
+    fi
 
     # sometimes new files are added in master, which we have to add in the spec file, eg. roundcubemail-plugins-kolab
     if [ -f $TBITSPATCHESPATH/$pkgname.patch ]
