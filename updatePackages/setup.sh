@@ -172,6 +172,9 @@ do
 
       # from initTBitsCustomizationsDE.sh
       cp $PATCHESPATH/onlyAllowKolabUsersToAuthViaSasl.patch .
+
+      # template for cyrus.conf without guam
+      cp $TBITSPATCHESPATH/pykolab_no_guam.patch .
     fi
 
     if [[ "$pkgname" == "roundcubemail-plugins-kolab" ]]

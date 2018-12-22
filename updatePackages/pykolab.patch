@@ -1,6 +1,6 @@
 --- a/pykolab.spec	2017-04-08 15:31:40.370572889 +0200
 +++ b/pykolab.spec	2017-04-08 15:31:40.494572001 +0200
-@@ -40,6 +40,19 @@
+@@ -40,6 +40,20 @@
  
  Patch0001:          pykolab-0.8-patch-out-manticore.patch
  
@@ -16,11 +16,12 @@
 +Patch16:            onlyAllowKolabUsersToAuthViaSasl.patch
 +Patch17:            pykolab_wap_client_unverified_context_localhost.patch
 +Patch18:            kolab_lam_invalid_mailbox_name.patch
++Patch19:            pykolab_no_guam.patch
 +
  BuildRoot:          %{_tmppath}/%{name}-%{version}-%{release}-root
  BuildArch:          noarch
  
-@@ -245,6 +252,18 @@
+@@ -245,6 +252,19 @@
  %patch0001 -p1
  %endif
  
@@ -35,6 +36,7 @@
 +%patch16 -p1
 +%patch17 -p1
 +%patch18 -p1
++%patch19 -p1
 +
  %build
  autoreconf -v || automake --add-missing && autoreconf -v

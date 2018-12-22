@@ -1,0 +1,11 @@
+--- a/share/templates/cyrus.conf.tpl	2018-12-22 19:25:53.999648061 +0100
++++ b/share/templates/cyrus.conf.tpl	2018-12-22 19:26:03.291665938 +0100
+@@ -9,7 +9,7 @@
+ 
+ # UNIX sockets start with a slash and are put into /var/lib/imap/sockets
+ SERVICES {
+-    imaps       cmd="imapd -s"  listen="127.0.0.1:9993"                 prefork=5
++    imaps       cmd="imapd -s"  listen="127.0.0.1:993"                 prefork=5
+ 
+     sieve       cmd="timsieved" listen="sieve"                          prefork=0
+ 
