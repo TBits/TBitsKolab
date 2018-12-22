@@ -2,16 +2,17 @@
 
 # create new package instructions
 
-CURRENTPATH=`pwd`
-PATCHESPATH=~/tmp/KolabScripts/kolab/patches
-TBITSPATCHESPATH=~/tmp/lbs-TBitsKolab/updatePackages
-TBITSSCRIPTSPATH=~/tmp/KolabUpgradeScripts
-OBSPATH=~/tmp/lbs-kolab
 RELEASE=106
-
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
 branch="TBitsKolab16Test"
+
+TBITSPATCHESPATH=~/tmp/lbs-$branch/updatePackages
+PATCHESPATH=~/tmp/KolabScripts/kolab/patches
+TBITSSCRIPTSPATH=~/tmp/KolabUpgradeScripts
+OBSPATH=~/tmp/lbs-kolab
+CURRENTPATH=`pwd`
+
 
 if [[ "`whoami`" == "root" ]]
 then
@@ -31,17 +32,17 @@ else
   git clone --depth 1 -b $patchesbranch https://github.com/TBits/KolabScripts.git || exit -1
 fi
 
-if [ -d ~/tmp/lbs-TBitsKolab ]
+if [ -d ~/tmp/lbs-$branch ]
 then
-  cd ~/tmp/lbs-TBitsKolab
+  cd ~/tmp/lbs-$branch
   git pull || exit -1
 else
   cd ~/tmp
-  git clone --depth 1 -b $branch https://github.com/TBits/lbs-TBitsKolab.git || exit -1
+  git clone --depth 1 -b $branch https://github.com/TBits/lbs-TBitsKolab.git lbs-$branch|| exit -1
 fi
 
-mkdir -p ~/tmp/lbs-TBitsKolab/updatePackages
-cp -R $CURRENTPATH/* ~/tmp/lbs-TBitsKolab/updatePackages
+mkdir -p ~/tmp/lbs-$branch/updatePackages
+cp -R $CURRENTPATH/* ~/tmp/lbs-$branch/updatePackages
 
 if [ -d ~/tmp/ude_login ]
 then
@@ -79,11 +80,11 @@ unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sie
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
-    rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/*
-    mkdir -p ~/tmp/lbs-TBitsKolab/$pkgname
-    cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
-    rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/debian
-    rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
+    rm -Rf ~/tmp/lbs-$branch/$pkgname/*
+    mkdir -p ~/tmp/lbs-$branch/$pkgname
+    cp -R $OBSPATH/$pkgname ~/tmp/lbs-$branch/
+    rm -Rf ~/tmp/lbs-$branch/$pkgname/debian
+    rm -f ~/tmp/lbs-$branch/$pkgname/*.dsc
 done
 
 modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
@@ -167,8 +168,8 @@ do
     if [[ "$pkgname" == "roundcubemail-plugin-ude_login" ]]
     then
       cp $TBITSPATCHESPATH/comm.py .
-      cp ~/tmp/lbs-TBitsKolab/$pkgname/*.spec .
-      cp ~/tmp/lbs-TBitsKolab/$pkgname/*.tar.gz .
+      cp ~/tmp/lbs-$branch/$pkgname/*.spec .
+      cp ~/tmp/lbs-$branch/$pkgname/*.tar.gz .
       if [ ! -f roundcubemail-plugin-ude_login-$ude_login_version.tar.gz ]
       then
         rm -f *.tar.gz
@@ -199,14 +200,14 @@ do
     # git status
     # git diff | cat
 
-    rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/*
-    mkdir -p ~/tmp/lbs-TBitsKolab/$pkgname
-    cp -R $OBSPATH/$pkgname ~/tmp/lbs-TBitsKolab/
-    rm -Rf ~/tmp/lbs-TBitsKolab/$pkgname/debian
-    rm -f ~/tmp/lbs-TBitsKolab/$pkgname/*.dsc
+    rm -Rf ~/tmp/lbs-$branch/$pkgname/*
+    mkdir -p ~/tmp/lbs-$branch/$pkgname
+    cp -R $OBSPATH/$pkgname ~/tmp/lbs-$branch/
+    rm -Rf ~/tmp/lbs-$branch/$pkgname/debian
+    rm -f ~/tmp/lbs-$branch/$pkgname/*.dsc
 done
 
-cd ~/tmp/lbs-TBitsKolab
+cd ~/tmp/lbs-$branch
 find . -type f -name "*.orig" -delete
 git add  --all .
 git config --local user.name "LBS BuildBot"
