@@ -52,6 +52,7 @@ Patch15:            fixPykolabIMAPKeepAlive.patch
 Patch16:            onlyAllowKolabUsersToAuthViaSasl.patch
 Patch17:            pykolab_wap_client_unverified_context_localhost.patch
 Patch18:            kolab_lam_invalid_mailbox_name.patch
+Patch19:            pykolab_no_guam.patch
 
 BuildRoot:          %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch:          noarch
@@ -273,6 +274,7 @@ This is the Kolab Content Filter, with plugins
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p1
 
 %build
 autoreconf -v || automake --add-missing && autoreconf -v
