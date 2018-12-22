@@ -12,7 +12,7 @@
 
 Name:           kolab
 Version:        16.0.1
-Release:        106.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        107.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        The Kolab Groupware Solution
 
 Group:          Applications/System
