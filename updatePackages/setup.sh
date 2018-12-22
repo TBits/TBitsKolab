@@ -2,7 +2,7 @@
 
 # create new package instructions
 
-RELEASE=106
+RELEASE=107
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
 branch="TBitsKolab16Dev"
