@@ -23,7 +23,7 @@ This is for CentOS 7:
 
 ```
 export branch=Kolab16
-export repo=https://lbs.tbits.net/repos/tbits.net/TBitsKolab16Test/centos/7/lbs-tbits.net-TBitsKolab16Test.repo
+export repo=https://lbs.solidcharity.com/repos/tbits.net/TBitsKolab16Test/centos/7/lbs-tbits.net-TBitsKolab16Test.repo
 export WITHOUTSPAMFILTER=1
 export APPLYPATCHES=0
 export dirmanagerpwd=test
