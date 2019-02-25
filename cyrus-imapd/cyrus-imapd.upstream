@@ -18,9 +18,9 @@
 %global _cyrusgroup mail
 %global _cyrexecdir %{_exec_prefix}/lib/%{name}
 
-%global tag_version 2.5.11
-%global revision    41
-%global git_hash    gd53406f3f
+%global tag_version 2.5.12.25
+##%global revision    41
+##%global git_hash    gd53406f3f
 
 ##
 ## Options
@@ -37,12 +37,12 @@
 Name:               cyrus-imapd
 Summary:            A high-performance mail server with IMAP, POP3, NNTP and SIEVE support
 Version:            %{tag_version}
-Release:            0.%{revision}.%{git_hash}%{?dist}
+Release:            1%{?dist}
 License:            BSD
 Group:              System Environment/Daemons
 URL:                http://www.cyrusimap.org
 
-Source0:            ftp://ftp.andrew.cmu.edu/pub/cyrus/%{name}-%{tag_version}-%{revision}-%{git_hash}.tar.gz
+Source0:            ftp://ftp.andrew.cmu.edu/pub/cyrus/%{name}-%{tag_version}.tar.gz
 Source1:            cyrus-imapd.imap-2.3.x-conf
 Source2:            cyrus-imapd.cvt_cyrusdb_all
 Source3:            cyrus-imapd.magic
@@ -258,7 +258,7 @@ The %{name}-devel package contains header files and libraries
 necessary for developing applications which use the imclient library.
 
 %prep
-%setup -q -n %{name}-%{tag_version}-%{revision}-%{git_hash}
+%setup -q
 
 %if 0%{?with_bdb} < 1
 sed -i -e 's/,berkeley//g' cunit/aaa-db.testc
@@ -640,6 +640,7 @@ fi
 %{_cyrexecdir}/ctl_deliver
 %{_cyrexecdir}/ctl_mboxlist
 %{_cyrexecdir}/cvt_cyrusdb
+%{_cyrexecdir}/cyr_buildinfo
 %{_cyrexecdir}/cyr_dbtool
 %{_cyrexecdir}/cyr_expire
 %{_cyrexecdir}/cyr_sequence
@@ -756,6 +757,9 @@ fi
 %{_libdir}/*.la
 
 %changelog
+* Wed Jan  2 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.5.12.25-1
+- Rebase on to upstream 2.5.12
+
 * Tue Oct 17 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.5.11-4
 - Fix potentially non-readable, non-writeable /dev/null
 

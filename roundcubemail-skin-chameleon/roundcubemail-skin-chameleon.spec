@@ -1,12 +1,14 @@
 Name:           roundcubemail-skin-chameleon
 Version:        0.3.10
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Kolab skin for Roundcube
 
 Group:          Web/Applications
 License:        CC-BY-SA
 URL:            http://www.kolab.org
 Source0:        http://mirror.kolabsys.com/pub/releases/%{name}-%{version}.tar.gz
+
+Patch001:       T4371.patch
 
 BuildArch:      noarch
 
@@ -49,6 +51,8 @@ Assets for the Chameleon skin
 
 %prep
 %setup -q
+
+%patch001 -p1
 
 %build
 
@@ -124,6 +128,9 @@ mv %{buildroot}/%{_datadir}/roundcubemail/skins/chameleon/watermark.html \
 %{_datadir}/roundcubemail/public_html/assets/skins/chameleon/
 
 %changelog
+* Sat Jan 19 2019 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.3.10-2
+- Patch T4371
+
 * Wed Oct  3 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.3.10-1
 - Release of version 0.3.10
 

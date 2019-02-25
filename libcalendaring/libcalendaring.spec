@@ -10,6 +10,8 @@ URL:            http://www.kolab.org/about/libcalendaring
 Source0:        libcalendaring-4.9.2.tar.gz
 
 Patch0001:      0001-Correct-shebangs.patch
+# ical3 support for CentOS 7.6 from https://cgit.kolab.org/libcalendaring/commit/?id=fc5d939abcc32c03f3513ae9239b2b3c765329f5
+Patch0002:      0002-ical3-support.patch
 
 BuildRequires:  boost-devel
 BuildRequires:  cmake
@@ -48,6 +50,7 @@ These are development headers. Don't bother.
 %setup -q
 
 %patch0001 -p1
+%patch0002 -p1
 
 %build
 mkdir build
@@ -83,6 +86,9 @@ popd
 %{_libdir}/libcalendaring*.a
 
 %changelog
+* Tue Jan 08 2018 Timotheus Pokorra <timotheus.pokorra@solidcharity.com> - 4.9.2-1
+- adding patch to build on CentOS 7.6 and Fedora 28 with ical3
+
 * Mon Feb 23 2015 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 4.9.1-1
 - New upstream version 4.9.1
 
