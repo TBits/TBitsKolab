@@ -1,0 +1,18 @@
+--- a/libcalendaring.spec	2019-02-25 17:26:41.628099160 +0100
++++ b/libcalendaring.spec	2019-02-25 17:27:05.536000622 +0100
+@@ -10,6 +10,7 @@
+ Source0:        libcalendaring-4.9.2.tar.gz
+ 
+ Patch0001:      0001-Correct-shebangs.patch
++Patch0002:      ical3-support.patch
+ 
+ BuildRequires:  boost-devel
+ BuildRequires:  cmake
+@@ -48,6 +49,7 @@
+ %setup -q
+ 
+ %patch0001 -p1
++%patch0002 -p1
+ 
+ %build
+ mkdir build
