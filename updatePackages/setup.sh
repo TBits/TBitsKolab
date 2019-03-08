@@ -85,7 +85,7 @@ cd ~/tmp/lbs-kolab
 git checkout $githash || exit -1
 cd -
 
-unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
+unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
@@ -97,7 +97,7 @@ do
     rm -f ~/tmp/lbs-$branch/$pkgname/*.dsc
 done
 
-modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
+modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugin-contextmenu roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
 
 for pkgname in "${modified_pkgnames[@]}"
 do
