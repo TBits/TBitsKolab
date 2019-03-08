@@ -7,8 +7,8 @@ obsbranch="Kolab_16"
 patchesbranch="Kolab16"
 branch="TBitsKolab16Dev"
 
-# version from February 2019
-githash=229b6619474b747f62816e9cb8a4f10ca300d612
+# version from March 2019
+githash=d3634b1746446874ec471653b1dae4e61cc0f076
 # version from July 2018
 githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
 githash_roundcubemail_plugins_kolab=$githash_roundcubemail
