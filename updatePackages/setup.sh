@@ -12,6 +12,8 @@ githash=229b6619474b747f62816e9cb8a4f10ca300d612
 # version from July 2018
 githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
 githash_roundcubemail_plugins_kolab=$githash_roundcubemail
+githash_roundcubemail-skin-chameleon=$githash_roundcubemail
+githash_roundcubemail-plugin-contextmenu=$githash_roundcubemail
 
 TBITSPATCHESPATH=~/tmp/lbs-$branch/updatePackages
 PATCHESPATH=~/tmp/KolabScripts/kolab/patches
@@ -123,6 +125,7 @@ do
     # we need a new tarball for roundcubemail, but not beta
     if ls $TBITSPATCHESPATH/$pkgname*.tar.gz 1> /dev/null 2>&1;
     then
+      rm $pkgname*.tar.gz
       cp $TBITSPATCHESPATH/$pkgname*.tar.gz .
     fi
 
