@@ -180,7 +180,6 @@ Requires:       roundcubemail(plugin-redundant_attachments)
 
 Requires:       roundcubemail-plugin-contextmenu
 Requires:       roundcubemail-plugins-kolab
-Requires:       roundcubemail-skin-kolab
 
 %description webclient
 This is the Kolab Groupware web client meta-package
