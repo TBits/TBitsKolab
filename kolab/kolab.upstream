@@ -166,11 +166,9 @@ Requires:       aspell-en
 Requires:       aspell-da
 Requires:       aspell-de
 Requires:       aspell-es
-Requires:       aspell-fi
 Requires:       aspell-fr
 Requires:       aspell-it
 Requires:       aspell-nl
-Requires:       aspell-pl
 Requires:       aspell-pt
 Requires:       aspell-ru
 Requires:       aspell-sv
