@@ -6,7 +6,7 @@
  SERVICES {
 -    imaps       cmd="imapd -s"  listen="127.0.0.1:9993"                 prefork=5
 +    imaps       cmd="imapd -s"  listen="*:993"                          prefork=5
-+    imaps       cmd="imapd"     listen="127.0.0.1:143"                  prefork=5
++    imap        cmd="imapd"     listen="127.0.0.1:143"                  prefork=5
  
      sieve       cmd="timsieved" listen="sieve"                          prefork=0
  
