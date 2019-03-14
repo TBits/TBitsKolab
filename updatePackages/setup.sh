@@ -5,15 +5,7 @@
 RELEASE=107
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
-branch="TBitsKolab16Dev"
-
-# version from March 2019
-githash=d3634b1746446874ec471653b1dae4e61cc0f076
-# version from July 2018
-githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
-githash_roundcubemail_plugins_kolab=$githash_roundcubemail
-githash_roundcubemail_skin_chameleon=$githash_roundcubemail
-githash_roundcubemail_plugin_contextmenu=$githash_roundcubemail
+branch="TBitsKolab16Unpatched"
 
 TBITSPATCHESPATH=~/tmp/lbs-$branch/updatePackages
 PATCHESPATH=~/tmp/KolabScripts/kolab/patches
@@ -79,11 +71,6 @@ else
   cd ~/tmp
   git clone --depth 25 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
 fi
-
-# for the moment lets stay on a defined version
-cd ~/tmp/lbs-kolab
-git checkout $githash || exit -1
-cd -
 
 unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
