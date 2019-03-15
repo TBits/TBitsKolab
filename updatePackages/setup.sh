@@ -5,7 +5,7 @@
 RELEASE=107
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
-branch="TBitsKolab16Test"
+branch="TBitsKolab16Dev"
 
 # version from March 2019
 githash=d3634b1746446874ec471653b1dae4e61cc0f076
