@@ -238,7 +238,9 @@ git add  --all .
 git config --local user.name "LBS BuildBot"
 git config --local user.email tp@tbits.net
 
-updatePackages/checkVersions.sh > packages.txt
+cd updatePackages
+./checkVersions.sh > ../packages.txt
+cd -
 
 # only commit if there is actually something new
 git diff-index --quiet HEAD || git commit -a -m "latest build for TBits" || exit -1
