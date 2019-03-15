@@ -40,20 +40,6 @@ Source1:            pykolab.logrotate
 
 Patch0001:          pykolab-0.8-patch-out-manticore.patch
 
-# from initTBitsISP.sh
-Patch8:             pykolab_do_not_rename_existing_mailbox_T3315.patch
-Patch9:             lastLoginTBitsAttribute-pykolab.patch
-Patch10:            allowPrimaryEmailAddressFromDomain.patch
-Patch11:            canonification_via_uid_pykolab.patch
-Patch12:            logLoginData.patch
-Patch13:            disableSpamFilter.patch
-Patch14:            disableSpamFilter2.patch
-Patch15:            fixPykolabIMAPKeepAlive.patch
-Patch16:            onlyAllowKolabUsersToAuthViaSasl.patch
-Patch17:            pykolab_wap_client_unverified_context_localhost.patch
-Patch18:            kolab_lam_invalid_mailbox_name.patch
-Patch19:            pykolab_no_guam.patch
-
 BuildRoot:          %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch:          noarch
 
@@ -262,19 +248,6 @@ This is the Kolab Content Filter, with plugins
 %if 0%{?kolab_enterprise}
 %patch0001 -p1
 %endif
-
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
 
 %build
 autoreconf -v || automake --add-missing && autoreconf -v

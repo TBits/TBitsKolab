@@ -59,6 +59,11 @@ This is the Kolab Groupware Configuration component meta-package
 Summary:        Kolab Groupware IMAP Component
 Group:          Applications/System
 Requires:       cyrus-imapd
+%if %{?_arch} == "ppc64le" && 0%{?fedora}
+# Do not require Guam on fedora/ppc64le
+%else
+Requires:       guam
+%endif
 Requires:       kolab-saslauthd
 Requires:       pykolab
 
@@ -126,6 +131,18 @@ This is the meta-package to install Kolab Groupware on Plesk %{plesk}
 %package mta
 Summary:        The Kolab Groupware Mail Transfer Agent (MTA) meta-package
 Group:          Applications/System
+Requires:       amavisd-new
+
+%if 0%{?rhel} > 6 || 0%{?fedora} > 0
+Requires:       clamav-update
+%endif
+
+%if 0%{?with_systemd}
+Requires:       clamav-server-systemd
+%else
+Requires:       clamav-server-sysvinit
+%endif
+Requires:       clamav-update
 
 Requires:       postfix
 Requires:       postfix-kolab
@@ -180,6 +197,7 @@ Requires:       roundcubemail(plugin-redundant_attachments)
 
 Requires:       roundcubemail-plugin-contextmenu
 Requires:       roundcubemail-plugins-kolab
+Requires:       roundcubemail-skin-kolab
 
 %description webclient
 This is the Kolab Groupware web client meta-package

@@ -37,7 +37,7 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           iRony
-Version:        0.4.1
+Version:        0.4.2
 Release:	    1%{?dist}
 Summary:        DAV for Kolab Groupware
 
@@ -185,6 +185,9 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Thu Mar 14 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.4.2-1
+- Release 0.4.2
+
 * Wed Jun 20 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.1-2
 - Fix marking httpd's conf.d/iRony.conf file as a configuration file not
   to be replaced by package updates

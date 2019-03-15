@@ -14,6 +14,13 @@
     $config['managesieve_domains'] = array();
     $config['managesieve_filename_extension'] = '';
 
+    $config['managesieve_conn_options'] = Array(
+        'ssl' => Array(
+            'verify_peer' => FALSE,
+            'verify_peer_name' => FALSE
+        )
+    );
+
     $config['managesieve_kolab_master'] = false;
 
     if (file_exists(RCUBE_CONFIG_DIR . '/' . $_SERVER["HTTP_HOST"] . '/' . basename(__FILE__))) {

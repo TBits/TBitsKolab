@@ -33,4 +33,4 @@ $config['kolab_folders_mail_sentitems'] = 'Sent';
 $config['kolab_folders_mail_wastebasket'] = 'Trash';
 // Others folders
 $config['kolab_folders_mail_outbox'] = '';
-$config['kolab_folders_mail_junkemail'] = 'Spam';
+$config['kolab_folders_mail_junkemail'] = 'INBOX.Spam';

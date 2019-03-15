@@ -66,10 +66,6 @@ Source32:           cyr_systemd_helper
 Patch0001:          0001-dlist-Use-int8_t-in-dlist_parsemap.patch
 Patch0002:          0002-Avoid-returning-1-as-255.patch
 
-# see https://lists.andrew.cmu.edu/pipermail/cyrus-devel/2016-November/003919.html
-Patch11:             cyrus_filter_kolab_mailboxes.patch
-Patch12:             cyrus_canonification_multiple_domains.patch
-
 BuildRoot:          %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 ##
@@ -263,8 +259,6 @@ necessary for developing applications which use the imclient library.
 
 %prep
 %setup -q
-%patch11 -p1
-%patch12 -p1
 
 %if 0%{?with_bdb} < 1
 sed -i -e 's/,berkeley//g' cunit/aaa-db.testc
