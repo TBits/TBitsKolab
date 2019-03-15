@@ -69,6 +69,9 @@ popd
 %attr(0750,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Sat Dec  1 2018 Timotheus Pokorra <tp@tbits.net> - 1.3-2
+- require php-kolab-net-ldap3 because it was upgraded in EPEL
+
 * Mon Oct  9 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.3-1
 - Release version 1.3
 

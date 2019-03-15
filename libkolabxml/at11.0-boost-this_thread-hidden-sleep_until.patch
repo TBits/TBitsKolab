@@ -1,0 +1,12 @@
+diff -ur libkolabxml-1.2.orig/tests/conversiontest.cpp libkolabxml-1.2/tests/conversiontest.cpp
+--- libkolabxml-1.2.orig/tests/conversiontest.cpp	2016-09-09 12:42:25.000000000 +0200
++++ libkolabxml-1.2/tests/conversiontest.cpp	2017-10-05 09:50:08.497369485 +0200
+@@ -263,7 +263,7 @@
+         std::string uid = s.str();
+ //         std::cout << uid << std::endl;
+         Kolab::Utils::setCreatedUid(uid);
+-        boost::this_thread::sleep(boost::posix_time::millisec(50));
++//        boost::this_thread::sleep(boost::posix_time::millisec(50));
+         QCOMPARE(Kolab::Utils::createdUid(), uid);
+     }
+ }

@@ -35,7 +35,7 @@
 
 Name:           kolab-webadmin
 Version:        3.2.12
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Kolab Groupware Server Web Administration Interface
 License:        AGPLv3+
 Group:          Productivity/Office/Organizers
@@ -66,7 +66,7 @@ Requires:       php-pear(Mail)
 %endif
 Requires:       php-pear(Net_Socket)
 Requires:       php-pear(Net_LDAP2)
-Requires:       php-pear(Net_LDAP3)
+Requires:       php-kolab-net-ldap3
 Requires:       php-pear(Net_SMTP)
 Requires:       php-pear(Net_URL2)
 Requires:       php-gettext
@@ -169,6 +169,9 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Sat Dec 01 2018 Timotheus Pokorra <tp@tbits.net> - 3.2.12-2
+- require php-kolab-net-ldap3 because it was upgraded in EPEL
+
 * Fri Nov 17 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 3.2.12-1
 - Release 3.2.12
 

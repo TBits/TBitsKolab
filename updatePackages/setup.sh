@@ -7,12 +7,19 @@ obsbranch="Kolab_16"
 patchesbranch="Kolab16"
 branch="TBitsKolab16Test"
 
+# version from March 2019
+githash=d3634b1746446874ec471653b1dae4e61cc0f076
+# version from July 2018
+githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
+githash_roundcubemail_plugins_kolab=$githash_roundcubemail
+githash_roundcubemail_skin_chameleon=$githash_roundcubemail
+githash_roundcubemail_plugin_contextmenu=$githash_roundcubemail
+
 TBITSPATCHESPATH=~/tmp/lbs-$branch/updatePackages
 PATCHESPATH=~/tmp/KolabScripts/kolab/patches
 TBITSSCRIPTSPATH=~/tmp/KolabUpgradeScripts
 OBSPATH=~/tmp/lbs-kolab
 CURRENTPATH=`pwd`
-
 
 if [[ "`whoami`" == "root" ]]
 then
@@ -38,9 +45,10 @@ then
   git pull || exit -1
 else
   cd ~/tmp
-  git clone --depth 1 -b $branch https://github.com/TBits/lbs-TBitsKolab.git lbs-$branch|| exit -1
+  git clone --depth 1 -b $branch https://github.com/TBits/lbs-TBitsKolab.git lbs-$branch || exit -1
 fi
 
+rm -Rf ~/tmp/lbs-$branch/updatePackages
 mkdir -p ~/tmp/lbs-$branch/updatePackages
 cp -R $CURRENTPATH/* ~/tmp/lbs-$branch/updatePackages
 
@@ -71,15 +79,17 @@ else
   cd ~/tmp
   git clone --depth 25 -b $obsbranch https://github.com/TBits/lbs-kolab.git || exit -1
 fi
-# for the moment lets stay on a version from July 2018
+
+# for the moment lets stay on a defined version
 cd ~/tmp/lbs-kolab
-git checkout 4b631825f9afcfae3be3a806e2d31da3ee63180c || exit -1
+git checkout $githash || exit -1
 cd -
 
-unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon roundcubemail-plugin-contextmenu php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
+unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
+    echo "working on $pkgname"
     rm -Rf ~/tmp/lbs-$branch/$pkgname/*
     mkdir -p ~/tmp/lbs-$branch/$pkgname
     cp -R $OBSPATH/$pkgname ~/tmp/lbs-$branch/
@@ -87,12 +97,23 @@ do
     rm -f ~/tmp/lbs-$branch/$pkgname/*.dsc
 done
 
-modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
+modified_pkgnames=( pykolab kolab-webadmin roundcubemail-plugin-contextmenu roundcubemail-plugins-kolab roundcubemail-plugin-ude_login roundcubemail kolab cyrus-imapd kolab-autoconf kolab-freebusy )
 
 for pkgname in "${modified_pkgnames[@]}"
 do
+    echo "working on modified $pkgname"
     mkdir -p $OBSPATH/$pkgname
     cd $OBSPATH/$pkgname
+
+    git reset --hard
+    pkggithash="githash_"${pkgname//-/_}
+    if [[ ! -z "${!pkggithash}" ]]
+    then
+      echo "getting special git version for package $pkgname"
+      git checkout ${!pkggithash} || exit -1
+    else
+      git checkout $githash || exit -1
+    fi
 
     # sometimes new files are added in master, which we have to add in the spec file, eg. roundcubemail-plugins-kolab
     if [ -f $TBITSPATCHESPATH/$pkgname.patch ]
@@ -104,6 +125,7 @@ do
     # we need a new tarball for roundcubemail, but not beta
     if ls $TBITSPATCHESPATH/$pkgname*.tar.gz 1> /dev/null 2>&1;
     then
+      rm $pkgname*.tar.gz
       cp $TBITSPATCHESPATH/$pkgname*.tar.gz .
     fi
 
@@ -215,6 +237,10 @@ find . -type f -name "*.orig" -delete
 git add  --all .
 git config --local user.name "LBS BuildBot"
 git config --local user.email tp@tbits.net
+
+cd updatePackages
+./checkVersions.sh > ../packages.txt
+cd -
 
 # only commit if there is actually something new
 git diff-index --quiet HEAD || git commit -a -m "latest build for TBits" || exit -1

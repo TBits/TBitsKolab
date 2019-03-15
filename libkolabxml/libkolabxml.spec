@@ -14,6 +14,8 @@
 %global with_php 1
 %global with_python 1
 
+%{expand: %(if [ `php-config --vernum` -gt 70000 ]; then echo %%global with_php7 1; else echo %%global with_php7 0; fi)}
+
 %if 0%{?with_php} > 0
 %if 0%{?suse_version}
 %global php php5
@@ -71,6 +73,9 @@ URL:            http://www.kolab.org
 
 # From fa555615bd732cdc7fef56bf617e57d1bcf174fd
 Source0:        libkolabxml-1.2.tar.gz
+
+Patch1001:      fix-qverify-argument.patch
+Patch1002:      at11.0-boost-this_thread-hidden-sleep_until.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -235,9 +240,14 @@ bindings provided through libkolabxml.
 %prep
 %setup -q -n libkolabxml-%{version}
 
-%if 0%{?fedora} >= 25
+%patch1001 -p1
+
+%if 0%{?with_at}
+%patch1002 -p1
+%endif
+
+%if 0%{?with_php7}
 sed -i "s/-php/-php7/g" src/php/CMakeLists.txt
-sed -i "s/QVERIFY(ptr)/QVERIFY(ptr != NULL)/g" tests/kolabconversationtest.cpp
 %endif
 
 %build

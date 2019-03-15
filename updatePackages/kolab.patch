@@ -1,5 +1,5 @@
---- a/kolab.spec	2017-07-25 17:00:33.887563445 +0200
-+++ b/kolab.spec	2017-07-25 17:01:57.943041738 +0200
+--- a/kolab.spec	2019-03-08 22:13:54.096253181 +0100
++++ b/kolab.spec	2019-03-08 22:14:25.444140522 +0100
 @@ -59,11 +59,6 @@
  Summary:        Kolab Groupware IMAP Component
  Group:          Applications/System
@@ -12,7 +12,7 @@
  Requires:       kolab-saslauthd
  Requires:       pykolab
  
-@@ -129,18 +124,6 @@
+@@ -131,18 +126,6 @@
  %package mta
  Summary:        The Kolab Groupware Mail Transfer Agent (MTA) meta-package
  Group:          Applications/System
@@ -31,4 +31,11 @@
  
  Requires:       postfix
  Requires:       postfix-kolab
-
+@@ -197,7 +180,6 @@
+ 
+ Requires:       roundcubemail-plugin-contextmenu
+ Requires:       roundcubemail-plugins-kolab
+-Requires:       roundcubemail-skin-kolab
+ 
+ %description webclient
+ This is the Kolab Groupware web client meta-package
