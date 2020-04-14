@@ -1,9 +1,9 @@
 --- a/kolab-webadmin.orig	2018-11-30 21:03:07.009358084 +0100
 +++ b/kolab-webadmin.spec	2018-11-30 21:03:31.569264198 +0100
-@@ -42,6 +42,25 @@
+@@ -42,6 +42,24 @@
  Url:            http://www.kolab.org
  
- Source0:        kolab-webadmin-3.2.12.tar.gz
+ Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
 +Source1:        99tbits.ldif
 +Source2:        initTBitsUserTypes.php
 +
@@ -18,15 +18,14 @@
 +Patch16:        quotaused_wap.patch
 +Patch18:        canonification_via_uid_wap.patch
 +Patch19:        listUsersLastLoginQuotaUsage.patch
-+Patch20:        intranetToken-wap.patch
 +
-+Patch21:        wap_disallow_users.patch
-+Patch22:        dont_generate_attribs_when_editing.patch
-+Patch23:        wap_api_listuserswithhash.patch
++Patch20:        wap_disallow_users.patch
++Patch21:        dont_generate_attribs_when_editing.patch
++Patch22:        wap_api_listuserswithhash.patch
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-@@ -80,6 +100,23 @@
+@@ -80,6 +99,22 @@
  %prep
  %setup -q
  
@@ -42,7 +41,6 @@
 +%patch20 -p1
 +%patch21 -p1
 +%patch22 -p1
-+%patch23 -p1
 +
 +cp -af %{SOURCE1} bin/99tbits.ldif
 +cp -af %{SOURCE2} bin/initTBitsUserTypes.php
