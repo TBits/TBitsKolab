@@ -4,7 +4,7 @@
         Managed by Puppet
      */
 
-    $config['kolab_freebusy_server'] = 'https://freebusy.kolabsys.com/';
+    $config['kolab_freebusy_server'] = 'https://' . $_SERVER["HTTP_HOST"] . '/freebusy/';
 
     if (file_exists(RCUBE_CONFIG_DIR . '/' . $_SERVER["HTTP_HOST"] . '/' . basename(__FILE__))) {
         include_once(RCUBE_CONFIG_DIR . '/' . $_SERVER["HTTP_HOST"] . '/' . basename(__FILE__));

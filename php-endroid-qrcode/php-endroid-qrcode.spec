@@ -15,7 +15,7 @@
 Name:           php-%{gh_project}
 Summary:        Endroid QR Code Generator
 Version:        1.5.4
-Release:        1%{?dist}
+Release:        2.21%{?dist}.kolab_16
 
 URL:            https://github.com/%{gh_owner}/%{gh_project}
 Source0:        https://github.com/%{gh_owner}/%{gh_project}/archive/%{gh_commit}/%{gh_project}-%{version}.tar.gz

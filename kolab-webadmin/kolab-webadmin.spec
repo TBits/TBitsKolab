@@ -34,14 +34,14 @@
 %global kolabr_group_id 414
 
 Name:           kolab-webadmin
-Version:        3.2.12
-Release:        107.tbits%(date +%%Y%%m%%d)%{?dist}
+Version:        3.2.15
+Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Kolab Groupware Server Web Administration Interface
 License:        AGPLv3+
 Group:          Productivity/Office/Organizers
 Url:            http://www.kolab.org
 
-Source0:        kolab-webadmin-3.2.12.tar.gz
+Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
 Source1:        99tbits.ldif
 Source2:        initTBitsUserTypes.php
 
@@ -56,11 +56,10 @@ Patch15:        lastLoginTBitsAttribute-wap.patch
 Patch16:        quotaused_wap.patch
 Patch18:        canonification_via_uid_wap.patch
 Patch19:        listUsersLastLoginQuotaUsage.patch
-Patch20:        intranetToken-wap.patch
 
-Patch21:        wap_disallow_users.patch
-Patch22:        dont_generate_attribs_when_editing.patch
-Patch23:        wap_api_listuserswithhash.patch
+Patch20:        wap_disallow_users.patch
+Patch21:        dont_generate_attribs_when_editing.patch
+Patch22:        wap_api_listuserswithhash.patch
 
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -111,7 +110,6 @@ Web based admin - and user interface for the Kolab Groupware Server
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
 
 cp -af %{SOURCE1} bin/99tbits.ldif
 cp -af %{SOURCE2} bin/initTBitsUserTypes.php
@@ -143,12 +141,6 @@ cp -a doc/hosted-kolab.conf %{buildroot}/%{_ap_sysconfdir}/conf.d/
 pushd %{buildroot}/%{_datadir}/%{name}/
 ln -s ../../..%{_var}/cache/%{name} cache
 ln -s ../../..%{_var}/log/%{name} logs
-pushd hosted/skins/kolabsys
-ln -sf ../../../public_html/skins/default/style.css style.css
-ln -sf ../../../public_html/skins/default/ui.js ui.js
-rm -rf images
-ln -sf ../../../public_html/skins/default/images images
-popd
 popd
 
 %clean
@@ -205,7 +197,16 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
-* Sat Dec 01 2018 Timotheus Pokorra <tp@tbits.net> - 3.2.12-2
+* Mon Oct 21 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.2.15-1
+- Release 3.2.15
+
+* Tue Jul  2 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.2.14-1
+- Release 3.2.14
+
+* Wed Jun  5 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 3.2.13-1
+- Release 3.2.13
+
+* Sat Dec  1 2018 Timotheus Pokorra <tp@tbits.net> - 3.2.12-2
 - require php-kolab-net-ldap3 because it was upgraded in EPEL
 
 * Fri Nov 17 2017 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 3.2.12-1

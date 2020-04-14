@@ -1,0 +1,12 @@
+diff -ur roundcubemail-1.4-beta86.orig/plugins/enigma/config.inc.php.dist roundcubemail-1.4-beta86/plugins/enigma/config.inc.php.dist
+--- roundcubemail-1.4-beta86.orig/plugins/enigma/config.inc.php.dist	2018-07-05 06:57:32.000000000 +0200
++++ roundcubemail-1.4-beta86/plugins/enigma/config.inc.php.dist	2018-10-26 10:08:25.340110653 +0200
+@@ -14,7 +14,7 @@
+ 
+ // REQUIRED! Keys directory for all users.
+ // Must be writeable by PHP process, and not in the web server document root
+-$config['enigma_pgp_homedir'] = null;
++$config['enigma_pgp_homedir'] = "/var/lib/roundcubemail/plugins/enigma/";
+ 
+ // Location of gpg binary. By default it will be auto-detected.
+ // This is also a way to force gpg2 use if there are both 1.x and 2.x on the system.

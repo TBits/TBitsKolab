@@ -23,7 +23,7 @@
 Summary:          Mozilla LDAP C SDK
 Name:             mozldap
 Version:          %{major}.%{minor}.%{submin}
-Release:          1%{?dist}
+Release:          3.8%{?dist}.kolab_16
 License:          MPLv1.1 or GPLv2+ or LGPLv2+
 URL:              http://www.mozilla.org/directory/csdk.html
 Group:            System Environment/Libraries

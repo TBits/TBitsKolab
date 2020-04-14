@@ -1,16 +1,7 @@
-diff -ur roundcubemail-1.3.0.orig/config/defaults.inc.php roundcubemail-1.3.0/config/defaults.inc.php
---- roundcubemail-1.3.0.orig/config/defaults.inc.php	2017-06-26 20:51:51.000000000 +0200
-+++ roundcubemail-1.3.0/config/defaults.inc.php	2017-07-01 11:36:21.094364159 +0200
-@@ -514,7 +514,7 @@
- // If your authentication backend supports it, use "UTF-8".
- // Otherwise, use the appropriate character set.
- // Defaults to ISO-8859-1 for backward compatibility.
--$config['password_charset'] = 'ISO-8859-1';
-+$config['password_charset'] = 'UTF-8';
- 
- // How many seconds must pass between emails sent by a user
- $config['sendmail_delay'] = 0;
-@@ -630,7 +630,7 @@
+diff -ur roundcubemail-1.4-beta136.orig/config/defaults.inc.php roundcubemail-1.4-beta136/config/defaults.inc.php
+--- roundcubemail-1.4-beta136.orig/config/defaults.inc.php	2018-11-22 13:44:49.000000000 +0100
++++ roundcubemail-1.4-beta136/config/defaults.inc.php	2018-11-22 13:55:51.873258023 +0100
+@@ -656,7 +656,7 @@
  //    RewriteRule ^/roundcubemail/[a-zA-Z0-9]{16}/(.*) /roundcubemail/$1 [PT]
  //    Alias /roundcubemail /var/www/roundcubemail/
  // Note: Use assets_path to not prevent the browser from caching assets
@@ -19,7 +10,7 @@ diff -ur roundcubemail-1.3.0.orig/config/defaults.inc.php roundcubemail-1.3.0/co
  
  // Allows to define separate server/path for image/js/css files
  // Warning: If the domain is different cross-domain access to some
-@@ -639,11 +639,11 @@
+@@ -665,11 +665,11 @@
  //    <FilesMatch ".(eot|ttf|woff)">
  //    Header set Access-Control-Allow-Origin "*"
  //    </FilesMatch>
@@ -33,7 +24,7 @@ diff -ur roundcubemail-1.3.0.orig/config/defaults.inc.php roundcubemail-1.3.0/co
  
  
  // ----------------------------------
-@@ -737,7 +737,7 @@
+@@ -763,7 +763,7 @@
  // Since Google shut down their public spell checking service, the default settings
  // connect to http://spell.roundcube.net which is a hosted service provided by Roundcube.
  // You can connect to any other googie-compliant service by setting 'spellcheck_uri' accordingly.
@@ -42,7 +33,7 @@ diff -ur roundcubemail-1.3.0.orig/config/defaults.inc.php roundcubemail-1.3.0/co
  
  // For locally installed Nox Spell Server or After the Deadline services,
  // please specify the URI to call it.
-@@ -1138,7 +1138,7 @@
+@@ -1164,7 +1164,7 @@
  $config['display_next'] = true;
  
  // Default messages listing mode. One of 'threads' or 'list'.
@@ -51,4 +42,4 @@ diff -ur roundcubemail-1.3.0.orig/config/defaults.inc.php roundcubemail-1.3.0/co
  
  // 0 - Do not expand threads
  // 1 - Expand all threads automatically
-Only in roundcubemail-1.3.0/config: defaults.inc.php.orig
+Only in roundcubemail-1.4-beta136/config: defaults.inc.php.orig

@@ -12,7 +12,7 @@
 
 Name:           kolab
 Version:        16.0.1
-Release:        107.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        The Kolab Groupware Solution
 
 Group:          Applications/System
@@ -85,6 +85,18 @@ component
 %package plesk
 Summary:        Kolab Groupware for Plesk %{plesk}
 Group:          Applications/System
+Requires:       aspell
+%if 0%{?kolab_enterprise}
+Requires:       aspell-da
+Requires:       aspell-de
+Requires:       aspell-es
+Requires:       aspell-fr
+Requires:       aspell-it
+Requires:       aspell-nl
+Requires:       aspell-pt
+Requires:       aspell-ru
+Requires:       aspell-sv
+%endif
 Requires:       chwala
 Requires:       guam
 Requires:       iRony
@@ -95,6 +107,7 @@ Requires:       php-kolab >= 0.5
 Requires:       php-pear(Auth_SASL)
 Requires:       php-pear(HTTP_Request2)
 Requires:       php-pear(Mail_Mime) >= 1.8.5
+Requires:       php-pspell
 Requires:       roundcubemail-core
 Requires:       roundcubemail-plugin-acl
 Requires:       roundcubemail-plugin-archive

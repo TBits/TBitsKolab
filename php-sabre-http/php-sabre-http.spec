@@ -16,7 +16,7 @@
 Name:           php-%{gh_project}
 Summary:        Library for dealing with http requests and responses
 Version:        3.0.5
-Release:        1%{?dist}
+Release:        3.33%{?dist}.kolab_16
 
 URL:            https://github.com/%{gh_owner}/%{gh_project}
 Source0:        https://github.com/%{gh_owner}/%{gh_project}/archive/%{gh_commit}/%{gh_project}-%{version}%{?prever}.tar.gz

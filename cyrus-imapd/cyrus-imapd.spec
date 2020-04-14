@@ -18,9 +18,9 @@
 %global _cyrusgroup mail
 %global _cyrexecdir %{_exec_prefix}/lib/%{name}
 
-%global tag_version 2.5.12.25
-##%global revision    41
-##%global git_hash    gd53406f3f
+%global tag_version 2.5.15
+%global revision    28
+%global git_hash    g7d1550bfa
 
 ##
 ## Options
@@ -36,13 +36,13 @@
 
 Name:               cyrus-imapd
 Summary:            A high-performance mail server with IMAP, POP3, NNTP and SIEVE support
-Version:            %{tag_version}
-Release:        107.tbits%(date +%%Y%%m%%d)%{?dist}
+Version:            %{tag_version}.%{revision}
+Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
 License:            BSD
 Group:              System Environment/Daemons
 URL:                http://www.cyrusimap.org
 
-Source0:            ftp://ftp.andrew.cmu.edu/pub/cyrus/%{name}-%{tag_version}.tar.gz
+Source0:            ftp://ftp.andrew.cmu.edu/pub/cyrus/%{name}-%{tag_version}-%{revision}-%{git_hash}.tar.gz
 Source1:            cyrus-imapd.imap-2.3.x-conf
 Source2:            cyrus-imapd.cvt_cyrusdb_all
 Source3:            cyrus-imapd.magic
@@ -63,8 +63,7 @@ Source32:           cyr_systemd_helper
 ##
 ## Patches
 ##
-Patch0001:          0001-dlist-Use-int8_t-in-dlist_parsemap.patch
-Patch0002:          0002-Avoid-returning-1-as-255.patch
+Patch0003:          0003-Canonification-for-multiple-domains.patch
 
 # see https://lists.andrew.cmu.edu/pipermail/cyrus-devel/2016-November/003919.html
 Patch11:             cyrus_filter_kolab_mailboxes.patch
@@ -262,7 +261,8 @@ The %{name}-devel package contains header files and libraries
 necessary for developing applications which use the imclient library.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{tag_version}-%{revision}-%{git_hash}
+
 %patch11 -p1
 %patch12 -p1
 
@@ -271,9 +271,8 @@ sed -i -e 's/,berkeley//g' cunit/aaa-db.testc
 sed -r -i -e 's/"berkeley(|-[a-z-]+)", //g' lib/imapoptions
 %endif
 
-%if %{_arch} == "ppc64le"
-%patch0001 -p1
-%patch0002 -p1
+%if 0%{?kolab_enterprise} < 1
+%patch0003 -p1
 %endif
 
 # only to update config.* files
@@ -641,7 +640,7 @@ fi
 %{_cyrexecdir}/cyr_deny
 %{_cyrexecdir}/cyr_df
 %{_cyrexecdir}/cyr_info
-#%{_cyrexecdir}/ctl_conversationsdb
+#%%{_cyrexecdir}/ctl_conversationsdb
 %{_cyrexecdir}/ctl_cyrusdb
 %{_cyrexecdir}/ctl_deliver
 %{_cyrexecdir}/ctl_mboxlist
@@ -662,7 +661,7 @@ fi
 %{_cyrexecdir}/fixsearchpath.pl
 %{_cyrexecdir}/fud
 %exclude %{_cyrexecdir}/git-version.sh
-#%{_cyrexecdir}/hammer_cyrusdb
+#%%{_cyrexecdir}/hammer_cyrusdb
 %{_cyrexecdir}/imapd
 %{_cyrexecdir}/ipurge
 %exclude %{_cyrexecdir}/jenkins-build.sh
@@ -672,7 +671,7 @@ fi
 %{_cyrexecdir}/mbexamine
 %{_cyrexecdir}/mbpath
 %{_cyrexecdir}/mbtool
-#%{_cyrexecdir}/message_test
+#%%{_cyrexecdir}/message_test
 %{_cyrexecdir}/migrate-metadata
 %{_cyrexecdir}/mkimap
 %{_cyrexecdir}/mknewsgroups
@@ -681,11 +680,11 @@ fi
 %{_cyrexecdir}/quota
 %{_cyrexecdir}/reconstruct
 %{_cyrexecdir}/rehash
-#%{_cyrexecdir}/search_test
+#%%{_cyrexecdir}/search_test
 %{_cyrexecdir}/sievec
 %{_cyrexecdir}/sieved
 %{_cyrexecdir}/smmapd
-#%{_cyrexecdir}/squat_dump
+#%%{_cyrexecdir}/squat_dump
 %{_cyrexecdir}/squatter
 %{_cyrexecdir}/timsieved
 %{_cyrexecdir}/tls_prune
@@ -755,14 +754,28 @@ fi
 
 %files devel
 %defattr(0644,root,root,0755)
-%files devel
-%defattr(0644,root,root,0755)
 %{_includedir}/cyrus
 %{_libdir}/pkgconfig/*cyrus*.pc
 %{_libdir}/*.so
 %{_libdir}/*.la
 
 %changelog
+* Wed Jan 29 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.5.15.28-1
+- Fix MessageExpunge event notification when executed from system
+
+* Tue Oct 29 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.5.13.40-1
+- Include the user or group ID in failed login attempts
+
+* Wed Oct 23 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.5.13.36-1
+- Rebase on to upstream -2.5 series
+- Fix ptloader group membership (Bifrost T250286)
+
+* Mon Aug 19 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.5.12.30-1
+- Rebase on to upstream 2.5.13
+
+* Tue Mar 12 2019 Timotheus Pokorra <tp@tbits.net> - 2.5.12.25-2
+- Backport patch from upstream for canonification for multiple domains
+
 * Wed Jan  2 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.5.12.25-1
 - Rebase on to upstream 2.5.12
 

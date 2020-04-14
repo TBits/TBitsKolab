@@ -4,7 +4,7 @@
 
 Name:           python-icalendar
 Version:        3.8.2
-Release:        1%{?dist}
+Release:        1.30%{?dist}.kolab_16
 Summary:        Parser/generator of iCalendar files following the RFC 2445
 
 Group:          Development/Libraries

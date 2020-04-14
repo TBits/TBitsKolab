@@ -37,8 +37,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           iRony
-Version:        0.4.1
-Release:	    1%{?dist}
+Version:        0.4.3
+Release:	    2.12%{?dist}.kolab_16
 Summary:        DAV for Kolab Groupware
 
 Group:          Applications/Internet
@@ -185,6 +185,18 @@ fi
 %attr(0770,%{httpd_user},%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Thu Jan 16 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.3-1
+- Release of version 0.4.3
+
+* Tue Apr 23 2019 Christian Mollekopf (Kolab Systems) <mollekopf@kolabsys.com> - 0.4.2-4
+- Support shortlogins via the username_domain configuration option
+
+* Thu Apr 11 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.4.2-2
+- Avoid referring to kolab_auth if it isn't actually installed
+
+* Thu Mar 14 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.4.2-1
+- Release 0.4.2
+
 * Wed Jun 20 2018 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.4.1-2
 - Fix marking httpd's conf.d/iRony.conf file as a configuration file not
   to be replaced by package updates

@@ -23,8 +23,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           kolab-freebusy
-Version:        1.1.1
-Release:        107.tbits%(date +%%Y%%m%%d)%{?dist}
+Version:        1.1.2
+Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Kolab Free/Busy Web Presentation Layer
 
 Group:          Applications/Internet
@@ -163,6 +163,9 @@ fi
 %attr(0770,root,%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Mon Apr 15 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 1.1.2-1
+- Release of version 1.1.2
+
 * Sat Dec  1 2018 Timotheus Pokorra <tp@tbits.net> - 1.1.1-2
 - require php-kolab-net-ldap3 because it was upgraded in EPEL
 

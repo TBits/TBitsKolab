@@ -36,8 +36,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           kolab-syncroton
-Version:        2.3.15
-Release:        1%{?dist}
+Version:        2.3.16
+Release:        3.12%{?dist}.kolab_16
 Summary:        ActiveSync for Kolab Groupware
 
 Group:          Applications/Internet
@@ -46,6 +46,7 @@ URL:            http://www.syncroton.org
 
 Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
 Source1:        kolab-syncroton.logrotate
+Source2:        plesk.kolab_syncroton.inc.php
 
 BuildArch:      noarch
 
@@ -102,7 +103,7 @@ mkdir -p \
 %if 0%{?plesk} < 1
     %{buildroot}/%{_ap_sysconfdir}/conf.d/ \
 %endif
-    %{buildroot}/%{_sysconfdir}/%{name} \
+    %{buildroot}/%{_sysconfdir}/roundcubemail/ \
     %{buildroot}/%{_var}/log/%{name}
 
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -114,6 +115,12 @@ sed -i \
 
 cp -a lib %{buildroot}/%{_datadir}/%{name}/.
 cp -a index.php %{buildroot}/%{_datadir}/%{name}/.
+
+%if 0%{?plesk}
+cp -a %SOURCE2 %{buildroot}/%{_sysconfdir}/roundcubemail/kolab_syncroton.inc.php
+%else
+cp -a config/config.inc.php.dist %{buildroot}/%{_sysconfdir}/roundcubemail/kolab_syncroton.inc.php
+%endif
 
 pushd %{buildroot}/%{_datadir}/%{name}
 ln -s ../../..%{_sysconfdir}/roundcubemail config
@@ -191,10 +198,20 @@ exit 0
 %config(noreplace) %{_ap_sysconfdir}/conf.d/kolab-syncroton.conf
 %endif
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%config(noreplace) %{_sysconfdir}/roundcubemail/kolab_syncroton.inc.php
 %{_datadir}/%{name}
 %attr(0770,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Wed Dec  4 2019 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.3.16-1
+- Release version 2.3.16
+
+* Mon Jul 29 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.15-3
+- Fix MeetingResponse for Calendar events
+
+* Thu Apr 11 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.15-2
+- Update defaults
+
 * Fri Feb  1 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 2.3.15-1
 - Release 2.3.15
 

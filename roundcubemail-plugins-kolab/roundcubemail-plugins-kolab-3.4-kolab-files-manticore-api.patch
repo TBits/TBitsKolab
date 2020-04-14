@@ -1,0 +1,15 @@
+diff -ur roundcubemail-plugins-kolab-3.4.3.orig/plugins/kolab_files/kolab_files.js roundcubemail-plugins-kolab-3.4.3/plugins/kolab_files/kolab_files.js
+--- roundcubemail-plugins-kolab-3.4.3.orig/plugins/kolab_files/kolab_files.js	2019-03-14 11:12:38.000000000 +0100
++++ roundcubemail-plugins-kolab-3.4.3/plugins/kolab_files/kolab_files.js	2019-03-14 13:01:52.010506838 +0100
+@@ -257,8 +257,10 @@
+ 
+   if (window.document_editor_api)
+     document_editor = new document_editor_api(editor_config);
++/* Patch away whatever a undefined manticore_api thing means
+   else
+     document_editor = new manticore_api(editor_config);
++*/
+ 
+   rcmail.addEventListener('responseafterreset', function(o) {
+     // update caps/mountpoints on reset
+Only in roundcubemail-plugins-kolab-3.4.3/plugins/kolab_files: kolab_files.js.orig

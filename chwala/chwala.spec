@@ -37,8 +37,8 @@
 %global _ap_sysconfdir %{_sysconfdir}/%{httpd_name}
 
 Name:           chwala
-Version:        0.5.4
-Release:        1%{?dist}
+Version:        0.5.8
+Release:        1.1%{?dist}.kolab_16
 Summary:        Glorified WebDAV, done right
 
 Group:          Applications/Internet
@@ -47,7 +47,7 @@ URL:            http://chwala.org
 Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
 Source2:        chwala.logrotate
 
-Patch1:         chwala-0.5.4-suhosin.session.encrypt-php_flag.patch
+Patch0000:      chwala-0.5.4-suhosin.session.encrypt-php_flag.patch
 
 BuildArch:      noarch
 
@@ -81,7 +81,7 @@ party applications.
 %prep
 %setup -q
 
-%patch1 -p1
+%patch0000 -p1
 
 %build
 
@@ -158,6 +158,24 @@ fi
 %attr(0750,%{httpd_user},%{httpd_group}) %{_localstatedir}/log/%{name}
 
 %changelog
+* Mon Mar  2 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.5.8-1
+- Release of version 0.5.8
+
+* Mon Nov 18 2019 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.5.7-1
+- Release version 0.5.7
+
+* Mon Oct  7 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.6-2
+- Fix UTF-7-IMAP folder names
+
+* Fri Aug 16 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.6-2
+- Fix bugs in using cache fast-mode
+
+* Mon Jul  8 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.6-1
+- Release 0.5.6
+
+* Thu Mar 14 2019 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.5-1
+- Release 0.5.5
+
 * Fri Oct 26 2018 Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com> - 0.5.4-1
 - Release 0.5.4
 
@@ -209,3 +227,5 @@ fi
 
 * Tue May  7 2013 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 0.1-0.2
 - A first version of chwala
+0001-Fix-bugs-in-using-cache-fast-mode-Bifrost-T227815.patch
+0002-Fix-regression-in-Kolab-driver-where-folder-names-we.patch
