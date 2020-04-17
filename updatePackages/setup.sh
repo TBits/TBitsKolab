@@ -214,7 +214,6 @@ do
 
     if [[ "$pkgname" == "cyrus-imapd" ]]
     then
-      cp $PATCHESPATH/cyrus_canonification_multiple_domains.patch .
       cp $PATCHESPATH/cyrus_filter_kolab_mailboxes.patch .
     fi
 
