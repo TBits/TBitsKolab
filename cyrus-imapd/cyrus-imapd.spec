@@ -67,7 +67,6 @@ Patch0003:          0003-Canonification-for-multiple-domains.patch
 
 # see https://lists.andrew.cmu.edu/pipermail/cyrus-devel/2016-November/003919.html
 Patch11:             cyrus_filter_kolab_mailboxes.patch
-Patch12:             cyrus_canonification_multiple_domains.patch
 
 BuildRoot:          %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -264,7 +263,6 @@ necessary for developing applications which use the imclient library.
 %setup -q -n %{name}-%{tag_version}-%{revision}-%{git_hash}
 
 %patch11 -p1
-%patch12 -p1
 
 %if 0%{?with_bdb} < 1
 sed -i -e 's/,berkeley//g' cunit/aaa-db.testc
