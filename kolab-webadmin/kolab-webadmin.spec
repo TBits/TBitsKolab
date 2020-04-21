@@ -54,6 +54,7 @@ Patch13:         domainAdminDefaultQuota.patch
 Patch14:        domainAdminMaxAccounts.patch
 Patch15:        lastLoginTBitsAttribute-wap.patch
 Patch16:        quotaused_wap.patch
+Patch17:        tbitsWAPFooter.patch
 Patch18:        canonification_via_uid_wap.patch
 Patch19:        listUsersLastLoginQuotaUsage.patch
 
@@ -106,6 +107,7 @@ Web based admin - and user interface for the Kolab Groupware Server
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
+#%patch17 -p1
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
