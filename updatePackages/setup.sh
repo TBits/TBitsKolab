@@ -144,7 +144,6 @@ do
       cp $PATCHESPATH/quotaused_wap.patch .
       cp $PATCHESPATH/listUsersLastLoginQuotaUsage.patch .
       cp $PATCHESPATH/wap_api_listuserswithhash.patch .
-      cp $PATCHESPATH/intranetToken-wap.patch .
 
       cp $PATCHESPATH/wap_disallow_users.patch .
       cp $PATCHESPATH/dont_generate_attribs_when_editing.patch .
