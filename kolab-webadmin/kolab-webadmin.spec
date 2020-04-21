@@ -91,6 +91,7 @@ Requires:       php-gettext
 Requires:       php-ldap
 Requires:       php-mbstring
 Requires:       php-mysqlnd
+Requires:       php-imap
 
 %description
 Web based admin - and user interface for the Kolab Groupware Server
