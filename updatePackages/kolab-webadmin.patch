@@ -1,6 +1,6 @@
---- a/kolab-webadmin.spec	2020-04-21 14:38:56.633986915 +0200
-+++ b/kolab-webadmin.spec	2020-04-21 15:15:28.642900319 +0200
-@@ -42,6 +42,24 @@
+--- a/kolab-webadmin.spec	2020-04-21 15:19:54.077516665 +0200
++++ b/kolab-webadmin.spec	2020-04-21 15:26:24.201699593 +0200
+@@ -42,6 +42,25 @@
  Url:            http://www.kolab.org
  
  Source0:        https://mirror.kolabenterprise.com/pub/releases/%{name}-%{version}.tar.gz
@@ -16,6 +16,7 @@
 +Patch14:        domainAdminMaxAccounts.patch
 +Patch15:        lastLoginTBitsAttribute-wap.patch
 +Patch16:        quotaused_wap.patch
++Patch17:        tbitsWAPFooter.patch
 +Patch18:        canonification_via_uid_wap.patch
 +Patch19:        listUsersLastLoginQuotaUsage.patch
 +
@@ -25,7 +26,7 @@
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-@@ -73,6 +91,7 @@
+@@ -73,6 +92,7 @@
  Requires:       php-ldap
  Requires:       php-mbstring
  Requires:       php-mysqlnd
@@ -33,7 +34,7 @@
  
  %description
  Web based admin - and user interface for the Kolab Groupware Server
-@@ -80,6 +99,22 @@
+@@ -80,6 +100,23 @@
  %prep
  %setup -q
  
@@ -44,6 +45,7 @@
 +%patch14 -p1
 +%patch15 -p1
 +%patch16 -p1
++#%patch17 -p1
 +%patch18 -p1
 +%patch19 -p1
 +%patch20 -p1

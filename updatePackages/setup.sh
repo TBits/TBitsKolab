@@ -150,6 +150,8 @@ do
 
       cp $PATCHESPATH/../initTBitsUserTypes.php .
       cp $PATCHESPATH/99tbits.ldif .
+
+      cp $TBITSPATCHESPATH/tbitsWAPFooter.patch .
     fi
 
     if [[ "$pkgname" == "pykolab" ]]
