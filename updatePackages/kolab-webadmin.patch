@@ -1,5 +1,5 @@
---- a/kolab-webadmin.orig	2018-11-30 21:03:07.009358084 +0100
-+++ b/kolab-webadmin.spec	2018-11-30 21:03:31.569264198 +0100
+--- a/kolab-webadmin.spec	2020-04-21 14:38:56.633986915 +0200
++++ b/kolab-webadmin.spec	2020-04-21 15:15:28.642900319 +0200
 @@ -42,6 +42,24 @@
  Url:            http://www.kolab.org
  
@@ -25,6 +25,14 @@
  
  BuildArch:      noarch
  BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+@@ -73,6 +91,7 @@
+ Requires:       php-ldap
+ Requires:       php-mbstring
+ Requires:       php-mysqlnd
++Requires:       php-imap
+ 
+ %description
+ Web based admin - and user interface for the Kolab Groupware Server
 @@ -80,6 +99,22 @@
  %prep
  %setup -q
