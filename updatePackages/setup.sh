@@ -85,7 +85,7 @@ cd ~/tmp/lbs-kolab
 git checkout $githash || exit -1
 cd -
 
-unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
+unmodified_pkgnames=( libcalendaring libkolabxml libkolab kolab-utils python-sievelib python-icalendar mozldap roundcubemail-skin-chameleon php-kolab-net-ldap3 php-sabre-vobject php-sabre-http php-sabre-dav php-sabre-event php-endroid-qrcode php-enygma-yubikey php-spomky-labs-otphp php-christianriesen-base32 kolab-syncroton chwala iRony kolab-schema )
 
 for pkgname in "${unmodified_pkgnames[@]}"
 do
