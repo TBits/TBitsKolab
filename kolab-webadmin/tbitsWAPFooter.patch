@@ -7,7 +7,7 @@
 -$LANG['about.support'] = 'Professionelle Unterstützung ist erhältlich bei <a href="http://kolabsys.com">Kolab Systems</a>.';
 +$LANG['about.support'] = 'Wir helfen Ihnen gerne!';
  $LANG['about.technology'] = 'Technologie';
--$LANG['about.warranty'] = 'Sie kommt mit <b>keinen Garantien</b> und wird normalerweise ohne professionelle Unterstützung eingesetzt. Hilfe und weitere Informationen finden Sie auf der <a href="http://kolab.org">Web-Seite</a> und im <a href="http://wiki.kolab.org">Wiki</a>.';
+-$LANG['about.warranty'] = 'Sie kommt mit <b>keinen Garantien</b> und wird normalerweise ohne professionelle Unterstützung eingesetzt. Hilfe und weitere Informationen finden Sie auf der <a href="http://kolab.org">Web-Seite</a>.';
 +$LANG['about.warranty'] = 'Diese Version wird von <a href="http://www.tbits.net">TBits.net</a> bereitgestellt und gepflegt.';
  
  $LANG['aci.new'] = 'Neu...';
@@ -21,7 +21,7 @@
 -$LANG['about.support'] = 'Professional support is available from <a href="http://kolabsys.com">Kolab Systems</a>.';
 +$LANG['about.support'] = 'We are happy to help you!';
  $LANG['about.technology'] = 'Technology';
--$LANG['about.warranty'] = 'It comes with absolutely <b>no warranties</b> and is typically run entirely self supported. You can find help & information on the community <a href="http://kolab.org">web site</a> & <a href="http://wiki.kolab.org">wiki</a>.';
+-$LANG['about.warranty'] = 'It comes with absolutely <b>no warranties</b> and is typically run entirely self supported. You can find help & information on the community <a href="http://kolab.org">web site</a>.';
 +$LANG['about.warranty'] = 'This edition has been installed and is being maintained by <a href="http://www.tbits.net">TBits.net</a>';
  
  $LANG['aci.new'] = 'New...';
