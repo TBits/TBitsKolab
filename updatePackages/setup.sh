@@ -2,13 +2,13 @@
 
 # create new package instructions
 
-RELEASE=108
+RELEASE=109
 obsbranch="Kolab_16"
 patchesbranch="Kolab16"
 branch="TBitsKolab16Dev"
 
-# version from 31 March 2019
-githash=0ff781639ce63d038edaacfa41b5be1530e34c20
+# version from 05 June 2020
+githash=d03476e4fb2194ddbb6978ae8f5f81e68b39c5ce
 # version from July 2018
 #githash_roundcubemail=4b631825f9afcfae3be3a806e2d31da3ee63180c
 #githash_roundcubemail_plugins_kolab=$githash_roundcubemail
