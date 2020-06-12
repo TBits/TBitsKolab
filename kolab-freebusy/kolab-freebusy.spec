@@ -24,7 +24,7 @@
 
 Name:           kolab-freebusy
 Version:        1.1.2
-Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        109.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Kolab Free/Busy Web Presentation Layer
 
 Group:          Applications/Internet

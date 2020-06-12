@@ -1,6 +1,6 @@
 Name:           roundcubemail-skin-chameleon
 Version:        0.3.11
-Release:        1.11%{?dist}.kolab_16
+Release:        1.13%{?dist}.kolab_16
 Summary:        Kolab skin for Roundcube
 
 Group:          Web/Applications

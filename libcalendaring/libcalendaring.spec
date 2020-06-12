@@ -1,6 +1,6 @@
 Name:           libcalendaring
 Version: 4.9.2
-Release: 6.10%{?dist}.kolab_16
+Release: 8.4%{?dist}.kolab_16
 Summary:        Library for Calendaring
 
 Group:          System Environment/Libraries
@@ -12,6 +12,7 @@ Source0:        libcalendaring-4.9.2.tar.gz
 Patch0001:      0001-Correct-shebangs.patch
 # ical3 support for CentOS 7.6 from https://cgit.kolab.org/libcalendaring/commit/?id=fc5d939abcc32c03f3513ae9239b2b3c765329f5
 Patch0002:      0002-ical3-support.patch
+Patch0003:      0003-debug-messages.patch
 
 BuildRequires:  boost-devel
 BuildRequires:  cmake
@@ -51,6 +52,7 @@ These are development headers. Don't bother.
 
 %patch0001 -p1
 %patch0002 -p1
+%patch0003 -p1
 
 %build
 mkdir build
@@ -86,6 +88,9 @@ popd
 %{_libdir}/libcalendaring*.a
 
 %changelog
+* Fri Mar 20 2020 Christian Mollekopf <mollekopf@kolabsys.com> - 4.9.2-2
+- adding patch to remove unnecessarily noisy debug messages
+
 * Tue Jan 08 2018 Timotheus Pokorra <timotheus.pokorra@solidcharity.com> - 4.9.2-1
 - adding patch to build on CentOS 7.6 and Fedora 28 with ical3
 

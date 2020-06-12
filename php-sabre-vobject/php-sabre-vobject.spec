@@ -15,7 +15,7 @@
 Name:           php-%{gh_project}
 Summary:        Library to parse and manipulate iCalendar and vCard objects
 Version:        3.5.3
-Release:        8.23%{?dist}.kolab_16
+Release:        8.28%{?dist}.kolab_16
 
 URL:            http://sabre.io/vobject/
 Source0:        https://github.com/%{gh_owner}/%{gh_project}/archive/%{gh_commit}/%{gh_project}-%{version}.tar.gz

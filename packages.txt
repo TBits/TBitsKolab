@@ -1,13 +1,13 @@
 
 
-../chwala/chwala-0.5.8.tar.gz
+../chwala/chwala-0.5.10.tar.gz
 ../cyrus-imapd/cyrus-imapd-2.5.15-28-g7d1550bfa.tar.gz
 ../iRony/iRony-0.4.3.tar.gz
 ../kolab-autoconf/kolab-autoconf-1.3.2.tar.gz
 ../kolab-freebusy/kolab-freebusy-1.1.2.tar.gz
 ../kolab/kolab-16.0.1.tar.gz
 ../kolab-schema/kolab-schema-3.3.tar.gz
-../kolab-syncroton/kolab-syncroton-2.3.16.tar.gz
+../kolab-syncroton/kolab-syncroton-2.3.17.tar.gz
 ../kolab-utils/kolab-utils-3.1.4.tar.gz
 ../kolab-webadmin/kolab-webadmin-3.2.15.tar.gz
 ../libcalendaring/libcalendaring-4.9.2.tar.gz
@@ -29,7 +29,7 @@
 ../roundcubemail-plugin-contextmenu/roundcubemail-plugin-contextmenu-3.0-rc2.tar.gz
 ../roundcubemail-plugins-kolab/roundcubemail-plugins-kolab-3.5.4.tar.gz
 ../roundcubemail-plugin-ude_login/roundcubemail-plugin-ude_login-4.0.0.tar.gz
-../roundcubemail/roundcubemail-1.4.3.6.tar.gz
+../roundcubemail/roundcubemail-1.4.4.14.tar.gz
 ../roundcubemail-skin-chameleon/roundcubemail-skin-chameleon-0.3.11.tar.gz
 
 

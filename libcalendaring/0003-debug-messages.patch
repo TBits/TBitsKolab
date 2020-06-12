@@ -1,0 +1,57 @@
+From 72ba8c33b5c4e014dc5aa540c57b375f98f8d91f Mon Sep 17 00:00:00 2001
+From: Christian Mollekopf <chrigi_1@fastmail.fm>
+Date: Tue, 28 Aug 2018 10:20:01 +0200
+Subject: [PATCH] Removed frequently triggered debug messages that we can't
+ disable.
+
+---
+ kdecore/date/ksystemtimezone.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/kdecore/date/ksystemtimezone.cpp b/kdecore/date/ksystemtimezone.cpp
+index c1124d4..8c3d2cc 100644
+--- a/kdecore/date/ksystemtimezone.cpp
++++ b/kdecore/date/ksystemtimezone.cpp
+@@ -269,7 +269,6 @@ KTimeZone KSystemTimeZones::zone(const QString& name)
+ 
+ void KSystemTimeZones::configChanged()
+ {
+-    kDebug(161) << "KSystemTimeZones::configChanged()";
+     KSystemTimeZonesPrivate::m_ktimezonedError = false;
+     KSystemTimeZonesPrivate::readConfig(false);
+ }
+@@ -278,7 +277,6 @@ void KSystemTimeZones::zonetabChanged(const QString &zonetab)
+ {
+     Q_UNUSED(zonetab)
+ #ifndef Q_OS_WIN
+-    kDebug(161) << "KSystemTimeZones::zonetabChanged()";
+     KSystemTimeZonesPrivate::m_ktimezonedError = false;
+     // Re-read zone.tab and update our collection, removing any deleted
+     // zones and adding any new zones.
+@@ -317,7 +315,6 @@ KSystemTimeZonesPrivate *KSystemTimeZonesPrivate::instance()
+         m_ktimezonedError = !reply.isValid();
+         if (m_ktimezonedError)
+             kError(161) << "KSystemTimeZones: ktimezoned initialize() D-Bus call failed: " << reply.error().message() << endl;
+-kDebug(161)<<"instance(): ... initialised";
+         delete ktimezoned;
+ #else
+         m_ktimezonedError = false;
+@@ -375,7 +372,6 @@ void KSystemTimeZonesPrivate::readConfig(bool init)
+         m_zoneinfoDir.truncate(m_zoneinfoDir.length() - 1);  // strip trailing '/'
+     if (!init)
+         setLocalZone();
+-    kDebug(161) << "readConfig(): local zone=" << m_localZoneName;
+ }
+ 
+ void KSystemTimeZonesPrivate::setLocalZone()
+@@ -463,7 +459,6 @@ void KSystemTimeZonesPrivate::updateTimezoneInformation(bool update)
+  */
+ void KSystemTimeZonesPrivate::readZoneTab(bool update)
+ {
+-    kDebug(161) << "readZoneTab(" << m_zonetab<< ")";
+     QStringList newZones;
+     QFile f;
+     f.setFileName(m_zonetab);
+-- 
+2.25.1
+

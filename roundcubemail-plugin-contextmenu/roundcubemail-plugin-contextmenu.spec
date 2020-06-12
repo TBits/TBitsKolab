@@ -14,7 +14,7 @@
 
 Name:           roundcubemail-plugin-contextmenu
 Version:        %{rc_version}
-Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        109.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:        Contextmenu plugin for Roundcube Webmail
 
 Group:          Applications/Internet

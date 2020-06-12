@@ -30,7 +30,7 @@
 
 Name:       kolab-autoconf
 Version:    1.3.2
-Release:        108.tbits%(date +%%Y%%m%%d)%{?dist}
+Release:        109.tbits%(date +%%Y%%m%%d)%{?dist}
 Summary:    Autodiscovery for clients of Kolab Groupware
 
 Group:      Applications/Internet
@@ -38,6 +38,8 @@ License:    GPLv3+
 URL:        https://kolab.org
 
 Source0:    http://mirror.kolabsys.com/pub/releases/%{name}-%{version}.tar.gz
+
+Patch0001:  0001-Only-authenticate-against-ldap-if-ldap-is-available.patch
 
 %if 0%{?plesk} < 1
 Requires:   php-kolab-net-ldap3
@@ -52,6 +54,8 @@ BuildArch:  noarch
 
 %prep
 %setup -q
+
+%patch0001 -p1
 
 %build
 
@@ -83,6 +87,9 @@ popd
 %attr(0750,%{httpd_user},%{httpd_group}) %{_var}/log/%{name}
 
 %changelog
+* Tue May 26 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.3.2-2
+- Allow without LDAP authentication
+
 * Mon Mar  2 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.3.2-1
 - Release of version 1.3.2
 

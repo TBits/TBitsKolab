@@ -1,0 +1,75 @@
+From 1acbfdec364b726dc7fa71c3a81a3410f5f46863 Mon Sep 17 00:00:00 2001
+From: Christian Mollekopf <mollekopf@kolabsys.com>
+Date: Tue, 26 May 2020 15:26:27 +0200
+Subject: [PATCH] Only authenticate against ldap if ldap is available.
+
+Summary: It isn't for plesk.
+
+Reviewers: #autoconf_developers
+
+Subscribers: machniak
+
+Differential Revision: https://git.kolab.org/D1279
+---
+ lib/AutodiscoverMicrosoft.php | 31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
+
+diff --git a/lib/AutodiscoverMicrosoft.php b/lib/AutodiscoverMicrosoft.php
+index 9459098..314ebf3 100644
+--- a/lib/AutodiscoverMicrosoft.php
++++ b/lib/AutodiscoverMicrosoft.php
+@@ -42,13 +42,6 @@ class AutodiscoverMicrosoft extends Autodiscover
+     {
+         $post = $_SERVER['REQUEST_METHOD'] == 'POST' ? file_get_contents('php://input') : null;
+ 
+-        // check for basic authentication
+-        Log::debug('Request [microsoft]: Basic Auth Username: ' . ($_SERVER['PHP_AUTH_USER'] ?: 'none'));
+-        if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
+-            $this->unauthorized();
+-        }
+-        $this->password = $_SERVER['PHP_AUTH_PW'];
+-
+         // check for request object
+         Log::debug('Request [microsoft]: ' . $post);
+         if (empty($post)) {
+@@ -82,9 +75,19 @@ class AutodiscoverMicrosoft extends Autodiscover
+             $this->error("Invalid input");
+         }
+ 
+-        // basic auth username must match with given email address
+-        if ($_SERVER['PHP_AUTH_USER'] != $this->email) {
+-            $this->unauthorized();
++        // check for basic authentication if ldap is available
++        if (!empty($this->_ldap_server)) {
++            Log::debug('Request [microsoft]: Basic Auth Username: ' . ($_SERVER['PHP_AUTH_USER'] ?: 'none'));
++            if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
++                $this->unauthorized();
++            }
++
++            // basic auth username must match with given email address
++            if ($_SERVER['PHP_AUTH_USER'] != $this->email) {
++                $this->unauthorized();
++            }
++
++            $this->password = $_SERVER['PHP_AUTH_PW'];
+         }
+     }
+ 
+@@ -93,9 +96,11 @@ class AutodiscoverMicrosoft extends Autodiscover
+      */
+     public function handle_response()
+     {
+-        // authenticate the user found during configure() against ldap
+-        if (empty($this->config['dn']) || !$this->authenticate($this->config['dn'], $this->password)) {
+-            $this->unauthorized();
++        if (!empty($this->_ldap_server)) {
++            // authenticate the user found during configure() against ldap
++            if (empty($this->config['dn']) || !$this->authenticate($this->config['dn'], $this->password)) {
++                $this->unauthorized();
++            }
+         }
+ 
+         $method = $this->type . '_response';
+-- 
+2.23.0
+

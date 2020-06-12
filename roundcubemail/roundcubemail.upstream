@@ -48,15 +48,15 @@
 %global logdir /var/log/roundcubemail
 %global tmpdir /var/lib/roundcubemail
 
-%global rc_version 1.4.3.6
+%global rc_version 1.4.4.14
 #%%global rc_rel_suffix rc2.12
 %global dot_rel_suffix %{?rc_rel_suffix:.%{rc_rel_suffix}}
 %global dash_rel_suffix %{?rc_rel_suffix:-%{rc_rel_suffix}}
 
 Name:           roundcubemail
-Version:        1.4.3.6
+Version:        %{rc_version}
 
-Release:        1.3%{?dist}.kolab_16
+Release:        4.4%{?dist}.kolab_16
 
 Summary:        Round Cube Webmail is a browser-based multilingual IMAP client
 
@@ -242,12 +242,10 @@ Requires:       %{name}(plugin-filesystem_attachments) = %{?epoch:%{epoch}:}%{ve
 # The jqueryui plugin is required.
 Requires:       %{name}(plugin-jqueryui) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Obsoletes:      %{name}(plugin-legacy_browser)
-Obsoletes:      %{name}-plugin-legacy_browser
+Obsoletes:      %{name}-plugin-legacy_browser < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}(plugin-legacy_browser) = %{?epoch:%{epoch}:}%{version}-%{release}
 
-Obsoletes:      %{name}(plugin-threading_as_default}
-Obsoletes:      %{name}-plugin-threading_as_default
+Obsoletes:      %{name}-plugin-threading_as_default < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:       %{name}-plugin-threading_as_default = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description core
@@ -513,7 +511,7 @@ Requires:       %{name}-plugin-hide_blockquote-skin-larry = %{?epoch:%{epoch}:}%
 Requires:       %{name}-plugin-hide_blockquote-skin-larry-assets = %{?epoch:%{epoch}:}%{version}-%{release}
 %else
 Requires:       %{name}(skin-chameleon) >= 0.3.9
-Obsoletes:      %{name}(plugin-hide_blockquote-skin-elastic) < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-hide_blockquote-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-hide_blockquote-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 %endif
@@ -669,7 +667,7 @@ Requires:       %{name}-plugin-markasjunk-skin-larry = %{?epoch:%{epoch}:}%{vers
 Requires:       %{name}-plugin-markasjunk-skin-larry-assets = %{?epoch:%{epoch}:}%{version}-%{release}
 %else
 Requires:       %{name}(skin-chameleon) >= 0.3.9
-Obsoletes:      %{name}(plugin-markasjunk-skin-elastic) < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-markasjunk-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-markasjunk-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 %endif
@@ -829,7 +827,7 @@ Requires:       %{name}-plugin-vcard_attachments-skin-larry = %{?epoch:%{epoch}:
 Requires:       %{name}-plugin-vcard_attachments-skin-larry-assets = %{?epoch:%{epoch}:}%{version}-%{release}
 %else
 Requires:       %{name}(skin-chameleon) >= 0.3.9
-Obsoletes:      %{name}(plugin-vcard_attachments-skin-elastic) < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-vcard_attachments-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-vcard_attachments-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 %endif
@@ -891,7 +889,7 @@ Requires:       %{name}-plugin-zipdownload-skin-larry = %{?epoch:%{epoch}:}%{ver
 Requires:       %{name}-plugin-zipdownload-skin-larry-assets = %{?epoch:%{epoch}:}%{version}-%{release}
 %else
 Requires:       %{name}(skin-chameleon) >= 0.3.9
-Obsoletes:      %{name}(plugin-zipdownload-skin-elastic) < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:      %{name}-plugin-zipdownload-skin-elastic < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:       %{name}(plugin-zipdownload-skin-larry) = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 %endif
@@ -1678,12 +1676,12 @@ for plugin in $(find %{name}-%{version}%{?dash_rel_suffix}/plugins -mindepth 1 -
             if [ -d "${target_dir}/skins/elastic/" ]; then
                 echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-elastic) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
             else
-                echo "Obsoletes:      %%{name}(plugin-$(basename ${plugin})-skin-elastic) < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-elastic < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
             fi
             if [ -d "${target_dir}/skins/larry/" ]; then
                 echo "Requires:       %%{name}(plugin-$(basename ${plugin})-skin-larry) = %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
             else
-                echo "Obsoletes:      %%{name}(plugin-$(basename ${plugin})-skin-larry) < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
+                echo "Obsoletes:      %%{name}-plugin-$(basename ${plugin})-skin-larry < %%{?epoch:%%{epoch}:}%%{version}-%%{release}"
             fi
             echo "%%endif"
             echo "%%endif"
@@ -3450,6 +3448,12 @@ fi
 %defattr(-,root,root,-)
 
 %changelog
+* Mon May 11 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.4.4.14-1
+- Check in 14 revisions ahead of upstream 1.4.4 release
+
+* Tue Apr 14 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.4.3.29-1
+- Check in 29 revisions ahead of upstream 1.4.3 release
+
 * Mon Mar  2 2020 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 1.4.3.6-1
 - Check in 6 revisions ahead of upstream 1.4.3 release
 
